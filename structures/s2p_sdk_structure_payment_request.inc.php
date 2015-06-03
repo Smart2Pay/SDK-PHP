@@ -54,7 +54,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'name' => 'currency',
                 'external_name' => 'Currency',
                 'type' => S2P_SDK_VTYPE_STRING,
-                //'default' => '',
+                'default' => '',
                 'regexp' => '^[A-Z]{3}$',
             ),
             array(

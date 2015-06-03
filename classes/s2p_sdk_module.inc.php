@@ -2,9 +2,12 @@
 
 namespace S2P_SDK;
 
+if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_CLASSES' ) )
+    die( 'Something went wrong.' );
+
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const ERR_HOOK_REGISTRATION = 1;
+    const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001;
 
     const VERSION = '1.0.0';
 
@@ -16,7 +19,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
      *
      * @param bool|array $module_params
      *
-     * @return mixed
+     * @return mixed If this function returns false it will consider module is not initialized correctly and will not return class instance
      */
     abstract public function init( $module_params = false );
 
@@ -34,9 +37,9 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         parent::__construct();
     }
 
-    public function module_init( $module_params = false )
+    private function module_init( $module_params = false )
     {
-        $this->init( $module_params );
+        return $this->init( $module_params );
     }
 
     public function destroy_all()
@@ -156,31 +159,137 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         return $hook_args;
     }
 
+    public static function try_autoloading( $module )
+    {
+        $module_lower = strtolower( $module );
+        if( empty( $module )
+         or strstr( $module_lower, '.' ) !== false
+         or strstr( $module_lower, '/' ) !== false
+         or substr( $module_lower, 0, 8 ) != 's2p_sdk_'
+         or $module_lower == 's2p_sdk_module' )
+        {
+            self::st_set_error( self::ERR_STATIC_INSTANCE,
+                                    self::s2p_t( 'Autoloading unknown module' ),
+                                    sprintf( 'Autoloading unknown module [%s]', (!empty( $module )?$module:'???') ) );
+            return false;
+        }
+
+        // Autoloading methods
+        if( substr( $module_lower, 0, 13 ) == 's2p_sdk_meth_' )
+        {
+            if( !@file_exists( S2P_SDK_DIR_METHODS.$module_lower.'.inc.php' ) )
+            {
+                self::st_set_error( self::ERR_STATIC_INSTANCE,
+                                        self::s2p_t( 'Module file not found' ),
+                                        sprintf( 'Module file not found [%s]', S2P_SDK_DIR_METHODS.$module_lower.'.inc.php' ) );
+                return false;
+            }
+
+            include_once( S2P_SDK_DIR_METHODS.$module_lower.'.inc.php' );
+
+            if( !class_exists( 'S2P_SDK\\'.$module, false ) )
+            {
+                self::st_set_error( self::ERR_STATIC_INSTANCE,
+                                        self::s2p_t( 'Class not found after autoloading' ),
+                                        sprintf( 'Class not found after autoloading [%s]', $module ) );
+                return false;
+            }
+
+            return true;
+        }
+
+        // Fallback on "normal" classes
+        if( @file_exists( S2P_SDK_DIR_CLASSES.$module_lower.'.inc.php' ) )
+        {
+            include_once( S2P_SDK_DIR_CLASSES.$module_lower.'.inc.php' );
+
+            if( !class_exists( 'S2P_SDK\\'.$module, false ) )
+            {
+                self::st_set_error( self::ERR_STATIC_INSTANCE,
+                                        self::s2p_t( 'Class not found after autoloading' ),
+                                        sprintf( 'Class not found after autoloading [%s]', $module ) );
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Initiate an instance of S2P_SDK module (all modules class names should start with S2P_SDK_{camelcase_module_name} and file name should be lower case
+     * and should start with s2p_sdk_{lowercase_module_name}.inc.php
+     *
+     * @param string $module Module name (eg. S2P_SDK_Meth_Payments)
+     * @param array $module_params Parameters to be sent to init() method of module
+     * @param bool $singleton Tells if returning object should be initialized as signleton
+     *
+     * @return bool|S2P_SDK_Module
+     */
     public static function get_instance( $module = null, $module_params = null, $singleton = true )
     {
+        self::st_reset_error();
+
         if( is_null( $module ) )
             $module = get_called_class();
 
-        if( ! class_exists( $module, false )
-            or strtolower( substr( $module, 0, 8 ) ) != 's2p_sdk_'
-            or $module == 'S2P_SDK_Module'
-        )
+        if( empty( $module )
+         or strtolower( substr( $module, 0, 8 ) ) != 's2p_sdk_'
+         or $module == 'S2P_SDK_Module' )
+        {
+            self::st_set_error( self::ERR_STATIC_INSTANCE,
+                                    self::s2p_t( 'Unknown module' ),
+                                    sprintf( 'Unknown module [%s]', (!empty( $module )?$module:'???') ) );
             return false;
+        }
+
+        if( !class_exists( 'S2P_SDK\\'.$module, false ) )
+        {
+            if( !self::try_autoloading( $module ) )
+            {
+                if( !self::st_has_error() )
+                    self::st_set_error( self::ERR_STATIC_INSTANCE,
+                                            self::s2p_t( 'Unknown module' ),
+                                            sprintf( 'Unknown module [%s]', (!empty( $module )?$module:'???') ) );
+
+                return false;
+            }
+        }
 
         if( !empty( $singleton )
         and isset( self::$instances[ $module ] ) )
             return self::$instances[ $module ];
 
-        $module_instance = new $module();
+        $module_with_namespace = 'S2P_SDK\\'.$module;
+
+        $module_instance = new $module_with_namespace();
 
         if( !($module_instance instanceof \S2P_SDK\S2P_SDK_Module) )
+        {
+            self::st_set_error( self::ERR_STATIC_INSTANCE,
+                                    self::s2p_t( 'Module doesn\'t appear to be a Smart2Pay module.' ),
+                                    sprintf( 'Module doesn\'t appear to be a Smart2Pay module. [%s]', ( ! empty( $module ) ? $module : '???' ) ) );
             return false;
+        }
 
         /** @var \S2P_SDK\S2P_SDK_Module $module_instance */
         if( ! is_null( $module_params ) )
-            $module_instance->module_init( $module_params );
+            $init_result = $module_instance->module_init( $module_params );
         else
-            $module_instance->module_init();
+            $init_result = $module_instance->module_init();
+
+        if( $init_result === false )
+        {
+            if( $module_instance->has_error() )
+                self::st_copy_error( $module_instance );
+            else
+                self::st_set_error( self::ERR_STATIC_INSTANCE,
+                                        self::s2p_t( 'Module initialization failed' ),
+                                        sprintf( 'Module initialization failed [%s]', ( ! empty( $module ) ? $module : '???' ) ) );
+
+            return false;
+        }
 
         if( !empty( $singleton ) )
         {

@@ -160,7 +160,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
         if( !$this->_init_variable() )
             return false;
 
-        if( !empty( $parsing_params ) or !is_array( $parsing_params ) )
+        if( empty( $parsing_params ) or !is_array( $parsing_params ) )
             $parsing_params = array();
 
         $parsing_params['check_external_names'] = true;
@@ -210,7 +210,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
         if( !$this->_init_variable() )
             return false;
 
-        if( !empty( $parsing_params ) or !is_array( $parsing_params ) )
+        if( empty( $parsing_params ) or !is_array( $parsing_params ) )
             $parsing_params = array();
 
         $parsing_params['check_external_names'] = false;

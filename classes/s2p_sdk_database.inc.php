@@ -11,10 +11,16 @@ class S2P_SDK_Database extends S2P_SDK_Module
 
     /**
      * This method is called right after module instance is created
+     *
+     * @param bool|array $module_params
+     *
+     * @return mixed If this function returns false it will consider module is not initialized correctly and will not return class instance
      */
     public function init( $module_params = false )
     {
         $this->register_hook( 'db_table_name', array( $this, 'table_names' ) );
+
+        return true;
     }
 
     public static function set_db_wrapper( S2P_SDK_Database_Wrapper $wrapper )

@@ -7,9 +7,21 @@ if( !defined( 'S2P_SDK_DIR_METHODS' ) )
 
 include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 
+if( !defined( 'S2P_SDK_METH_METHODS_LIST_ALL' ) )
+    define( 'S2P_SDK_METH_METHODS_LIST_ALL', 'list_all' );
+if( !defined( 'S2P_SDK_METH_METHODS_DETAILS' ) )
+    define( 'S2P_SDK_METH_METHODS_DETAILS', 'method_details' );
+if( !defined( 'S2P_SDK_METH_METHODS_FOR_COUNTRY' ) )
+    define( 'S2P_SDK_METH_METHODS_FOR_COUNTRY', 'for_country' );
+if( !defined( 'S2P_SDK_METH_METHODS_ASSIGNED' ) )
+    define( 'S2P_SDK_METH_METHODS_ASSIGNED', 'assigned_methods' );
+if( !defined( 'S2P_SDK_METH_METHODS_ASSIGNED_COUNTRY' ) )
+    define( 'S2P_SDK_METH_METHODS_ASSIGNED_COUNTRY', 'assigned_for_country' );
+
 class S2P_SDK_Meth_Methods extends S2P_SDK_Method
 {
-    const FUNC_LIST_ALL = 1, FUNC_METHOD_DETAILS = 2, FUNC_LIST_COUNTRY = 3, FUNC_ASSIGNED = 4, FUNC_ASSIGNED_COUNTRY = 5;
+    const FUNC_LIST_ALL = S2P_SDK_METH_METHODS_LIST_ALL, FUNC_METHOD_DETAILS = S2P_SDK_METH_METHODS_DETAILS, FUNC_LIST_COUNTRY = S2P_SDK_METH_METHODS_FOR_COUNTRY,
+          FUNC_ASSIGNED = S2P_SDK_METH_METHODS_ASSIGNED, FUNC_ASSIGNED_COUNTRY = S2P_SDK_METH_METHODS_ASSIGNED_COUNTRY;
 
     public function default_functionality()
     {

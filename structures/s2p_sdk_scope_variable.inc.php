@@ -101,12 +101,22 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
 
+        if( empty( $params['nullify_full_object'] ) )
+            $params['nullify_full_object'] = false;
+
+        if( !empty( $params['nullify_full_object'] ) )
+            $params['output_null_values'] = true;
+
         if( !isset( $params['check_external_names'] ) )
             $params['check_external_names'] = true;
         if( empty( $params['parsing_path'] ) )
             $params['parsing_path'] = '';
         if( !isset( $params['output_null_values'] ) )
             $params['output_null_values'] = true;
+        if( empty( $params['skip_regexps'] ) )
+            $params['skip_regexps'] = false;
+        else
+            $params['skip_regexps'] = (!empty( $params['skip_regexps'] )?true:false);
 
         if( !empty( $params['check_external_names'] ) )
         {
@@ -128,7 +138,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         }
 
         $current_value = array();
-        if( !array_key_exists( $definition[$scope_name_key], $scope_arr ) )
+        if( (!empty( $params['nullify_full_object'] ) and self::scalar_type( $definition['type'] ))
+         or !array_key_exists( $definition[$scope_name_key], $scope_arr ) )
         {
             if( ($null_value = $this->nullify( $definition, $params )) !== null
              or ($null_value === null and empty( $params['output_null_values'] ))
@@ -142,7 +153,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             // Variable exists in scope
             if( self::scalar_type( $definition['type'] ) )
             {
-                if( !empty( $definition['regexp'] )
+                if( !empty( $params['skip_regexps'] )
+                and !empty( $definition['regexp'] )
                 and !preg_match( '/'.$definition['regexp'].'/', $scope_arr[$definition[$scope_name_key]] ) )
                 {
                     $this->set_error( self::ERR_REGEXP,
@@ -157,7 +169,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
 
             else
             {
-                if( !is_array( $scope_arr[$definition[$scope_name_key]] )
+                if( empty( $scope_arr[$definition[$scope_name_key]] )
+                 or !is_array( $scope_arr[$definition[$scope_name_key]] )
                  or !self::object_type( $definition['type'] ) )
                     $current_value[ $definition[$output_name_key] ] = null;
 
@@ -176,8 +189,6 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                             {
                                 if( $this->has_error() )
                                     return false;
-
-                                var_dump( $property_result );
 
                                 $this->set_error( self::ERR_PARSE, self::s2p_t( 'Error parsing variable [%s]', $params['parsing_path'] ) );
                                 return false;
@@ -240,6 +251,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
 
         if( !isset( $params['check_external_names'] ) )
             $params['check_external_names'] = true;
+        if( empty( $params['nullify_full_object'] ) )
+            $params['nullify_full_object'] = false;
 
         if( !empty( $params['check_external_names'] ) )
             $output_name_key = 'name';
@@ -253,7 +266,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         else
         {
             // In case we should not nullify full object, give at leave first level of properties to null
-            if( !self::NULL_FULL_OBJECT )
+            if( empty( $params['nullify_full_object'] )
+            and !self::NULL_FULL_OBJECT )
                 $return_null_value = true;
         }
 
@@ -261,8 +275,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
          or empty( $definition ) or !self::valid_definition( $definition )
          or empty( $definition['structure'] ) or !is_array( $definition['structure'] )
          or self::scalar_type( $definition['type'] )
-         or array_key_exists( 'default', $definition ) )
-            return ((!empty( $definition ) and is_array( $definition ) and array_key_exists( 'default', $definition ))?$definition['default']:null);
+         or (empty( $params['nullify_full_object'] ) and array_key_exists( 'default', $definition )) )
+            return ( ( ! empty( $definition ) and is_array( $definition ) and array_key_exists( 'default', $definition ) ) ? $definition['default'] : null );
 
         $null_arr = array();
         switch( $definition['type'] )

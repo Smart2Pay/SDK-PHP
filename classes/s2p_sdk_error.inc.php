@@ -348,6 +348,11 @@ class S2P_SDK_Error
         return true;
     }
 
+    public static function st_copy_error( $obj )
+    {
+        return self::get_error_static_instance()->copy_error( $obj );
+    }
+
     /**
      * Copies error set in $error_arr array to current object
      *
@@ -368,6 +373,11 @@ class S2P_SDK_Error
         $this->error_debug_msg = $error_arr['error_debug_msg'];
 
         return true;
+    }
+
+    public static function st_copy_error_from_array( $error_arr )
+    {
+        return self::get_error_static_instance()->copy_error_from_array( $error_arr );
     }
 
     public function copy_static_error()
