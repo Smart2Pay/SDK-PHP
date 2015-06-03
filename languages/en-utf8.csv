@@ -1,0 +1,6 @@
+﻿# !!!!! DON'T EDIT THIS COLUMN AT ALL !!!!!,TEXT IN THIS COLUMN SHOULD BE TRANSLATED IN DESIRED LANGUAGE
+# Please use Excel as editor for this file to be sure formatting will not be broken!!!,
+# File should be UTF8 encoded. Lines starting with # will be ignored. Column separator is comma,
+"Error adding hook [%s]. Hook doesn't have, a callable function",Error adding hook [%s]. Hook doesn't have a callable function
+"Gigi","Vasile"
+"some bla bvla “ fhehe "" ccc","next gen , call"
