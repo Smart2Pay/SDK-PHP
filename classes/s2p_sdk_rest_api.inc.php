@@ -6,24 +6,27 @@ if( !defined( 'S2P_SDK_DIR_CLASSES' ) )
     die( 'Something went bad' );
 
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api_request.inc.php' );
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api_response.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api_codes.inc.php' );
 
-if( !defined( 'S2P_SDK_TEST' ) )
-    define( 'S2P_SDK_TEST', 'test' );
-if( !defined( 'S2P_SDK_LIVE' ) )
-    define( 'S2P_SDK_LIVE', 'live' );
+if( !defined( 'S2P_SDK_REST_TEST' ) )
+    define( 'S2P_SDK_REST_TEST', 'test' );
+if( !defined( 'S2P_SDK_REST_LIVE' ) )
+    define( 'S2P_SDK_REST_LIVE', 'live' );
 
 class S2P_SDK_Rest_API extends S2P_SDK_Module
 {
     const VERSION = '1.0';
 
-    const ERR_ENVIRONMENT = 200, ERR_METHOD = 201, ERR_METHOD_FUNC = 202, ERR_PREPARE_REQUEST = 203, ERR_URL = 204, ERR_APIKEY = 205, ERR_CURL_CALL = 206;
+    const ENV_TEST = S2P_SDK_REST_TEST, ENV_LIVE = S2P_SDK_REST_LIVE;
+
+    const ERR_ENVIRONMENT = 200, ERR_METHOD = 201, ERR_METHOD_FUNC = 202, ERR_PREPARE_REQUEST = 203, ERR_URL = 204, ERR_APIKEY = 205,
+          ERR_CURL_CALL = 206, ERR_PARSE_RESPONSE = 207;
 
     const TEST_BASE_URL = 'https://paytest.smart2pay.com',
           LIVE_BASE_URL = 'https://pay.smart2pay.com';
 
     /** @var bool $_test_mode */
-    private $_environment = S2P_SDK_LIVE;
+    private $_environment = self::ENV_LIVE;
 
     /** @var string $_base_url */
     private $_base_url = '';
@@ -35,8 +38,6 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     private $_request = null;
 
     private $_api_key = '';
-
-    private $_request_result = null;
 
     /**
      * This method is called right after module instance is created
@@ -95,7 +96,6 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     {
         $this->_method = null;
         $this->_request = null;
-        $this->_request_result = null;
         $this->_base_url = '';
         $this->_api_key = '';
     }
@@ -105,7 +105,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         if( $env === null )
             return $this->_environment;
 
-        if( !in_array( $env, array( S2P_SDK_TEST, S2P_SDK_LIVE ) ) )
+        if( !in_array( $env, array( self::ENV_TEST, self::ENV_LIVE ) ) )
         {
             $this->set_error( self::ERR_ENVIRONMENT,
                                   self::s2p_t( 'Unknown environment' ),
@@ -115,6 +115,16 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
         $this->_environment = $env;
         return true;
+    }
+
+    /**
+     * Return current request object
+     *
+     * @return S2P_SDK_Rest_API_Request Returns request object
+     */
+    public function get_request_obj()
+    {
+        return $this->_request;
     }
 
     /**
@@ -182,12 +192,12 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
                 return false;
 
-            case S2P_SDK_TEST:
+            case self::ENV_TEST:
                 if( empty( $this->_base_url ) )
                     $this->_base_url = self::TEST_BASE_URL;
             break;
 
-            case S2P_SDK_LIVE:
+            case self::ENV_LIVE:
                 if( empty( $this->_base_url ) )
                     $this->_base_url = self::LIVE_BASE_URL;
             break;
@@ -227,6 +237,8 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             return false;
         }
 
+        $this->trigger_hooks( 'rest_api_prepare_request_after', array( 'api_obj' => $this, 'request_data' => $request_data ) );
+
         $final_url = $this->_base_url.$request_data['full_query'];
 
         $this->_request = new S2P_SDK_Rest_API_Request();
@@ -236,24 +248,66 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         if( !empty( $request_data['request_body'] ) )
             $this->_request->set_body( $request_data['request_body'] );
 
-        // $this->_request->add_header( 'Authorization', 'Basic '.@base64_encode( $api_key ) );
+        $this->_request->add_header( 'Content-Type', 'application/json; charset=utf-8' );
 
         $call_params = array();
         $call_params['user_agent'] = 'APISDK_'.$this->get_version().'/PHP_'.phpversion().'/'.php_uname('s').'_'.php_uname('r');
         $call_params['userpass'] = array( 'user' => $api_key, 'pass' => '' );
 
-        if( !($this->_request_result = $this->_request->do_curl( $call_params )) )
-            $this->_request_result = null;
+        $this->trigger_hooks( 'rest_api_call_before', array( 'api_obj' => $this ) );
 
-        if( !empty( $this->_request_result ) and $this->_request_result['http_code'] != 200 )
+        if( !($request_result = $this->_request->do_curl( $call_params )) )
+            $request_result = null;
+
+        if( ($hook_result = $this->trigger_hooks( 'rest_api_request_result', array( 'api_obj' => $this, 'request_result' => $request_result ) ))
+        and is_array( $hook_result ) )
         {
-            var_dump( $this->_request_result );
+            if( array_key_exists( 'request_result', $hook_result ) )
+                $request_result = S2P_SDK_Rest_API_Request::validate_response_array( $hook_result['request_result'] );
+        }
 
-            $this->set_error( self::ERR_CURL_CALL, self::s2p_t( 'Request responded with error code %s', $this->_request_result['http_code'] ) );
+        if( empty( $request_result ) )
+        {
+            if( $this->_request->has_error() )
+                $this->copy_error( $this->_request );
+            else
+                $this->set_error( self::ERR_CURL_CALL, self::s2p_t( 'Error sending API call' ) );
+
             return false;
         }
 
-        return true;
+        if( !in_array( $request_result['http_code'], S2P_SDK_Rest_API_Codes::success_codes() ) )
+        {
+            $code_str = $request_result['http_code'];
+            if( ($code_details = S2P_SDK_Rest_API_Codes::valid_code( $request_result['http_code'] )) )
+                $code_str .= ' ('.$code_details.')';
+
+            $this->set_error( self::ERR_CURL_CALL, self::s2p_t( 'Request responded with error code %s', $code_str ) );
+            return false;
+        }
+
+        if( !($response_data = $this->_method->parse_response( $request_result )) )
+        {
+            if( $this->_method->has_error() )
+                $this->copy_error( $this->_method );
+            else
+                $this->set_error( self::ERR_PARSE_RESPONSE, self::s2p_t( 'Error parsing server response.' ) );
+
+            return false;
+        }
+
+        if( ($hook_result = $this->trigger_hooks( 'rest_rest_api_response_data', array( 'api_obj' => $this, 'response_data' => $response_data ) ))
+        and is_array( $hook_result ) )
+        {
+            if( array_key_exists( 'response_data', $hook_result ) )
+                $response_data = $hook_result['response_data'];
+        }
+
+        $return_arr = array();
+        $return_arr['request'] = $request_result;
+        $return_arr['response'] = $response_data;
+
+        return $return_arr;
     }
 
     public function method( $method, $params = null )

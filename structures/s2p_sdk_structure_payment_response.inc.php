@@ -8,6 +8,8 @@ if( !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_status.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_customer.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_address.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_article.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_details.inc.php' );
 
 class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
 {
@@ -34,6 +36,8 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
         $status_obj = new S2P_SDK_Structure_Status();
         $customer_obj = new S2P_SDK_Structure_Customer();
         $address_obj = new S2P_SDK_Structure_Address();
+        $article_obj = new S2P_SDK_Structure_Article();
+        $payment_details_obj = new S2P_SDK_Structure_Payment_Details();
 
         return array(
             array(
@@ -48,6 +52,13 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'external_name' => 'Created',
                 'type' => S2P_SDK_VTYPE_DATETIME,
                 'default' => '',
+            ),
+            array(
+                'name' => 'merchanttransactionid',
+                'external_name' => 'MerchantTransactionID',
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
             ),
             array(
                 'name' => 'amount',
@@ -118,6 +129,20 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'structure' => $address_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'articles',
+                'external_name' => 'Articles',
+                'type' => S2P_SDK_VTYPE_ARRAY,
+                'default' => null,
+                'structure' => $article_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'details',
+                'external_name' => 'Details',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'structure' => $payment_details_obj->get_structure_definition(),
             ),
             array(
                 'name' => 'preapprovalid',

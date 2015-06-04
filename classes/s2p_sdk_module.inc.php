@@ -147,7 +147,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
 
                 $call_hook_args = array_merge( $hook_callback['args'], $hook_args );
 
-                $result = call_user_func_array( $hook_callback['callback'], $call_hook_args );
+                $result = @call_user_func( $hook_callback['callback'], $call_hook_args );
 
                 if( !empty( $hook_callback['chained'] )
                 and is_array( $result ) )

@@ -16,8 +16,11 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
     private $_post = array();
     /** @var array $_headers */
     private $_headers = array();
-    /** @var string $_response_buffer */
-    private $_response_buffer = '';
+
+    /**
+     * Response details about last API call
+     * @var array $_request_result */
+    private $_request_result = null;
 
     function __construct()
     {
@@ -32,7 +35,7 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         $this->_get = array();
         $this->_post = array();
         $this->_headers = array();
-        $this->_response_buffer = '';
+        $this->_request_result = null;
     }
 
     public function get_headers()
@@ -44,13 +47,13 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
     }
 
     /**
-     * Return last return buffer
+     * Return details about last API call
      *
-     * @return string Returns response buffer
+     * @return array|null Returns details about last API call
      */
-    public function get_response_buffer()
+    public function get_request_result()
     {
-        return $this->_response_buffer;
+        return $this->_request_result;
     }
 
     /**
@@ -191,6 +194,33 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         return true;
     }
 
+    public static function default_response_array()
+    {
+        return array(
+            'http_code' => 0,
+            'request_details' => array(),
+            'request_error_msg' => '',
+            'request_error_no' => 0,
+            'request_params' => array(),
+            'response_buffer' => '',
+        );
+    }
+
+    public static function validate_response_array( $arr )
+    {
+        if( empty( $arr ) or !is_array( $arr ) )
+            $arr = array();
+
+        $default_arr = self::default_response_array();
+        foreach( $default_arr as $key => $def_val )
+        {
+            if( !array_key_exists( $key, $arr ) )
+                $arr[$key] = $def_val;
+        }
+
+        return $arr;
+    }
+
     public function do_curl( $params = false )
     {
         if( !@function_exists( 'curl_init' )
@@ -321,8 +351,6 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
 
         $response_buf = @curl_exec( $ch );
 
-        $this->_response_buffer = $response_buf;
-
         $return_params = $params;
         if( isset( $return_params['userpass']['pass'] ) )
             $return_params['userpass']['pass'] = '(undisclosed_pass)';
@@ -330,14 +358,17 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         if( !($curl_info = @curl_getinfo( $ch )) )
             $curl_info = false;
 
-        $response = array(
-            'response' => $response_buf,
-            'http_code' => ((!empty( $curl_info ) and !empty( $curl_info['http_code'] ))?$curl_info['http_code']:0),
-            'request_details' => $curl_info,
-            'request_error_msg' => @curl_error( $ch ),
-            'request_error_no' => @curl_errno( $ch ),
-            'request_params' => $return_params,
-        );
+        $response = self::default_response_array();
+
+        $response['response_buffer'] = $response_buf;
+        if( !empty( $curl_info ) and !empty( $curl_info['http_code'] ) )
+            $response['http_code'] = $curl_info['http_code'];
+        $response['request_details'] = $curl_info;
+        $response['request_error_msg'] = @curl_error( $ch );
+        $response['request_error_no'] = @curl_errno( $ch );
+        $response['request_params'] = $return_params;
+
+        $this->_request_result = $response;
 
         @curl_close( $ch );
 

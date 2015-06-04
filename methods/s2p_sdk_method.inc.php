@@ -2,11 +2,12 @@
 
 namespace S2P_SDK;
 
-if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
+if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) or !defined( 'S2P_SDK_DIR_CLASSES' ) )
     die( 'Something went wrong.' );
 
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_scope_variable.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_scope_structure.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api_request.inc.php' );
 
 abstract class S2P_SDK_Method extends S2P_SDK_Module
 {
@@ -244,6 +245,61 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
      * Prepare query string and request body using variables to be sent in get and request_structure to be sent as JSON in body
      * from method definition.
      *
+     * @param array $request_result Array returned by S2P_SDK_Rest_API_Request::do_curl() call
+     *
+     * @return array|bool Returns an array with parsed data from response buffer or false on error
+     */
+    public function parse_response( $request_result )
+    {
+        if( ! $this->validate_definition() )
+            return false;
+
+        $return_arr = array();
+        $return_arr['func'] = $this->_functionality;
+        $return_arr['response_array'] = array();
+
+        if( !($request_result = S2P_SDK_Rest_API_Request::validate_response_array( $request_result ))
+         or $request_result['response_buffer'] == '' )
+            return $return_arr;
+
+        if( !empty( $this->_definition['response_structure'] ) )
+        {
+            /** @var S2P_SDK_Scope_Structure $response_structure */
+            $response_structure = $this->_definition['response_structure'];
+
+            if( !($json_array = $response_structure->extract_info_from_response_buffer( $request_result['response_buffer'], array( 'output_null_values' => true ) ))
+             or !is_array( $json_array ) )
+            {
+                if( ($parsing_error = $response_structure->get_parsing_error()) )
+                    $this->copy_error_from_array( $parsing_error );
+
+                else
+                    $this->set_error( self::ERR_REQUEST_DATA, self::s2p_t( 'Couldn\'t extract respose data or response data is empty.' ) );
+
+                return false;
+            }
+
+            if( !empty( $this->_definition['mandatory_in_response'] ) and is_array( $this->_definition['mandatory_in_response'] ) )
+            {
+                if( !$this->check_mandatory_fields( $json_array, $this->_definition['mandatory_in_response'], array( 'scope_arr_type' => 'response' ) ) )
+                {
+                    if( !$this->has_error() )
+                        $this->set_error( self::ERR_REQUEST_MANDATORY, self::s2p_t( 'Mandatory fields not found in response.' ) );
+
+                    return false;
+                }
+            }
+
+            $return_arr['response_array'] = $json_array;
+        }
+
+        return $return_arr;
+    }
+
+    /**
+     * Prepare query string and request body using variables to be sent in get and request_structure to be sent as JSON in body
+     * from method definition.
+     *
      * @param bool $params Receives parameters to be used in GET and scope array to create JSON body after parsing $_definition['request_structure'] object
      *
      * @return array|bool Returns an array with data to be used in request to server or false on error
@@ -325,7 +381,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
             if( !empty( $this->_definition['mandatory_in_request'] ) and is_array( $this->_definition['mandatory_in_request'] ) )
             {
-                if( !$this->check_mandatory_fields( $json_array, $this->_definition['mandatory_in_request'] ) )
+                if( !$this->check_mandatory_fields( $json_array, $this->_definition['mandatory_in_request'], array( 'scope_arr_type' => 'request' ) ) )
                 {
                     if( !$this->has_error() )
                         $this->set_error( self::ERR_REQUEST_MANDATORY, self::s2p_t( 'Mandatory fields not found in request.' ) );
@@ -361,6 +417,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
         if( empty( $params['path'] ) )
             $params['path'] = '';
+        if( empty( $params['scope_arr_type'] ) )
+            $params['scope_arr_type'] = 'request';
 
         foreach( $mandatory_fields_arr as $key => $fields )
         {
@@ -368,7 +426,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
             if( !array_key_exists( $key, $scope_arr ) )
             {
-                $this->set_error( self::ERR_REQUEST_MANDATORY, self::s2p_t( 'Mandatory field [%s] not found in request.', $current_path ) );
+                $this->set_error( self::ERR_REQUEST_MANDATORY, self::s2p_t( 'Mandatory field [%s] not found in %s.', $current_path, $params['scope_arr_type'] ) );
                 return false;
             }
 
