@@ -12,7 +12,7 @@ include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api_request.inc.php' );
 abstract class S2P_SDK_Method extends S2P_SDK_Module
 {
     const ERR_NAME = 1, ERR_GET_VARIABLES = 2, ERR_REQUEST_STRUCTURE = 3, ERR_RESPONSE_STRUCTURE = 4, ERR_MANDATORY = 5, ERR_FUNCTIONALITY = 6,
-          ERR_REQUEST_DATA = 7, ERR_REQUEST_MANDATORY = 8;
+          ERR_REQUEST_DATA = 7, ERR_REQUEST_MANDATORY = 8, ERR_HTTP_METHOD = 9;
     /**
      * Variable which holds all details regarding method
      * @var string $_definition
@@ -82,8 +82,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
     function __construct( $params = false )
     {
-        parent::__construct();
-        $this->init( $params );
+        parent::__construct( $params );
     }
 
     protected function reset_method()
@@ -328,7 +327,9 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         $return_arr = array();
         $return_arr['func'] = $this->_functionality;
         $return_arr['full_query'] = $this->_definition['url_suffix'];
+        $return_arr['http_method'] = $this->_definition['http_method'];
         $return_arr['query_string'] = '';
+        $return_arr['url_variables'] = array();
         $return_arr['get_variables'] = array();
         $return_arr['request_body'] = '';
 
@@ -347,8 +348,22 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                     continue;
                 }
 
-                $return_arr['get_variables'][$get_var['name']] = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $params['get_variables'][$get_var['name']] );
+                $var_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $params['get_variables'][$get_var['name']] );
+
+                if( !empty( $get_var['move_in_url'] ) )
+                    $return_arr['url_variables'][$get_var['name']] = $var_value;
+                else
+                    $return_arr['get_variables'][$get_var['name']] = $var_value;
             }
+        }
+
+        // Replace any URL variables, even if we don't currently have $return_arr['url_variables'] set
+        if( ($replacement_result = $this->replace_url_variables( $return_arr['full_query'], $return_arr['url_variables'] )) )
+        {
+            if( !empty( $replacement_result['url_variables'] ) and is_array( $replacement_result['url_variables'] ) )
+                $return_arr['get_variables'] = array_merge( $return_arr['get_variables'], $replacement_result['url_variables'] );
+
+            $return_arr['full_query'] = $replacement_result['url'];
         }
 
         if( !empty( $return_arr['get_variables'] ) )
@@ -367,7 +382,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             /** @var S2P_SDK_Scope_Structure $request_structure */
             $request_structure = $this->_definition['request_structure'];
 
-            if( !($json_array = $request_structure->prepare_info_for_request_to_array( $params['method_params'], array( 'output_null_values' => false ) ))
+            if( !($json_array = $request_structure->prepare_info_for_request_to_array( $params['method_params'], array( 'output_null_values' => false, 'nullify_full_object' => false ) ))
              or !is_array( $json_array ) )
             {
                 if( ($parsing_error = $request_structure->get_parsing_error()) )
@@ -392,6 +407,54 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
             $return_arr['request_body'] = @json_encode( $json_array );
         }
+
+        var_dump( $return_arr );
+
+        return $return_arr;
+    }
+
+    public function default_url_variables()
+    {
+        return array(
+            '{*ID*}' => array(
+                'default' => 0,
+                'key' => 'id',
+            ),
+        );
+    }
+
+    public function replace_url_variables( $url, $url_variables )
+    {
+        if( empty( $url ) )
+            return false;
+
+        if( empty( $url_variables ) or !is_array( $url_variables ) )
+            $url_variables = array();
+
+        $default_variables = self::default_url_variables();
+        foreach( $default_variables as $var => $var_arr )
+        {
+            if( empty( $var_arr ) or !isset( $var_arr['key'] )
+             or strstr( $url, $var ) === false )
+                continue;
+
+            if( array_key_exists( $var_arr['key'], $url_variables ) )
+                $var_value = $url_variables[$var_arr['key']];
+            else
+                $var_value = (!empty( $var_arr['default'])?$var_arr['default']:'');
+
+            $url = str_replace( $var, $var_value, $url );
+
+            if( isset( $url_variables[$var_arr['key']] ) )
+                unset( $url_variables[$var_arr['key']] );
+        }
+
+        if( empty( $url_variables ) )
+            $url_variables = array();
+
+        $return_arr = array();
+        $return_arr['url'] = $url;
+        $return_arr['url_variables'] = $url_variables;
 
         return $return_arr;
     }
@@ -452,6 +515,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             'type' => 0,
             'default' => '',
             'mandatory' => false,
+            'move_in_url' => false,
         );
     }
 
@@ -491,6 +555,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         return array(
             'name' => '',
             'url_suffix' => '',
+            'http_method' => 'GET',
             // array of parameters which should be parsed in GET for the request
             // Key should be name of variable which will be parsed in url_suffix string
             'get_variables' => null,
@@ -530,6 +595,12 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         if( empty( $new_definition_arr['name'] ) )
         {
             $this->set_error( self::ERR_NAME, self::s2p_t( 'You should provide a name in method definition.' ) );
+            return false;
+        }
+
+        if( empty( $new_definition_arr['http_method'] ) or !S2P_SDK_Rest_API_Request::valid_http_method( $new_definition_arr['http_method'] ) )
+        {
+            $this->set_error( self::ERR_HTTP_METHOD, self::s2p_t( 'Invalid HTTP method for API method %s', $new_definition_arr['name'] ) );
             return false;
         }
 

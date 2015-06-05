@@ -19,8 +19,8 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
     const ENV_TEST = S2P_SDK_REST_TEST, ENV_LIVE = S2P_SDK_REST_LIVE;
 
-    const ERR_ENVIRONMENT = 200, ERR_METHOD = 201, ERR_METHOD_FUNC = 202, ERR_PREPARE_REQUEST = 203, ERR_URL = 204, ERR_APIKEY = 205,
-          ERR_CURL_CALL = 206, ERR_PARSE_RESPONSE = 207;
+    const ERR_ENVIRONMENT = 200, ERR_METHOD = 201, ERR_METHOD_FUNC = 202, ERR_PREPARE_REQUEST = 203, ERR_URL = 204, ERR_HTTP_METHOD = 205,
+          ERR_APIKEY = 206, ERR_CURL_CALL = 207, ERR_PARSE_RESPONSE = 208;
 
     const TEST_BASE_URL = 'https://paytest.smart2pay.com',
           LIVE_BASE_URL = 'https://pay.smart2pay.com';
@@ -88,8 +88,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
     function __construct( $params = false )
     {
-        parent::__construct();
-        $this->init( $params );
+        parent::__construct( $params );
     }
 
     private function reset_api()
@@ -237,13 +236,33 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             return false;
         }
 
-        $this->trigger_hooks( 'rest_api_prepare_request_after', array( 'api_obj' => $this, 'request_data' => $request_data ) );
+        if( ($hook_result = $this->trigger_hooks( 'rest_api_prepare_request_after', array( 'api_obj' => $this, 'request_data' => $request_data ) ))
+        and is_array( $hook_result ) )
+        {
+            if( array_key_exists( 'request_data', $hook_result ) )
+                $request_data = $hook_result['request_data'];
+        }
 
         $final_url = $this->_base_url.$request_data['full_query'];
 
-        $this->_request = new S2P_SDK_Rest_API_Request();
+        if( !($this->_request = new S2P_SDK_Rest_API_Request()) )
+        {
+            $this->set_error( self::ERR_PREPARE_REQUEST, self::s2p_t( 'Couldn\'t prepare API request.' ) );
+            return false;
+        }
 
-        $this->_request->set_url( $final_url );
+        if( empty( $request_data['http_method'] )
+         or !$this->_request->set_http_method( $request_data['http_method'] ) )
+        {
+            $this->set_error( self::ERR_HTTP_METHOD, self::s2p_t( 'Couldn\'t set HTTP method.' ) );
+            return false;
+        }
+
+        if( !$this->_request->set_url( $final_url ) )
+        {
+            $this->set_error( self::ERR_URL, self::s2p_t( 'Couldn\'t set final URL.' ) );
+            return false;
+        }
 
         if( !empty( $request_data['request_body'] ) )
             $this->_request->set_body( $request_data['request_body'] );

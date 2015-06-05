@@ -32,9 +32,10 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
      */
     abstract public function destroy();
 
-    function __construct()
+    function __construct( $module_params = false )
     {
         parent::__construct();
+        $this->init( $module_params );
     }
 
     private function module_init( $module_params = false )

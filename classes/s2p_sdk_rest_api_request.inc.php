@@ -10,6 +10,8 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
     private $_url = '';
     /** @var string $_body */
     private $_body = '';
+    /** @var string $_http_method */
+    private $_http_method = 'GET';
     /** @var array $_get */
     private $_get = array();
     /** @var array $_post */
@@ -32,10 +34,21 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
     {
         $this->_url = '';
         $this->_body = '';
+        $this->_http_method = 'GET';
         $this->_get = array();
         $this->_post = array();
         $this->_headers = array();
         $this->_request_result = null;
+    }
+
+    public static function get_http_methods()
+    {
+        return array( 'GET', 'POST', 'DELETE', 'PATCH' );
+    }
+
+    public static function valid_http_method( $method )
+    {
+        return (in_array( $method, self::get_http_methods())?true:false);
     }
 
     public function get_headers()
@@ -105,6 +118,32 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
             return false;
 
         $this->_body = $body;
+        return true;
+    }
+
+    /**
+     * Get HTTP method to be used
+     *
+     * @return string Returns HTTP method to be used
+     */
+    public function get_http_method()
+    {
+        return $this->_http_method;
+    }
+
+    /**
+     * Set request body
+     *
+     * @param string $body
+     *
+     * @return bool Returns true on success or false on fail
+     */
+    public function set_http_method( $meth )
+    {
+        if( !is_string( $meth ) or !self::valid_http_method( $meth ) )
+            return false;
+
+        $this->_http_method = $meth;
         return true;
     }
 
@@ -306,11 +345,16 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         if( ($body = $this->get_body()) )
             $post_string .= $body;
 
+        $http_method = $this->get_http_method();
+
         if( $post_string != '' )
         {
-            @curl_setopt( $ch, CURLOPT_POST, true );
+            if( in_array( $http_method, array( 'POST', 'GET' ) ) )
+                @curl_setopt( $ch, CURLOPT_POST, true );
             @curl_setopt( $ch, CURLOPT_POSTFIELDS, $post_string );
         }
+
+        @curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, $http_method );
 
         $url = $this->get_url();
 

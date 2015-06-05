@@ -63,8 +63,7 @@ class S2P_SDK_API extends S2P_SDK_Module
 
     function __construct( $params = false )
     {
-        parent::__construct();
-        $this->init( $params );
+        parent::__construct( $params );
     }
 
     private function reset_api()

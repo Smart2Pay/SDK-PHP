@@ -32,20 +32,17 @@ class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
                 'name' => 'id',
                 'external_name' => 'ID',
                 'type' => S2P_SDK_VTYPE_INT,
-                'default' => 0,
                 'regexp' => '^\d{1,12}$',
             ),
             array(
                 'name' => 'created',
                 'external_name' => 'Created',
                 'type' => S2P_SDK_VTYPE_DATETIME,
-                'default' => '0',
             ),
             array(
                 'name' => 'url',
                 'external_name' => 'URL',
                 'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
                 'regexp' => '^(http(s)?:\/\/).{1,512}$',
             ),
             array(
@@ -57,35 +54,30 @@ class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
                 'name' => 'notificationurl',
                 'external_name' => 'NotificationURL',
                 'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
                 'regexp' => '^(http(s)?:\/\/).{1,512}$',
             ),
             array(
                 'name' => 'signature',
                 'external_name' => 'Signature',
                 'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
                 'regexp' => '^.+$',
             ),
             array(
                 'name' => 'apikey',
                 'external_name' => 'ApiKey',
                 'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
                 'regexp' => '^.+$',
             ),
             array(
                 'name' => 'iplist',
                 'external_name' => 'IPList',
                 'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
                 'regexp' => '^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3},?)?|^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2},?)?|^((\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})-(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}),?)?$',
             ),
             array(
                 'name' => 'details',
                 'external_name' => 'Details',
                 'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
             ),
        );
     }

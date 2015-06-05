@@ -142,7 +142,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
          or !array_key_exists( $definition[$scope_name_key], $scope_arr ) )
         {
             if( ($null_value = $this->nullify( $definition, $params )) !== null
-             or ($null_value === null and empty( $params['output_null_values'] ))
+             or ($null_value === null and !empty( $params['output_null_values'] ))
              or empty( $params['parsing_path'] ) )
                 $current_value[ $definition[ $output_name_key ] ] = $null_value;
 

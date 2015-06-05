@@ -13,10 +13,20 @@ if( !defined( 'S2P_SDK_METH_MSITES_LIST_ALL' ) )
     define( 'S2P_SDK_METH_MSITES_LIST_ALL', 'list_all' );
 if( !defined( 'S2P_SDK_METH_MSITES_DETAILS' ) )
     define( 'S2P_SDK_METH_MSITES_DETAILS', 'site_details' );
+if( !defined( 'S2P_SDK_METH_MSITES_CREATE' ) )
+    define( 'S2P_SDK_METH_MSITES_CREATE', 'site_create' );
+if( !defined( 'S2P_SDK_METH_MSITES_EDIT' ) )
+    define( 'S2P_SDK_METH_MSITES_EDIT', 'site_edit' );
+if( !defined( 'S2P_SDK_METH_MSITES_REGEN_APIKEY' ) )
+    define( 'S2P_SDK_METH_MSITES_REGEN_APIKEY', 'regen_apikey' );
+if( !defined( 'S2P_SDK_METH_MSITES_REGEN_SIGNATURE' ) )
+    define( 'S2P_SDK_METH_MSITES_REGEN_SIGNATURE', 'regen_signature' );
 
 class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
 {
-    const FUNC_LIST_ALL = S2P_SDK_METH_MSITES_LIST_ALL, FUNC_SITE_DETAILS = S2P_SDK_METH_MSITES_DETAILS;
+    const FUNC_LIST_ALL = S2P_SDK_METH_MSITES_LIST_ALL, FUNC_SITE_DETAILS = S2P_SDK_METH_MSITES_DETAILS,
+          FUNC_SITE_CREATE = S2P_SDK_METH_MSITES_CREATE, FUNC_SITE_EDIT = S2P_SDK_METH_MSITES_EDIT,
+          FUNC_REGEN_APIKEY = S2P_SDK_METH_MSITES_REGEN_APIKEY, FUNC_REGEN_SIGNATURE = S2P_SDK_METH_MSITES_REGEN_SIGNATURE;
 
     public function default_functionality()
     {
@@ -33,6 +43,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
             self::FUNC_LIST_ALL => array(
                 'name' => self::s2p_t( 'List Merchat Sites' ),
                 'url_suffix' => '/v1/merchantsites/',
+                'http_method' => 'GET',
 
                 'mandatory_in_response' => array(
                     'merchantsites' => array(),
@@ -44,6 +55,8 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
             self::FUNC_SITE_DETAILS => array(
                 'name' => self::s2p_t( 'Merchant Site Details' ),
                 'url_suffix' => '/v1/merchantsites/',
+                'http_method' => 'GET',
+
                 'get_variables' => array(
                     array(
                         'name' => 'id',
@@ -55,6 +68,109 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
 
                 'mandatory_in_response' => array(
                     'merchantsite' => array(),
+                ),
+
+                'response_structure' => $merchantsite_obj,
+            ),
+
+            self::FUNC_SITE_CREATE => array(
+                'name' => self::s2p_t( 'Create Merchant Site' ),
+                'url_suffix' => '/v1/merchantsites/',
+                'http_method' => 'POST',
+
+                'mandatory_in_request' => array(
+                    'MerchantSite' => array(
+                        'URL' => '',
+                        'NotificationURL' => '',
+                    ),
+                ),
+
+                'request_structure' => $merchantsite_obj,
+
+                'mandatory_in_response' => array(
+                    'merchantsite' => array(
+                        'id' => 0,
+                    ),
+                ),
+
+                'response_structure' => $merchantsite_obj,
+            ),
+
+            self::FUNC_SITE_EDIT => array(
+                'name' => self::s2p_t( 'Edit Merchant Site' ),
+                'url_suffix' => '/v1/merchantsites/',
+                'http_method' => 'PATCH',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                    ),
+                ),
+
+                'mandatory_in_request' => array(
+                    'MerchantSite' => array(
+                        'URL' => '',
+                        'NotificationURL' => '',
+                    ),
+                ),
+
+                'request_structure' => $merchantsite_obj,
+
+                'mandatory_in_response' => array(
+                    'merchantsite' => array(
+                        'id' => 0,
+                    ),
+                ),
+
+                'response_structure' => $merchantsite_obj,
+            ),
+
+            self::FUNC_REGEN_APIKEY => array(
+                'name' => self::s2p_t( 'Regenerate Merchant Site API Key' ),
+                'url_suffix' => '/v1/merchantsites/{*ID*}/regenerateapikey/',
+                'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'merchantsite' => array(
+                        'id' => 0,
+                    ),
+                ),
+
+                'response_structure' => $merchantsite_obj,
+            ),
+
+            self::FUNC_REGEN_SIGNATURE => array(
+                'name' => self::s2p_t( 'Regenerate Merchant Site Signature' ),
+                'url_suffix' => '/v1/merchantsites/{*ID*}/regeneratesignature/',
+                'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'merchantsite' => array(
+                        'id' => 0,
+                    ),
                 ),
 
                 'response_structure' => $merchantsite_obj,
