@@ -28,19 +28,28 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
         return self::FUNC_LIST_ALL;
     }
 
+    public function get_method_details()
+    {
+        return array(
+            'method' => 'methods',
+            'name' => self::s2p_t( 'Payment methods' ),
+            'short_description' => self::s2p_t( 'This method helps you manage payment methods' ),
+        );
+    }
+
     public function get_functionalities()
     {
         return array(
 
             self::FUNC_LIST_ALL => array(
-                'name' => 'methods',
+                'name' => self::s2p_t( 'List available methods' ),
                 'url_suffix' => '/v1/methods/',
                 // TODO: add response structure
                 'response_structure' => null,
             ),
 
             self::FUNC_METHOD_DETAILS => array(
-                'name' => 'method_details',
+                'name' => self::s2p_t( 'Get method details' ),
                 'url_suffix' => '/v1/methods/',
                 'get_variables' => array(
                     array(
@@ -55,7 +64,7 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
             ),
 
             self::FUNC_LIST_COUNTRY => array(
-                'name' => 'methods_country',
+                'name' => self::s2p_t( 'Get available methods for specific country' ),
                 'url_suffix' => '/v1/methods/',
                 'get_variables' => array(
                     array(
@@ -70,14 +79,14 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
             ),
 
             self::FUNC_ASSIGNED => array(
-                'name' => 'methods_assigned',
+                'name' => self::s2p_t( 'Get merchant\'s assigned methods' ),
                 'url_suffix' => '/v1/methods/assigned/',
                 // TODO: add response structure
                 'response_structure' => null,
             ),
 
             self::FUNC_ASSIGNED_COUNTRY => array(
-                'name' => 'methods_assigned_country',
+                'name' => self::s2p_t( 'Get merchant\'s assigned methods for specific country' ),
                 'url_suffix' => '/v1/methods/assigned/',
                 'get_variables' => array(
                     array(

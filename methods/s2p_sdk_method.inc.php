@@ -15,9 +15,15 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
           ERR_REQUEST_DATA = 7, ERR_REQUEST_MANDATORY = 8, ERR_HTTP_METHOD = 9;
     /**
      * Variable which holds all details regarding method
-     * @var string $_definition
+     * @var array $_definition
      **/
     protected $_definition = null;
+
+    /**
+     * Variable which holds details about method
+     * @var array $_details
+     **/
+    protected $_details = null;
 
     /**
      * Tells what functionality will be implemented for current method
@@ -32,6 +38,12 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
      * @var array $_request_params
      */
     protected $_request_params = array();
+
+    /**
+     * Child class should return an array with some details about current method
+     * @return array
+     */
+    abstract public function get_method_details();
 
     /**
      * Child class should return an array with possible functionalities current method have
@@ -65,6 +77,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         if( $this->method_functionality( $module_params['func'] ) === false )
             return false;
 
+        $this->validate_details();
+
         return true;
     }
 
@@ -88,6 +102,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
     protected function reset_method()
     {
         $this->_definition = null;
+        $this->_details = null;
         $this->_functionality = '';
         $this->_request_params = self::default_request_parameters();
     }
@@ -199,12 +214,28 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         );
     }
 
-    public function get_name()
+    public function get_method()
     {
-        if( !$this->validate_definition() )
+        if( !$this->validate_details() )
             return false;
 
-        return $this->_definition['name'];
+        return $this->_details['method'];
+    }
+
+    public function get_name()
+    {
+        if( !$this->validate_details() )
+            return false;
+
+        return $this->_details['name'];
+    }
+
+    public function get_short_description()
+    {
+        if( !$this->validate_details() )
+            return false;
+
+        return $this->_details['short_description'];
     }
 
     public static function default_request_parameters()
@@ -287,6 +318,11 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
                     return false;
                 }
+            }
+
+            if( !empty( $this->_definition['hide_in_response'] ) and is_array( $this->_definition['hide_in_response'] ) )
+            {
+                $json_array = $this->remove_fields( $json_array, $this->_definition['hide_in_response'], array( 'scope_arr_type' => 'response' ) );
             }
 
             $return_arr['response_array'] = $json_array;
@@ -405,10 +441,13 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 }
             }
 
+            if( !empty( $this->_definition['hide_in_request'] ) and is_array( $this->_definition['hide_in_request'] ) )
+            {
+                $json_array = $this->remove_fields( $json_array, $this->_definition['hide_in_request'], array( 'scope_arr_type' => 'request' ) );
+            }
+
             $return_arr['request_body'] = @json_encode( $json_array );
         }
-
-        var_dump( $return_arr );
 
         return $return_arr;
     }
@@ -506,6 +545,51 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         return true;
     }
 
+    /**
+     * Removes fields set in $scope_arr array as defined in $remove_fields_arr (output/input array)
+     *
+     * @param array $scope_arr
+     * @param array $mandatory_fields_arr
+     *
+     * @return bool Returns new scope with removed keys
+     */
+    protected function remove_fields( $scope_arr, $remove_fields_arr, $params = false )
+    {
+        if( empty( $remove_fields_arr ) or !is_array( $remove_fields_arr )
+         or empty( $scope_arr ) or !is_array( $scope_arr ) )
+            return $scope_arr;
+
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+
+        if( empty( $params['path'] ) )
+            $params['path'] = '';
+        if( empty( $params['scope_arr_type'] ) )
+            $params['scope_arr_type'] = 'request';
+
+        foreach( $remove_fields_arr as $key => $fields )
+        {
+            $current_path = $params['path'].(($params['path'] != '')?'.':'').$key;
+
+            if( !array_key_exists( $key, $scope_arr ) )
+                continue;
+
+            if( !is_array( $fields ) )
+                unset( $scope_arr[$key] );
+
+            else
+            {
+                $new_params = $params;
+                $new_params['path'] = $current_path;
+
+                if( ($new_scope_arr = $this->remove_fields( $scope_arr[$key], $fields, $new_params )) )
+                    $scope_arr[$key] = $new_scope_arr;
+            }
+        }
+
+        return $scope_arr;
+    }
+
     protected static function default_get_variables_definition()
     {
         return array(
@@ -550,6 +634,42 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         return $new_definition_arr;
     }
 
+    protected static function default_method_details()
+    {
+        return array(
+            'method' => '',
+            'name' => '',
+            'short_description' => '',
+        );
+    }
+
+    private function validate_details()
+    {
+        if( !is_null( $this->_details ) )
+            return true;
+
+        $default_details = self::default_method_details();
+        $details_arr = $this->get_method_details();
+
+        $new_details_arr = array();
+        foreach( $default_details as $key => $def_value )
+        {
+            if( !array_key_exists( $key, $details_arr ) )
+                $new_details_arr[ $key ] = $def_value;
+            else
+                $new_details_arr[ $key ] = $details_arr[ $key ];
+        }
+
+        if( empty( $new_details_arr['name'] ) )
+            $new_details_arr['name'] = '(Unknown_method)';
+        if( empty( $new_details_arr['method'] ) )
+            $new_details_arr['method'] = '(method)';
+
+        $this->_details = $new_details_arr;
+
+        return true;
+    }
+
     protected static function default_method_definition()
     {
         return array(
@@ -563,11 +683,17 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             // Array with keys representing mandatory properties in request structure (value doesn't matter)
             'mandatory_in_request' => null,
 
+            // Array with keys representing fields of structure which should be removed from request
+            'hide_in_request' => null,
+
             // Structure to be passed to server in request body
             'request_structure' => null,
 
             // Array with keys representing mandatory properties in response structure (value doesn't matter)
             'mandatory_in_response' => null,
+
+            // Array with keys representing fields of structure which should be removed from response
+            'hide_in_response' => null,
 
             // Structure to be expected back from server at response
             'response_structure' => null,

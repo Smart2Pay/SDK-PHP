@@ -90,6 +90,107 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         return $this->_value;
     }
 
+    public function transform_keys( $scope_arr, $definition = null, $params = false )
+    {
+        if( empty( $scope_arr ) or !is_array( $scope_arr ) )
+            return false;
+
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+
+        if( !isset( $params['check_external_names'] ) )
+            $params['check_external_names'] = true;
+        if( empty( $params['parsing_path'] ) )
+            $params['parsing_path'] = '';
+
+        if( !empty( $params['check_external_names'] ) )
+        {
+            $scope_name_key = 'external_name';
+            $output_name_key = 'name';
+        } else
+        {
+            $scope_name_key = 'name';
+            $output_name_key = 'external_name';
+        }
+
+        if( is_null( $definition ) )
+            $definition = $this->_definition;
+
+        if( empty( $definition ) or !self::valid_definition( $definition ) )
+            return false;
+
+        if( !array_key_exists( $definition[$scope_name_key], $scope_arr ) )
+            return false;
+
+        $current_value = array();
+        if( self::scalar_type( $definition['type'] ) )
+        {
+            $current_value[ $definition[ $output_name_key ] ] = self::scalar_value( $definition['type'], $scope_arr[$definition[$scope_name_key]] );
+
+        } else
+        {
+            $params['parsing_path'] .= ($params['parsing_path']!=''?'.':'').$definition[$scope_name_key];
+
+            // Variable exists in scope
+            if( empty( $scope_arr[$definition[$scope_name_key]] )
+             or !is_array( $scope_arr[$definition[$scope_name_key]] )
+             or !self::object_type( $definition['type'] ) )
+                $current_value[ $definition[$output_name_key] ] = null;
+
+            else
+            {
+                $current_value[$definition[$output_name_key]] = array();
+                if( $definition['type'] == self::TYPE_BLOB )
+                {
+                    foreach( $definition['structure'] as $structure_element )
+                    {
+                        if( !self::valid_definition( $structure_element )
+                         or ($property_result = $this->transform_keys( $scope_arr[$definition[$scope_name_key]], $structure_element, $params )) === false
+                         or !is_array( $property_result ) )
+                            continue;
+
+                        $current_value[$definition[$output_name_key]] = array_merge( $current_value[$definition[$output_name_key]], $property_result );
+                    }
+                } elseif( $definition['type'] == self::TYPE_ARRAY )
+                {
+                    $current_value[$definition[$output_name_key]] = array();
+                    $knti = -1;
+                    $initial_parsing_path = $params['parsing_path'];
+                    foreach( $scope_arr[$definition[$scope_name_key]] as $element_scope )
+                    {
+                        $knti++;
+
+                        if( !is_array( $element_scope ) )
+                            continue;
+
+                        $params['parsing_path'] = $initial_parsing_path.'['.$knti.']';
+
+                        $node_arr = array();
+                        foreach( $definition['structure'] as $structure_element )
+                        {
+                            if( !self::valid_definition( $structure_element )
+                             or ($node_result = $this->transform_keys( $element_scope, $structure_element, $params )) === false
+                             or !is_array( $node_result ) )
+                                continue;
+
+                            $node_arr = array_merge( $node_arr, $node_result );
+                        }
+
+                        if( !empty( $node_arr ) )
+                            $current_value[$definition[$output_name_key]][] = $node_arr;
+                    }
+
+                    $params['parsing_path'] = $initial_parsing_path;
+                }
+
+                if( empty( $current_value[$definition[$output_name_key]] ) )
+                    $current_value[$definition[$output_name_key]] = null;
+            }
+        }
+
+        return $current_value;
+    }
+
     protected function extract_values_from_scope( $scope_arr, $definition = null, $params = false )
     {
         if( empty( $scope_arr ) or !is_array( $scope_arr ) )

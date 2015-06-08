@@ -354,6 +354,8 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
             @curl_setopt( $ch, CURLOPT_POSTFIELDS, $post_string );
         }
 
+        $params['header_keys_arr']['Content-Length'] = strlen( $post_string );
+
         @curl_setopt( $ch, CURLOPT_CUSTOMREQUEST, $http_method );
 
         $url = $this->get_url();
@@ -411,6 +413,8 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         $response['request_error_msg'] = @curl_error( $ch );
         $response['request_error_no'] = @curl_errno( $ch );
         $response['request_params'] = $return_params;
+
+        var_dump( $response );
 
         $this->_request_result = $response;
 

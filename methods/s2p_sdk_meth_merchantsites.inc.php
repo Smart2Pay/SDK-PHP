@@ -33,6 +33,15 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
         return self::FUNC_LIST_ALL;
     }
 
+    public function get_method_details()
+    {
+        return array(
+            'method' => 'merchantsites',
+            'name' => self::s2p_t( 'Merchant Sites' ),
+            'short_description' => self::s2p_t( 'This method helps you manage merchant sites' ),
+        );
+    }
+
     public function get_functionalities()
     {
         $merchantsite_obj = new S2P_SDK_Structure_Merchantsite();
@@ -54,7 +63,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
 
             self::FUNC_SITE_DETAILS => array(
                 'name' => self::s2p_t( 'Merchant Site Details' ),
-                'url_suffix' => '/v1/merchantsites/',
+                'url_suffix' => '/v1/merchantsites/{*ID*}/',
                 'http_method' => 'GET',
 
                 'get_variables' => array(
@@ -63,6 +72,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
+                        'move_in_url' => true,
                     ),
                 ),
 
@@ -85,6 +95,16 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                     ),
                 ),
 
+                'hide_in_request' => array(
+                    'MerchantSite' => array(
+                        'ID' => '',
+                        'Created' => '',
+                        'Signature' => '',
+                        'ApiKey' => '',
+                        'Details' => '',
+                    ),
+                ),
+
                 'request_structure' => $merchantsite_obj,
 
                 'mandatory_in_response' => array(
@@ -98,7 +118,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
 
             self::FUNC_SITE_EDIT => array(
                 'name' => self::s2p_t( 'Edit Merchant Site' ),
-                'url_suffix' => '/v1/merchantsites/',
+                'url_suffix' => '/v1/merchantsites/{*ID*}/',
                 'http_method' => 'PATCH',
 
                 'get_variables' => array(
@@ -107,6 +127,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
+                        'move_in_url' => true,
                     ),
                 ),
 
@@ -114,6 +135,16 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                     'MerchantSite' => array(
                         'URL' => '',
                         'NotificationURL' => '',
+                    ),
+                ),
+
+                'hide_in_request' => array(
+                    'MerchantSite' => array(
+                        'ID' => '',
+                        'Created' => '',
+                        'Signature' => '',
+                        'ApiKey' => '',
+                        'Details' => '',
                     ),
                 ),
 
@@ -125,13 +156,19 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                     ),
                 ),
 
+                'hide_in_response' => array(
+                    'merchantsite' => array(
+                        'details' => '',
+                    ),
+                ),
+
                 'response_structure' => $merchantsite_obj,
             ),
 
             self::FUNC_REGEN_APIKEY => array(
                 'name' => self::s2p_t( 'Regenerate Merchant Site API Key' ),
                 'url_suffix' => '/v1/merchantsites/{*ID*}/regenerateapikey/',
-                'http_method' => 'GET',
+                'http_method' => 'POST',
 
                 'get_variables' => array(
                     array(
@@ -155,7 +192,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
             self::FUNC_REGEN_SIGNATURE => array(
                 'name' => self::s2p_t( 'Regenerate Merchant Site Signature' ),
                 'url_suffix' => '/v1/merchantsites/{*ID*}/regeneratesignature/',
-                'http_method' => 'GET',
+                'http_method' => 'POST',
 
                 'get_variables' => array(
                     array(

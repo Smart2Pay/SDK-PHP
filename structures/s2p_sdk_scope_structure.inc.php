@@ -148,6 +148,92 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
     }
 
     /**
+     * Transform array keys from external_name to name and vice-versa.
+     *
+     * @param array $scope_arr Array to transform
+     *
+     * @return array|bool|mixed
+     */
+    public function transfrom_keys_to_external_names( $scope_arr, $parsing_params = false )
+    {
+        if( !$this->_init_variable() )
+            return false;
+
+        if( empty( $parsing_params ) or !is_array( $parsing_params ) )
+            $parsing_params = array();
+
+        $parsing_params['check_external_names'] = false;
+
+        if( !($return_arr = $this->_var->transform_keys( $scope_arr, null, $parsing_params ))
+         or !is_array( $return_arr ) )
+            $return_arr = false;
+
+        if( !empty( $this->_merged_structures ) and is_array( $this->_merged_structures ) )
+        {
+            if( empty( $return_arr ) )
+                $return_arr = array();
+
+            /**
+             * @var string $structure_name
+             * @var S2P_SDK_Scope_Structure $structure_obj
+             */
+            foreach( $this->_merged_structures as $structure_name => $structure_obj )
+            {
+                if( !($structure_result_arr = $structure_obj->transfrom_keys_to_external_names( $scope_arr, $parsing_params ))
+                 or !is_array( $structure_result_arr ) )
+                    continue;
+
+                $return_arr = array_merge( $return_arr, $structure_result_arr );
+            }
+        }
+
+        return $return_arr;
+    }
+
+    /**
+     * Transform array keys from external_name to name and vice-versa.
+     *
+     * @param array $scope_arr Array to transform
+     *
+     * @return array|bool|mixed
+     */
+    public function transfrom_keys_to_internal_names( $scope_arr, $parsing_params = false )
+    {
+        if( !$this->_init_variable() )
+            return false;
+
+        if( empty( $parsing_params ) or !is_array( $parsing_params ) )
+            $parsing_params = array();
+
+        $parsing_params['check_external_names'] = true;
+
+        if( !($return_arr = $this->_var->transform_keys( $scope_arr, null, $parsing_params ))
+         or !is_array( $return_arr ) )
+            $return_arr = false;
+
+        if( !empty( $this->_merged_structures ) and is_array( $this->_merged_structures ) )
+        {
+            if( empty( $return_arr ) )
+                $return_arr = array();
+
+            /**
+             * @var string $structure_name
+             * @var S2P_SDK_Scope_Structure $structure_obj
+             */
+            foreach( $this->_merged_structures as $structure_name => $structure_obj )
+            {
+                if( !($structure_result_arr = $structure_obj->transfrom_keys_to_internal_names( $scope_arr, $parsing_params ))
+                 or !is_array( $structure_result_arr ) )
+                    continue;
+
+                $return_arr = array_merge( $return_arr, $structure_result_arr );
+            }
+        }
+
+        return $return_arr;
+    }
+
+    /**
      * Parses an array which was obtained from a json_decode from a server response body (or an emulated array ;) )
      * In case of parsing errors we try to extract as much information as possible from array.
      *

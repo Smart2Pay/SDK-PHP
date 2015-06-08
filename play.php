@@ -13,7 +13,16 @@
             die( 'Error initializing Play class' );
         }
 
-        $play_obj->play();
+        if( !$play_obj->play() )
+        {
+            if( $play_obj->has_error()
+            and ($error_arr = $play_obj->get_error()) )
+                echo 'ERROR: '.$error_arr['display_error'];
+            else
+                echo 'Generic error while initiating documentation.';
+
+            exit;
+        }
     } catch( Exception $ex )
     {
         die( 'Cought an error :'.$ex->getMessage() );

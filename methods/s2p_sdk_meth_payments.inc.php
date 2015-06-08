@@ -24,6 +24,15 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
         return self::FUNC_INIT_PAYMENT;
     }
 
+    public function get_method_details()
+    {
+        return array(
+            'method' => 'payments',
+            'name' => self::s2p_t( 'Payments' ),
+            'short_description' => self::s2p_t( 'This method manages payments' ),
+        );
+    }
+
     public function get_functionalities()
     {
         $payment_request_obj = new S2P_SDK_Structure_Payment_Request();

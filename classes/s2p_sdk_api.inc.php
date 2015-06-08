@@ -22,6 +22,9 @@ class S2P_SDK_API extends S2P_SDK_Module
     /** @var array $_call_result */
     private $_call_result = null;
 
+    /** @var float $_call_time */
+    private $_call_time = 0;
+
     /**
      * This method is called right after module instance is created
      *
@@ -71,6 +74,7 @@ class S2P_SDK_API extends S2P_SDK_Module
         $this->_api = null;
         $this->_api_type = self::TYPE_REST;
         $this->_call_result = null;
+        $this->_call_time = 0;
     }
 
     public static function valid_api_type( $type )
@@ -106,6 +110,16 @@ class S2P_SDK_API extends S2P_SDK_Module
     public function get_api_obj()
     {
         return $this->_api;
+    }
+
+    /**
+     * Returns how many microseconds were spent on API call
+     *
+     * @return int Returns API call time
+     */
+    public function get_call_time()
+    {
+        return $this->_call_time;
     }
 
     /**
@@ -172,8 +186,11 @@ class S2P_SDK_API extends S2P_SDK_Module
             return false;
         }
 
+        $this->_call_time = 0;
+        $call_start = microtime( true );
         if( !($call_result = $this->_api->do_call( $params )) )
         {
+            $this->_call_time = microtime( true ) - $call_start;
             if( $this->_api->has_error() )
                 $this->copy_error( $this->_api );
 
@@ -182,6 +199,8 @@ class S2P_SDK_API extends S2P_SDK_Module
 
             return false;
         }
+
+        $this->_call_time = microtime( true ) - $call_start;
 
         $this->_call_result = $call_result;
 
