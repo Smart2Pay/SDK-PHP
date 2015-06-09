@@ -4,6 +4,8 @@
     if( !($_current_directory_path = __DIR__) )
         $_current_directory_path = '.';
 
+    define( 'S2P_SDK_VERSION', '1.0.0' );
+
     define( 'S2P_SDK_DIR_PATH', $_current_directory_path.'/' );
     define( 'S2P_SDK_DIR_CLASSES', $_current_directory_path.'/classes/' );
     define( 'S2P_SDK_DIR_STRUCTURES', $_current_directory_path.'/structures/' );

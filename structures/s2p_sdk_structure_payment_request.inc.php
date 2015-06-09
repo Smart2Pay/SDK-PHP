@@ -8,6 +8,7 @@ if( !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_customer.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_address.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_article.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_customer_details.inc.php' );
 
 class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
 {
@@ -34,6 +35,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
         $customer_obj = new S2P_SDK_Structure_Customer();
         $address_obj = new S2P_SDK_Structure_Address();
         $article_obj = new S2P_SDK_Structure_Article();
+        $customer_details_obj = new S2P_SDK_Structure_Payment_Customer_Details();
 
         return array(
             array(
@@ -112,9 +114,29 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'articles',
                 'external_name' => 'Articles',
-                'type' => S2P_SDK_VTYPE_ARRAY,
+                'type' => S2P_SDK_VTYPE_BLARRAY,
                 'default' => null,
                 'structure' => $article_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'details',
+                'external_name' => 'Details',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'structure' => $customer_details_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'customparameters',
+                'external_name' => 'CustomParameters',
+                'type' => S2P_SDK_VTYPE_ARRAY,
+                'array_type' => S2P_SDK_VTYPE_STRING,
+                'default' => null,
+            ),
+            array(
+                'name' => 'preapprovalid',
+                'external_name' => 'PreapprovalID',
+                'type' => S2P_SDK_VTYPE_INT,
+                'regexp' => '^\d{1,12}$',
             ),
             array(
                 'name' => 'tokenlifetime',

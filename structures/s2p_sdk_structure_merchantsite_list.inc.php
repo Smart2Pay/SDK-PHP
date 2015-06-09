@@ -18,8 +18,9 @@ class S2P_SDK_Structure_Merchantsite_List extends S2P_SDK_Structure_Merchantsite
         return array(
             'name' => 'merchantsites',
             'external_name' => 'MerchantSites',
-            'type' => S2P_SDK_VTYPE_ARRAY,
+            'type' => S2P_SDK_VTYPE_BLARRAY,
             'structure' => $this->get_structure_definition(),
+            'default' => null,
         );
     }
 

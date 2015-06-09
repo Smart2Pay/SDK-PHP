@@ -40,7 +40,7 @@ class S2P_SDK_Structure_Status extends S2P_SDK_Scope_Structure
                 array(
                     'name' => 'reasons',
                     'external_name' => 'Reasons',
-                    'type' => S2P_SDK_VTYPE_ARRAY,
+                    'type' => S2P_SDK_VTYPE_BLARRAY,
                     'default' => null,
                     'structure' => array(
                         array(

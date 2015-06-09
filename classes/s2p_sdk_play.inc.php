@@ -2,6 +2,11 @@
 
 namespace S2P_SDK;
 
+if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_PATH' ) )
+    die( 'Something went bad' );
+
+include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
+
 class S2P_SDK_Play extends S2P_SDK_Module
 {
     const ERR_METHODS = 1, ERR_INSTANTIATE_METHOD = 2;
@@ -93,7 +98,7 @@ class S2P_SDK_Play extends S2P_SDK_Module
 
         $this->display_header();
 
-        ?><h1><?php echo self::s2p_t( 'Found %s methods', count( $this->_method_details ) )?>:</h1><ul><?php
+        ?><h3><?php echo self::s2p_t( 'Found %s methods', count( $this->_method_details ) )?>:</h3><ul><?php
         foreach( $this->_method_details as $method_name => $method_arr )
         {
             if( empty( $method_arr['instance'] ) )
@@ -102,7 +107,7 @@ class S2P_SDK_Play extends S2P_SDK_Module
             /** @var S2P_SDK_Method $instance */
             $instance = $method_arr['instance'];
 
-            ?><li><a href="javascript:void(0);" onclick="javascript:toggle_container( 'details_<?php echo $method_name?>' )" class="method_name"><?php echo $method_name.' - '.$instance->get_name();?></a><br/><small><?php echo $instance->get_short_description();?></small><?php
+            ?><li><a href="javascript:void(0);" onclick="toggle_container( 'details_<?php echo $method_name?>' )" class="method_name"><?php echo $method_name.' - '.$instance->get_name();?></a><br/><small><?php echo $instance->get_short_description();?></small><?php
 
             if( ($method_functionalities = $instance->get_functionalities()) )
             {
@@ -114,10 +119,10 @@ class S2P_SDK_Play extends S2P_SDK_Module
                         foreach( $method_functionalities as $functionality_name => $functionality_arr )
                         {
                             ?>
-                            <li><a href="javascript:void(0);" onclick="javascript:toggle_container( 'details_<?php echo $method_name.'_'.$functionality_name?>' )" class="functionality_name"><?php echo $functionality_name.' - '.$functionality_arr['name'];?></a></li>
+                            <li><a href="javascript:void(0);" onclick="toggle_container( 'details_<?php echo $method_name.'_'.$functionality_name?>' )" class="functionality_name"><?php echo $functionality_name.' - '.$functionality_arr['name'];?></a></li>
                             <div id="details_<?php echo $method_name.'_'.$functionality_name?>" class="functionality_container clearfix" style="display: none;">
                             <p><?php echo self::s2p_t( 'Quick example on how to use method <em>%s</em> with functionality <em>%s</em>.', $method_name, $functionality_name );?></p>
-                            <code><pre><?php echo $this->display_method_function_example( $method_arr['instance'], $functionality_name ); ?></pre></code>
+                            <pre class="sdk_sample_code"><code><?php echo $this->display_method_function_example( $method_arr['instance'], $functionality_name ); ?></code></pre>
                             </div>
                             <?php
                         }
@@ -338,6 +343,7 @@ a.method_name { font-weight: bold; }
 a.functionality_name { font-weight: bold; }
 .method_container { margin: 0 0 20px 0; }
 .functionality_container { margin: 10px 0; }
+.sdk_sample_code { background-color: #cdcdcd; color: black; padding: 3px; }
 </style>
 <script type="text/javascript">
 function toggle_container( id )
@@ -354,6 +360,9 @@ function toggle_container( id )
 </script>
 </head>
 <body>
+<h1>Welcome to Smart2Pay SDK demo page!</h1>
+<p>Please note that this page contains technical information which is intended to help developers start using our SDK.</p>
+<small class="clearfix">SDK version <?php echo S2P_SDK_VERSION?></small>
 <?php
     }
 

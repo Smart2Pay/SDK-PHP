@@ -2,9 +2,11 @@
 
 namespace S2P_SDK;
 
-if( !defined( 'S2P_SDK_DIR_METHODS' ) )
+if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
     die( 'Something went wrong.' );
 
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_method.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_method_list.inc.php' );
 include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 
 if( !defined( 'S2P_SDK_METH_METHODS_LIST_ALL' ) )
@@ -39,33 +41,50 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
 
     public function get_functionalities()
     {
+        $method_obj = new S2P_SDK_Structure_Method();
+        $method_list_obj = new S2P_SDK_Structure_Method_List();
+
         return array(
 
             self::FUNC_LIST_ALL => array(
                 'name' => self::s2p_t( 'List available methods' ),
                 'url_suffix' => '/v1/methods/',
-                // TODO: add response structure
-                'response_structure' => null,
+                'http_method' => 'GET',
+
+                'mandatory_in_response' => array(
+                    'methods' => array(),
+                ),
+
+                'response_structure' => $method_list_obj,
             ),
 
             self::FUNC_METHOD_DETAILS => array(
                 'name' => self::s2p_t( 'Get method details' ),
-                'url_suffix' => '/v1/methods/',
+                'url_suffix' => '/v1/methods/{*ID*}/',
+                'http_method' => 'GET',
+
                 'get_variables' => array(
                     array(
                         'name' => 'id',
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
+                        'move_in_url' => true,
                     ),
                 ),
-                // TODO: add response structure
-                'response_structure' => null,
+
+                'mandatory_in_response' => array(
+                    'method' => array(),
+                ),
+
+                'response_structure' => $method_obj,
             ),
 
             self::FUNC_LIST_COUNTRY => array(
                 'name' => self::s2p_t( 'Get available methods for specific country' ),
                 'url_suffix' => '/v1/methods/',
+                'http_method' => 'GET',
+
                 'get_variables' => array(
                     array(
                         'name' => 'country',
@@ -74,20 +93,31 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
                         'mandatory' => true,
                     ),
                 ),
-                // TODO: add response structure
-                'response_structure' => null,
+
+                'mandatory_in_response' => array(
+                    'methods' => array(),
+                ),
+
+                'response_structure' => $method_list_obj,
             ),
 
             self::FUNC_ASSIGNED => array(
                 'name' => self::s2p_t( 'Get merchant\'s assigned methods' ),
                 'url_suffix' => '/v1/methods/assigned/',
-                // TODO: add response structure
-                'response_structure' => null,
+                'http_method' => 'GET',
+
+                'mandatory_in_response' => array(
+                    'methods' => array(),
+                ),
+
+                'response_structure' => $method_list_obj,
             ),
 
             self::FUNC_ASSIGNED_COUNTRY => array(
                 'name' => self::s2p_t( 'Get merchant\'s assigned methods for specific country' ),
                 'url_suffix' => '/v1/methods/assigned/',
+                'http_method' => 'GET',
+
                 'get_variables' => array(
                     array(
                         'name' => 'country',
@@ -96,8 +126,12 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
                         'mandatory' => true,
                     ),
                 ),
-                // TODO: add response structure
-                'response_structure' => null,
+
+                'mandatory_in_response' => array(
+                    'methods' => array(),
+                ),
+
+                'response_structure' => $method_list_obj,
             ),
         );
     }

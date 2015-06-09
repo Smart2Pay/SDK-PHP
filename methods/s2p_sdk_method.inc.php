@@ -11,8 +11,8 @@ include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api_request.inc.php' );
 
 abstract class S2P_SDK_Method extends S2P_SDK_Module
 {
-    const ERR_NAME = 1, ERR_GET_VARIABLES = 2, ERR_REQUEST_STRUCTURE = 3, ERR_RESPONSE_STRUCTURE = 4, ERR_MANDATORY = 5, ERR_FUNCTIONALITY = 6,
-          ERR_REQUEST_DATA = 7, ERR_REQUEST_MANDATORY = 8, ERR_HTTP_METHOD = 9;
+    const ERR_NAME = 200, ERR_GET_VARIABLES = 201, ERR_REQUEST_STRUCTURE = 202, ERR_RESPONSE_STRUCTURE = 203, ERR_MANDATORY = 204, ERR_FUNCTIONALITY = 205,
+          ERR_REQUEST_DATA = 206, ERR_REQUEST_MANDATORY = 207, ERR_RESPONSE_DATA = 208, ERR_RESPONSE_MANDATORY = 209, ERR_HTTP_METHOD = 210;
     /**
      * Variable which holds all details regarding method
      * @var array $_definition
@@ -56,6 +56,18 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
      * @return string
      */
     abstract public function default_functionality();
+
+    /**
+     * This method should be overridden by methods which have to check any errors in response data
+     *
+     * @param array $response_data
+     *
+     * @return bool Returns true if response doesn't have errors
+     */
+    public function validate_response( $response_data )
+    {
+        return true;
+    }
 
     /**
      * This method is called right after module instance is created
@@ -271,6 +283,29 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         return true;
     }
 
+    public static function default_response_data()
+    {
+        return array(
+            'func' => '',
+            'response_array' => array(),
+        );
+    }
+
+    public function validate_response_data( $response_data )
+    {
+        $default_response_data = self::default_response_data();
+        if( empty( $response_data ) or !is_array( $response_data ) )
+            return $default_response_data;
+
+        foreach( $default_response_data as $key => $def_val )
+        {
+            if( !array_key_exists( $key, $response_data ) )
+                $response_data[$key] = $def_val;
+        }
+
+        return $response_data;
+    }
+
     /**
      * Prepare query string and request body using variables to be sent in get and request_structure to be sent as JSON in body
      * from method definition.
@@ -284,7 +319,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         if( ! $this->validate_definition() )
             return false;
 
-        $return_arr = array();
+        $return_arr = self::default_response_data();
         $return_arr['func'] = $this->_functionality;
         $return_arr['response_array'] = array();
 
@@ -292,7 +327,44 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
          or $request_result['response_buffer'] == '' )
             return $return_arr;
 
-        if( !empty( $this->_definition['response_structure'] ) )
+        if( !empty( $this->_definition['error_structure'] )
+        and !in_array( $request_result['http_code'], S2P_SDK_Rest_API_Codes::success_codes() ) )
+        {
+            /** @var S2P_SDK_Scope_Structure $error_structure */
+            $error_structure = $this->_definition['error_structure'];
+
+            if( !($json_array = $error_structure->extract_info_from_response_buffer( $request_result['response_buffer'], array( 'output_null_values' => true ) ))
+             or !is_array( $json_array ) )
+            {
+                if( ($parsing_error = $error_structure->get_parsing_error()) )
+                    $this->copy_error_from_array( $parsing_error );
+
+                else
+                    $this->set_error( self::ERR_RESPONSE_DATA, self::s2p_t( 'Couldn\'t extract respose data or response data is empty.' ) );
+
+                return false;
+            }
+
+            if( !empty( $this->_definition['mandatory_in_error'] ) and is_array( $this->_definition['mandatory_in_error'] ) )
+            {
+                if( !$this->check_mandatory_fields( $json_array, $this->_definition['mandatory_in_error'], array( 'scope_arr_type' => 'response error' ) ) )
+                {
+                    if( !$this->has_error() )
+                        $this->set_error( self::ERR_RESPONSE_MANDATORY, self::s2p_t( 'Mandatory fields not found in response error.' ) );
+
+                    return false;
+                }
+            }
+
+            if( !empty( $this->_definition['hide_in_error'] ) and is_array( $this->_definition['hide_in_error'] ) )
+            {
+                $json_array = $this->remove_fields( $json_array, $this->_definition['hide_in_error'], array( 'scope_arr_type' => 'response error' ) );
+            }
+
+            $return_arr['response_array'] = $json_array;
+        }
+
+        elseif( !empty( $this->_definition['response_structure'] ) )
         {
             /** @var S2P_SDK_Scope_Structure $response_structure */
             $response_structure = $this->_definition['response_structure'];
@@ -304,7 +376,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                     $this->copy_error_from_array( $parsing_error );
 
                 else
-                    $this->set_error( self::ERR_REQUEST_DATA, self::s2p_t( 'Couldn\'t extract respose data or response data is empty.' ) );
+                    $this->set_error( self::ERR_RESPONSE_DATA, self::s2p_t( 'Couldn\'t extract respose data or response data is empty.' ) );
 
                 return false;
             }
@@ -314,7 +386,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 if( !$this->check_mandatory_fields( $json_array, $this->_definition['mandatory_in_response'], array( 'scope_arr_type' => 'response' ) ) )
                 {
                     if( !$this->has_error() )
-                        $this->set_error( self::ERR_REQUEST_MANDATORY, self::s2p_t( 'Mandatory fields not found in response.' ) );
+                        $this->set_error( self::ERR_RESPONSE_MANDATORY, self::s2p_t( 'Mandatory fields not found in response.' ) );
 
                     return false;
                 }
@@ -384,6 +456,11 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                     continue;
                 }
 
+                if( !empty( $get_var['skip_if_default'] )
+                and array_key_exists( 'default', $get_var )
+                and $get_var['default'] === $params['get_variables'][$get_var['name']] )
+                    continue;
+
                 $var_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $params['get_variables'][$get_var['name']] );
 
                 if( !empty( $get_var['move_in_url'] ) )
@@ -417,6 +494,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         {
             /** @var S2P_SDK_Scope_Structure $request_structure */
             $request_structure = $this->_definition['request_structure'];
+
+            $request_to_array_params = array();
 
             if( !($json_array = $request_structure->prepare_info_for_request_to_array( $params['method_params'], array( 'output_null_values' => false, 'nullify_full_object' => false ) ))
              or !is_array( $json_array ) )
@@ -593,13 +672,17 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
     protected static function default_get_variables_definition()
     {
         return array(
-            // name of variable
+            // name of variable to be used internally
             'name' => '',
+            // name of variable to be sent to server
+            'external_name' => '',
             // S2P_SDK_Scope_Variable::TYPE_*. Resulting value will be validated through S2P_SDK_Scope_Variable::scalar_value()
             'type' => 0,
             'default' => '',
             'mandatory' => false,
             'move_in_url' => false,
+            // Variable should not be sent in request if it's same value as default value
+            'skip_if_default' => true,
         );
     }
 
@@ -624,6 +707,9 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             else
                 $new_definition_arr[ $key ] = $definition_arr[ $key ];
         }
+
+        if( empty( $new_definition_arr['external_name'] ) )
+            $new_definition_arr['external_name'] = $new_definition_arr['name'];
 
         if( empty( $new_definition_arr['type'] ) or !S2P_SDK_Scope_Variable::valid_type( $new_definition_arr['type'] ) )
         {
@@ -697,6 +783,15 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
             // Structure to be expected back from server at response
             'response_structure' => null,
+
+            // Array with keys representing mandatory properties in error structure (value doesn't matter)
+            'mandatory_in_error' => null,
+
+            // Array with keys representing fields of structure which should be removed from error structure
+            'hide_in_error' => null,
+
+            // Structure to be expected back from server when an error occurs (usefull when error is provided in different structure than the one expected normally)
+            'error_structure' => null,
         );
     }
 

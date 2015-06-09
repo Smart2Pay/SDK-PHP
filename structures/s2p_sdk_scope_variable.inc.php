@@ -16,8 +16,10 @@ if( !defined( 'S2P_SDK_VTYPE_DATETIME' ) )
     define( 'S2P_SDK_VTYPE_DATETIME', 5 );
 if( !defined( 'S2P_SDK_VTYPE_ARRAY' ) )
     define( 'S2P_SDK_VTYPE_ARRAY', 6 );
+if( !defined( 'S2P_SDK_VTYPE_BLARRAY' ) )
+    define( 'S2P_SDK_VTYPE_BLARRAY', 7 );
 if( !defined( 'S2P_SDK_VTYPE_BLOB' ) )
-    define( 'S2P_SDK_VTYPE_BLOB', 7 );
+    define( 'S2P_SDK_VTYPE_BLOB', 8 );
 
 class S2P_SDK_Scope_Variable extends S2P_SDK_Language
 {
@@ -38,7 +40,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
     protected $_value;
 
     const TYPE_STRING = S2P_SDK_VTYPE_STRING, TYPE_INT = S2P_SDK_VTYPE_INT, TYPE_FLOAT = S2P_SDK_VTYPE_FLOAT, TYPE_BOOL = S2P_SDK_VTYPE_BOOL, TYPE_DATETIME = S2P_SDK_VTYPE_DATETIME,
-          TYPE_ARRAY = S2P_SDK_VTYPE_ARRAY, TYPE_BLOB = S2P_SDK_VTYPE_BLOB;
+          TYPE_ARRAY = S2P_SDK_VTYPE_ARRAY, TYPE_BLOB_ARRAY = S2P_SDK_VTYPE_BLARRAY, TYPE_BLOB = S2P_SDK_VTYPE_BLOB;
     private static $TYPES_ARR = array(
         self::TYPE_STRING => array(
             'title' => 'string',
@@ -57,6 +59,9 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         ),
         self::TYPE_ARRAY => array(
             'title' => 'array',
+        ),
+        self::TYPE_BLOB_ARRAY => array(
+            'title' => 'blob_array',
         ),
         self::TYPE_BLOB => array(
             'title' => 'blob',
@@ -151,7 +156,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
 
                         $current_value[$definition[$output_name_key]] = array_merge( $current_value[$definition[$output_name_key]], $property_result );
                     }
-                } elseif( $definition['type'] == self::TYPE_ARRAY )
+                } elseif( $definition['type'] == self::TYPE_BLOB_ARRAY )
                 {
                     $current_value[$definition[$output_name_key]] = array();
                     $knti = -1;
@@ -265,7 +270,10 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                     return false;
                 }
 
-                $current_value[ $definition[ $output_name_key ] ] = self::scalar_value( $definition['type'], $scope_arr[ $definition[ $scope_name_key ] ] );
+                if( $scope_arr[ $definition[ $scope_name_key ] ] === null )
+                    $current_value[ $definition[ $output_name_key ] ] = null;
+                else
+                    $current_value[ $definition[ $output_name_key ] ] = self::scalar_value( $definition['type'], $scope_arr[ $definition[ $scope_name_key ] ] );
             }
 
             else
@@ -297,7 +305,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
 
                             $current_value[$definition[$output_name_key]] = array_merge( $current_value[$definition[$output_name_key]], $property_result );
                         }
-                    } elseif( $definition['type'] == self::TYPE_ARRAY )
+                    } elseif( $definition['type'] == self::TYPE_BLOB_ARRAY )
                     {
                         $current_value[$definition[$output_name_key]] = array();
                         $knti = -1;
@@ -382,7 +390,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         $null_arr = array();
         switch( $definition['type'] )
         {
-            case self::TYPE_ARRAY:
+            case self::TYPE_BLOB_ARRAY:
                 $node_arr = array();
                 foreach( $definition['structure'] as $element_definition )
                 {
@@ -407,7 +415,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         return $null_arr;
     }
 
-    public static function scalar_value( $var_type, $value )
+    public static function scalar_value( $var_type, $value, $array_type = false )
     {
         if( !self::scalar_type( $var_type ) )
             return null;
@@ -419,17 +427,21 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                 if( is_scalar( $value ) )
                     $result = (string)$value;
             break;
+
             case self::TYPE_INT:
                 if( is_scalar( $value ) )
                     $result = intval( $value );
             break;
+
             case self::TYPE_FLOAT:
                 if( is_scalar( $value ) )
                     $result = floatval( $value );
             break;
+
             case self::TYPE_BOOL:
                 $result = (empty( $value )?false:true);
             break;
+
             case self::TYPE_DATETIME:
                 $value = trim( $value );
                 if( !empty( $value )
@@ -455,6 +467,23 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                                   ($hour<10?'0':'').$hour.
                                   ($minute<10?'0':'').$minute.
                                   ($second<10?'0':'').$second;
+                }
+            break;
+
+            case self::TYPE_ARRAY:
+                $result = array();
+                if( !empty( $value ) and is_array( $value ) )
+                {
+                    foreach( $value as $key => $val )
+                    {
+                        if( !is_scalar( $val ) )
+                            continue;
+
+                        if( !empty( $array_type ) and self::scalar_type( $array_type ) )
+                            $result[$key] = self::scalar_value( $array_type, $val );
+                        else
+                            $result[$key] = $val;
+                    }
                 }
             break;
         }
@@ -492,13 +521,13 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
     public static function scalar_type( $type )
     {
         $type = intval( $type );
-        return (in_array( $type, array( self::TYPE_STRING, self::TYPE_INT, self::TYPE_FLOAT, self::TYPE_BOOL, self::TYPE_DATETIME ) )?true:false);
+        return (in_array( $type, array( self::TYPE_STRING, self::TYPE_INT, self::TYPE_FLOAT, self::TYPE_BOOL, self::TYPE_DATETIME, self::TYPE_ARRAY ) )?true:false);
     }
 
     public static function object_type( $type )
     {
         $type = intval( $type );
-        return (in_array( $type, array( self::TYPE_ARRAY, self::TYPE_BLOB ) )?true:false);
+        return (in_array( $type, array( self::TYPE_BLOB_ARRAY, self::TYPE_BLOB ) )?true:false);
     }
 
     public static function get_types()
@@ -522,6 +551,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             'name' => '',
             'external_name' => '',
             'type' => 0,
+            'array_type' => 0,
             'default' => null,
             'regexp' => '',
             'structure' => null,

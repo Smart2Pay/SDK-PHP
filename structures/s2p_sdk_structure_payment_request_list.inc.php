@@ -18,8 +18,9 @@ class S2P_SDK_Structure_Payment_Request_List extends S2P_SDK_Structure_Payment_R
         return array(
             'name' => 'payments',
             'external_name' => 'Payments',
-            'type' => S2P_SDK_VTYPE_ARRAY,
+            'type' => S2P_SDK_VTYPE_BLARRAY,
             'structure' => $this->get_structure_definition(),
+            'default' => null,
         );
     }
 

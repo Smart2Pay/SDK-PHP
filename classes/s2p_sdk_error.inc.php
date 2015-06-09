@@ -153,8 +153,14 @@ class S2P_SDK_Error
      *   @param $error_no int Error code
      *   @param $error_msg string Error message
      **/
-    public function set_error( $error_no, $error_msg, $error_debug_msg = '' )
+    public function set_error( $error_no, $error_msg, $error_debug_msg = '', $params = false )
     {
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+
+        if( empty( $params['prevent_throwing_errors'] ) )
+            $params['prevent_throwing_errors'] = false;
+
         $backtrace = '';
         if( is_array( ($err_info = debug_backtrace()) ) )
         {
@@ -198,7 +204,8 @@ class S2P_SDK_Error
                            'Backtrace:'."\n".
                            $backtrace;
 
-        if( $this->throw_errors() )
+        if( empty( empty( $params['prevent_throwing_errors'] ) )
+        and $this->throw_errors() )
             $this->throw_error();
     }
 
