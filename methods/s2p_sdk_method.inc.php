@@ -70,6 +70,46 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
     }
 
     /**
+     * This method should be overridden by methods which have actions to be taken after we receive response from server
+     *
+     * @param array $call_result
+     * @param array $params
+     *
+     * @return array Returns array with finalize action details
+     */
+    public function finalize( $call_result, $params )
+    {
+        return self::default_finalize_result();
+    }
+
+    public static function default_finalize_result()
+    {
+        return array(
+            'should_redirect' => false,
+            'redirect_headers_set' => false,
+            'redirect_to' => '',
+        );
+    }
+
+    public static function validate_finalize_result( $result )
+    {
+        $default_result = self::default_finalize_result();
+        if( empty( $result ) or !is_array( $result ) )
+            return $default_result;
+
+        $new_result = array();
+        foreach( $default_result as $key => $def_val )
+        {
+            if( !array_key_exists( $key, $result ) )
+                $new_result[$key] = $def_val;
+            else
+                $new_result[$key] = $result[$key];
+        }
+
+        return $new_result;
+    }
+
+    /**
      * This method is called right after module instance is created
      *
      * @param bool|array $module_params
@@ -291,7 +331,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         );
     }
 
-    public function validate_response_data( $response_data )
+    public static function validate_response_data( $response_data )
     {
         $default_response_data = self::default_response_data();
         if( empty( $response_data ) or !is_array( $response_data ) )
@@ -323,7 +363,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         $return_arr['func'] = $this->_functionality;
         $return_arr['response_array'] = array();
 
-        if( !($request_result = S2P_SDK_Rest_API_Request::validate_response_array( $request_result ))
+        if( !($request_result = S2P_SDK_Rest_API_Request::validate_request_array( $request_result ))
          or $request_result['response_buffer'] == '' )
             return $return_arr;
 

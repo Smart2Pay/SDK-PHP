@@ -2,11 +2,12 @@
 
 namespace S2P_SDK;
 
-if( !defined( 'S2P_SDK_DIR_CLASSES' ) )
+if( !defined( 'S2P_SDK_DIR_CLASSES' ) or !defined( 'S2P_SDK_DIR_METHODS' ) )
     die( 'Something went bad' );
 
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api_request.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api_codes.inc.php' );
+include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 
 if( !defined( 'S2P_SDK_REST_TEST' ) )
     define( 'S2P_SDK_REST_TEST', 'test' );
@@ -18,7 +19,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     const ENV_TEST = S2P_SDK_REST_TEST, ENV_LIVE = S2P_SDK_REST_LIVE;
 
     const ERR_ENVIRONMENT = 100, ERR_METHOD = 101, ERR_METHOD_FUNC = 102, ERR_PREPARE_REQUEST = 103, ERR_URL = 104, ERR_HTTP_METHOD = 105,
-          ERR_APIKEY = 106, ERR_CURL_CALL = 107, ERR_PARSE_RESPONSE = 108, ERR_VALIDATE_RESPONSE = 109;
+          ERR_APIKEY = 106, ERR_CURL_CALL = 107, ERR_PARSE_RESPONSE = 108, ERR_VALIDATE_RESPONSE = 109, ERR_CALL_RESULT = 110;
 
     const TEST_BASE_URL = 'https://paytest.smart2pay.com',
           LIVE_BASE_URL = 'https://pay.smart2pay.com';
@@ -41,7 +42,11 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     /** @var S2P_SDK_Rest_API_Request $_request */
     private $_request = null;
 
+    /** @var string $_api_key */
     private $_api_key = '';
+
+    /** @var array $_call_result */
+    private $_call_result = null;
 
     /**
      * This method is called right after module instance is created
@@ -102,6 +107,41 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         $this->_base_url = '';
         $this->_resource_url = '';
         $this->_api_key = '';
+        $this->reset_call_result();
+    }
+
+    private function reset_call_result()
+    {
+        $this->_call_result = null;
+    }
+
+    public static function default_call_result()
+    {
+        return array(
+            'request' => array(),
+            'response' => array(),
+        );
+    }
+
+    public static function validate_call_result( $result )
+    {
+        $default_result = self::default_call_result();
+        if( empty( $result ) or !is_array( $result ) )
+            return $default_result;
+
+        $new_result = array();
+        foreach( $default_result as $key => $def_val )
+        {
+            if( !array_key_exists( $key, $result ) )
+                $new_result[$key] = $def_val;
+            else
+                $new_result[$key] = $result[$key];
+        }
+
+        $new_result['request'] = S2P_SDK_Rest_API_Request::validate_request_array( $new_result['request'] );
+        $new_result['response'] = S2P_SDK_Method::validate_response_data( $new_result['response'] );
+
+        return $new_result;
     }
 
     public function environment( $env = null )
@@ -119,6 +159,16 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
         $this->_environment = $env;
         return true;
+    }
+
+    /**
+     * Return last call result
+     *
+     * @return array Returns last call result or null in case no call was made
+     */
+    public function get_call_result()
+    {
+        return $this->_call_result;
     }
 
     /**
@@ -240,8 +290,37 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         return true;
     }
 
+    public function do_finalize( $params = false )
+    {
+        if( empty( $this->_method ) )
+        {
+            $this->set_error( self::ERR_METHOD, self::s2p_t( 'Method not set' ) );
+            return false;
+        }
+
+        if( !($call_result = $this->get_call_result()) )
+        {
+            $this->set_error( self::ERR_CALL_RESULT, self::s2p_t( 'Invalid call result or previous call failed.' ) );
+            return false;
+        }
+
+        if( !($finalize_result = $this->_method->finalize( $call_result, $params )) )
+        {
+            if( $this->_method->has_error() )
+                $this->copy_error( $this->_method );
+            else
+                $this->set_error( self::ERR_VALIDATE_RESPONSE, self::s2p_t( 'Couldn\'t finalize request after call.' ) );
+
+            return false;
+        }
+
+        return S2P_SDK_Method::validate_finalize_result( $finalize_result );
+    }
+
     public function do_call( $params = false )
     {
+        $this->reset_call_result();
+
         if( empty( $this->_method ) )
         {
             $this->set_error( self::ERR_METHOD, self::s2p_t( 'Method not set' ) );
@@ -317,7 +396,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         and is_array( $hook_result ) )
         {
             if( array_key_exists( 'request_result', $hook_result ) )
-                $request_result = S2P_SDK_Rest_API_Request::validate_response_array( $hook_result['request_result'] );
+                $request_result = S2P_SDK_Rest_API_Request::validate_request_array( $hook_result['request_result'] );
         }
 
         if( empty( $request_result ) )
@@ -382,9 +461,11 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             return false;
         }
 
-        $return_arr = array();
+        $return_arr = self::default_call_result();
         $return_arr['request'] = $request_result;
         $return_arr['response'] = $response_data;
+
+        $this->_call_result = $return_arr;
 
         return $return_arr;
     }

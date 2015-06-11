@@ -2,16 +2,17 @@
 
 namespace S2P_SDK;
 
-if( !defined( 'S2P_SDK_DIR_CLASSES' ) )
+if( !defined( 'S2P_SDK_DIR_CLASSES' ) or !defined( 'S2P_SDK_DIR_METHODS' ) )
     die( 'Something went bad' );
 
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api.inc.php' );
+include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 
 class S2P_SDK_API extends S2P_SDK_Module
 {
     const TYPE_REST = 'rest';
 
-    const ERR_API_TYPE = 1, ERR_API_OBJECT = 2, ERR_API_CALL = 3;
+    const ERR_API_TYPE = 1, ERR_API_OBJECT = 2, ERR_API_CALL = 3, ERR_INPUT = 4;
 
     /** @var string $_api_type */
     private $_api_type = self::TYPE_REST;
@@ -19,8 +20,8 @@ class S2P_SDK_API extends S2P_SDK_Module
     /** @var S2P_SDK_Rest_API $_api */
     private $_api = null;
 
-    /** @var array $_call_result */
-    private $_call_result = null;
+    /** @var array $_finalize_result */
+    private $_finalize_result = null;
 
     /** @var float $_call_time */
     private $_call_time = 0;
@@ -69,11 +70,14 @@ class S2P_SDK_API extends S2P_SDK_Module
         parent::__construct( $params );
     }
 
-    private function reset_api()
+    private function reset_api( $full_reset = true )
     {
-        $this->_api = null;
-        $this->_api_type = self::TYPE_REST;
-        $this->_call_result = null;
+        if( !empty( $full_reset ) )
+        {
+            $this->_api      = null;
+            $this->_api_type = self::TYPE_REST;
+        }
+
         $this->_call_time = 0;
     }
 
@@ -123,28 +127,23 @@ class S2P_SDK_API extends S2P_SDK_Module
     }
 
     /**
-     * Return full API call result
-     *
-     * @return array Return full API call result
-     */
-    public function get_full_call_result()
-    {
-        return $this->_call_result;
-    }
-
-    /**
      * Return JSON decoded array from server response
      *
      * @return array Return JSON decoded array from server response
      */
     public function get_result()
     {
-        if( empty( $this->_call_result ) or !is_array( $this->_call_result )
-         or empty( $this->_call_result['response'] ) or !is_array( $this->_call_result['response'] )
-         or !isset( $this->_call_result['response']['response_array'] ) or !is_array( $this->_call_result['response']['response_array'] ) )
+        if( empty( $this->_api ) )
             return false;
 
-        return $this->_call_result['response']['response_array'];
+        $call_result = $this->_api->get_call_result();
+
+        if( empty( $call_result ) or !is_array( $call_result )
+         or empty( $call_result['response'] ) or !is_array( $call_result['response'] )
+         or !isset( $call_result['response']['response_array'] ) or !is_array( $call_result['response']['response_array'] ) )
+            return false;
+
+        return $call_result['response']['response_array'];
     }
 
     private function create_api_object( $api_params = false )
@@ -186,6 +185,8 @@ class S2P_SDK_API extends S2P_SDK_Module
             return false;
         }
 
+        $this->reset_api( false );
+
         $this->_call_time = 0;
         $call_start = microtime( true );
         if( !($call_result = $this->_api->do_call( $params )) )
@@ -202,9 +203,79 @@ class S2P_SDK_API extends S2P_SDK_Module
 
         $this->_call_time = microtime( true ) - $call_start;
 
-        $this->_call_result = $call_result;
+        return $call_result;
+    }
 
-        return $this->_call_result;
+    public function do_finalize( $params = false )
+    {
+        if( empty( $this->_api ) )
+        {
+            $this->set_error( self::ERR_API_OBJECT, self::s2p_t( 'Couldn\'t finalize, API object is empty.' ) );
+            return false;
+        }
+
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+
+        // If redirect is required, send redirect headers now...
+        if( !isset( $params['redirect_now'] ) )
+            $params['redirect_now'] = true;
+
+        if( !($finalize_result = $this->_api->do_finalize( $params ))
+         or !($finalize_result = S2P_SDK_Method::validate_finalize_result( $finalize_result )) )
+        {
+            if( $this->_api->has_error() )
+                $this->copy_error( $this->_api );
+
+            else
+                $this->set_error( self::ERR_API_CALL, self::s2p_t( 'Couldn\'t finialize API action.' ) );
+
+            return false;
+        }
+
+        if( !empty( $params['redirect_now'] )
+        and !empty( $finalize_result['should_redirect'] ) and !empty( $finalize_result['redirect_to'] )
+        and empty( $finalize_result['redirect_headers_set'] ) )
+        {
+            if( !@headers_sent() )
+            {
+                @header( 'Location: '.$finalize_result['redirect_to'] );
+
+                $finalize_result['redirect_headers_set'] = true;
+            }
+        }
+
+        $this->_finalize_result = $finalize_result;
+
+        return $this->_finalize_result;
+    }
+
+    public static function get_php_input()
+    {
+        static $input = false;
+
+        if( $input !== false )
+            return $input;
+
+        if( ($input = @file_get_contents( 'php://input' )) === false )
+            return false;
+
+        return $input;
+    }
+
+    public function do_handle_notification( $params = false )
+    {
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+
+        if( !isset( $params['force_input_buffer'] ) )
+            $params['force_input_buffer'] = self::get_php_input();
+
+        if( !is_string( $params['force_input_buffer'] ) )
+        {
+            $this->set_error( self::ERR_INPUT, self::s2p_t( 'Couldn\'t read input buffer.' ) );
+            return false;
+        }
     }
 
 }

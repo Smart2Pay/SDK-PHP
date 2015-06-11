@@ -246,7 +246,7 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         );
     }
 
-    public static function validate_response_array( $arr )
+    public static function validate_request_array( $arr )
     {
         if( empty( $arr ) or !is_array( $arr ) )
             $arr = array();
@@ -416,7 +416,7 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         $response['request_error_no'] = @curl_errno( $ch );
         $response['request_params'] = $return_params;
 
-        var_dump( $response );
+        // var_dump( $response );
 
         $this->_request_result = $response;
 

@@ -2,7 +2,7 @@
 
     // Detecting current directory path - in certain environment setups you might have to manually provide this path
     if( !($_current_directory_path = __DIR__) )
-        $_current_directory_path = '.';
+        $_current_directory_path = getcwd();
 
     define( 'S2P_SDK_VERSION', '1.0.0' );
 

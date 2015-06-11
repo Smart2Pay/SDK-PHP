@@ -86,11 +86,6 @@ class S2P_SDK_Play extends S2P_SDK_Module
     {
     }
 
-    public function extract_context()
-    {
-
-    }
-
     public function play()
     {
         if( !$this->get_method_details() )
@@ -360,7 +355,7 @@ function toggle_container( id )
 </script>
 </head>
 <body>
-<h1>Welcome to Smart2Pay SDK demo page!</h1>
+<h1>Welcome to Smart2Pay SDK info page!</h1>
 <p>Please note that this page contains technical information which is intended to help developers start using our SDK.</p>
 <small class="clearfix">SDK version <?php echo S2P_SDK_VERSION?></small>
 <?php
