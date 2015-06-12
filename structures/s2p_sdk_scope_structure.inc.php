@@ -84,6 +84,68 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
     }
 
     /**
+     * Returns validated definition with variable names as keys
+     *
+     * @return array Structure definition with variable names as keys
+     */
+    function get_structure_with_keys( $definition_arr = null, $top_level = true )
+    {
+        static $result_definition = null;
+
+        if( $result_definition !== null )
+            return $result_definition;
+
+        if( $definition_arr === null
+            and !($definition_arr = $this->get_validated_definition()) )
+            return false;
+
+        if( empty( $definition_arr ) or !is_array( $definition_arr ) )
+            return null;
+
+        $new_definition = array();
+        if( !empty( $definition_arr['structure'] ) )
+            $new_definition[$definition_arr['name']] = $this->get_structure_with_keys( $definition_arr['structure'], false );
+        else
+            $new_definition[$definition_arr['name']] = $definition_arr;
+
+        if( $top_level )
+            $result_definition = $new_definition;
+
+        return $new_definition;
+    }
+
+    /**
+     * Returns validated definition with variable external names as keys
+     *
+     * @return array Structure definition with variable external names as keys
+     */
+    function get_structure_with_external_keys( $definition_arr = null, $top_level = true )
+    {
+        static $result_definition = null;
+
+        if( $result_definition !== null )
+            return $result_definition;
+
+        if( $definition_arr === null
+            and !($definition_arr = $this->get_validated_definition()) )
+            return false;
+
+        if( empty( $definition_arr ) or !is_array( $definition_arr ) )
+            return null;
+
+        $new_definition = array();
+        if( !empty( $definition_arr['structure'] ) )
+            $new_definition[$definition_arr['external_name']] = $this->get_structure_with_keys( $definition_arr['structure'], false );
+        else
+            $new_definition[$definition_arr['external_name']] = $definition_arr;
+
+        if( $top_level )
+            $result_definition = $new_definition;
+
+        return $new_definition;
+    }
+
+    /**
      * Merge a structure with current one to form a request or to parse a response
      * Order of merged structures will determine order of keys in resulting JSON
      *

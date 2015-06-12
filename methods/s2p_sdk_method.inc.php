@@ -8,11 +8,13 @@ if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) or
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_scope_variable.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_scope_structure.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api_request.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source.inc.php' );
 
 abstract class S2P_SDK_Method extends S2P_SDK_Module
 {
     const ERR_NAME = 200, ERR_GET_VARIABLES = 201, ERR_REQUEST_STRUCTURE = 202, ERR_RESPONSE_STRUCTURE = 203, ERR_MANDATORY = 204, ERR_FUNCTIONALITY = 205,
-          ERR_REQUEST_DATA = 206, ERR_REQUEST_MANDATORY = 207, ERR_RESPONSE_DATA = 208, ERR_RESPONSE_MANDATORY = 209, ERR_HTTP_METHOD = 210;
+          ERR_REQUEST_DATA = 206, ERR_REQUEST_MANDATORY = 207, ERR_RESPONSE_DATA = 208, ERR_RESPONSE_MANDATORY = 209, ERR_HTTP_METHOD = 210,
+          ERR_METHOD_FILES = 211, ERR_INSTANTIATE_METHOD = 212, ERR_VALUE_SOURCE = 213;
     /**
      * Variable which holds all details regarding method
      * @var array $_definition
@@ -149,6 +151,48 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
     function __construct( $params = false )
     {
         parent::__construct( $params );
+    }
+
+    public static function get_all_methods()
+    {
+        static $method_details = null;
+
+        if( !empty( $method_details ) )
+            return $method_details;
+
+        self::st_reset_error();
+
+        if( !($method_files_arr = @glob( S2P_SDK_DIR_METHODS.'s2p_sdk_meth_*.inc.php' ))
+         or !is_array( $method_files_arr ) )
+        {
+            self::st_set_error( self::ERR_METHOD_FILES, self::s2p_t( 'No methods found in this SDK.' ) );
+            return false;
+        }
+
+        $method_details = array();
+        foreach( $method_files_arr as $method_file )
+        {
+            if( !preg_match( '@'.S2P_SDK_DIR_METHODS.'s2p_sdk_meth_([a-zA-Z0-9_-]+).inc.php@', $method_file, $matches )
+             or !is_array( $matches ) or empty( $matches[1] ) )
+                continue;
+
+            if( !($instance = self::get_instance( 'S2P_SDK_Meth_'.ucfirst( $matches[1] ) )) )
+            {
+                if( !self::st_has_error() )
+                    self::st_set_error( self::ERR_INSTANTIATE_METHOD, self::s2p_t( 'Error instantiating method %s.', ucfirst( $matches[1] ) ) );
+
+                $method_details = null;
+
+                return false;
+            }
+
+            $method_details[$matches[1]] = array(
+                'file' => $method_file,
+                'instance' => $instance,
+            );
+        }
+
+        return $method_details;
     }
 
     protected function reset_method()
@@ -483,6 +527,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
         if( !empty( $this->_definition['get_variables'] ) and is_array( $this->_definition['get_variables'] ) )
         {
+            $value_source_obj = new S2P_SDK_Values_Source();
+
             foreach( $this->_definition['get_variables'] as $get_var )
             {
                 if( !array_key_exists( $get_var['name'], $params['get_variables'] ) )
@@ -502,6 +548,15 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                     continue;
 
                 $var_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $params['get_variables'][$get_var['name']] );
+
+                if( !empty( $get_var['value_source'] ) and $value_source_obj::valid_type( $get_var['value_source'] ) )
+                {
+                    if( !$value_source_obj->valid_value( $var_value ) )
+                    {
+                        $this->set_error( self::ERR_VALUE_SOURCE, self::s2p_t( 'Variable %s contains invalid value.', $get_var['name'] ) );
+                        return false;
+                    }
+                }
 
                 if( !empty( $get_var['move_in_url'] ) )
                     $return_arr['url_variables'][$get_var['name']] = $var_value;
@@ -536,8 +591,10 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             $request_structure = $this->_definition['request_structure'];
 
             $request_to_array_params = array();
+            $request_to_array_params['output_null_values'] = false;
+            $request_to_array_params['nullify_full_object'] = false;
 
-            if( !($json_array = $request_structure->prepare_info_for_request_to_array( $params['method_params'], array( 'output_null_values' => false, 'nullify_full_object' => false ) ))
+            if( !($json_array = $request_structure->prepare_info_for_request_to_array( $params['method_params'], $request_to_array_params ))
              or !is_array( $json_array ) )
             {
                 if( ($parsing_error = $request_structure->get_parsing_error()) )
@@ -723,6 +780,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             'move_in_url' => false,
             // Variable should not be sent in request if it's same value as default value
             'skip_if_default' => true,
+            // In case GET variable has a class that can generate key value pairs (defined in S2P_SDK_Values_Source::TYPE_*)
+            'value_source' => 0,
         );
     }
 
@@ -754,6 +813,12 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         if( empty( $new_definition_arr['type'] ) or !S2P_SDK_Scope_Variable::valid_type( $new_definition_arr['type'] ) )
         {
             self::st_set_error( self::ERR_GET_VARIABLES, self::s2p_t( 'Invalid type for variable %s.', $new_definition_arr['name'] ) );
+            return false;
+        }
+
+        if( empty( $new_definition_arr['value_source'] ) or !S2P_SDK_Values_Source::valid_type( $new_definition_arr['value_source'] ) )
+        {
+            self::st_set_error( self::ERR_GET_VARIABLES, self::s2p_t( 'Invalid values source for variable %s.', $new_definition_arr['name'] ) );
             return false;
         }
 

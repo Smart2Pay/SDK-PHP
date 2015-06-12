@@ -10,6 +10,7 @@ include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_response.inc.php
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_response_list.inc.php' );
 include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_api.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source.inc.php' );
 
 if( !defined( 'S2P_SDK_METH_PAYMENTS_INIT' ) )
     define( 'S2P_SDK_METH_PAYMENTS_INIT', 'payment_init' );
@@ -264,12 +265,14 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                         'type' => S2P_SDK_Scope_Variable::TYPE_STRING,
                         'default' => '',
                         'mandatory' => false,
+                        'value_source' => S2P_SDK_Values_Source::TYPE_COUNTRY,
                     ),
                     array(
                         'name' => 'currency',
                         'type' => S2P_SDK_Scope_Variable::TYPE_STRING,
                         'default' => '',
                         'mandatory' => false,
+                        'value_source' => S2P_SDK_Values_Source::TYPE_CURRENCY,
                     ),
                     array(
                         'name' => 'minimum_amount',

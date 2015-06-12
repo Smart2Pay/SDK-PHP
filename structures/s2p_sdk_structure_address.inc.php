@@ -2,8 +2,10 @@
 
 namespace S2P_SDK;
 
-if( !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
+if( !defined( 'S2P_SDK_DIR_STRUCTURES' ) or !defined( 'S2P_SDK_DIR_CLASSES' ) )
     die( 'Something went wrong.' );
+
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source.inc.php' );
 
 class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
 {
@@ -41,6 +43,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^[a-zA-Z]{2}$',
+                'value_source' => S2P_SDK_Values_Source::TYPE_COUNTRY,
             ),
             array(
                 'name' => 'city',

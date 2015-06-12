@@ -41,35 +41,14 @@ class S2P_SDK_Play extends S2P_SDK_Module
 
     private function get_method_details()
     {
-        if( !($method_files_arr = @glob( S2P_SDK_DIR_METHODS.'s2p_sdk_meth_*.inc.php' ))
-         or !is_array( $method_files_arr ) )
+        if( !($this->_method_details = S2P_SDK_Method::get_all_methods()) )
         {
-            $this->set_error( self::ERR_METHODS, 'No methods found in this SDK.' );
+            if( self::st_has_error() )
+                $this->copy_static_error();
+            else
+                $this->set_error( self::ERR_METHODS, 'Couldn\'t obtain methods information.' );
+
             return false;
-        }
-
-        $this->_method_details = array();
-        foreach( $method_files_arr as $method_file )
-        {
-            if( !preg_match( '@'.S2P_SDK_DIR_METHODS.'s2p_sdk_meth_([a-zA-Z0-9_-]+).inc.php@', $method_file, $matches )
-             or !is_array( $matches ) or empty( $matches[1] ) )
-                continue;
-
-            if( !($instance = self::get_instance( 'S2P_SDK_Meth_'.ucfirst( $matches[1] ) )) )
-            {
-                if( self::st_has_error() )
-                    $this->copy_static_error();
-
-                else
-                    $this->set_error( self::ERR_INSTANTIATE_METHOD, self::s2p_t( 'Error instantiating method %s.', ucfirst( $matches[1] ) ) );
-
-                return false;
-            }
-
-            $this->_method_details[$matches[1]] = array(
-                'file' => $method_file,
-                'instance' => $instance,
-            );
         }
 
         return true;
@@ -88,7 +67,7 @@ class S2P_SDK_Play extends S2P_SDK_Module
 
     public function play()
     {
-        if( !$this->get_method_details() )
+        if( !$this->get_method_details( array( 'get_instances' => true ) ) )
             return false;
 
         $this->display_header();

@@ -2,12 +2,13 @@
 
 namespace S2P_SDK;
 
-if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
+if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) or !defined( 'S2P_SDK_DIR_CLASSES' ) )
     die( 'Something went wrong.' );
 
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_method.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_method_list.inc.php' );
 include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source.inc.php' );
 
 if( !defined( 'S2P_SDK_METH_METHODS_LIST_ALL' ) )
     define( 'S2P_SDK_METH_METHODS_LIST_ALL', 'list_all' );
@@ -91,6 +92,7 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
                         'type' => S2P_SDK_Scope_Variable::TYPE_STRING,
                         'default' => '',
                         'mandatory' => true,
+                        'value_source' => S2P_SDK_Values_Source::TYPE_COUNTRY,
                     ),
                 ),
 
@@ -124,6 +126,7 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
                         'type' => S2P_SDK_Scope_Variable::TYPE_STRING,
                         'default' => '',
                         'mandatory' => true,
+                        'value_source' => S2P_SDK_Values_Source::TYPE_COUNTRY,
                     ),
                 ),
 

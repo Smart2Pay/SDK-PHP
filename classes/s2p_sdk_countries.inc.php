@@ -2,7 +2,7 @@
 
 namespace S2P_SDK;
 
-class S2P_SDK_Currencies extends S2P_SDK_Language
+class S2P_SDK_Countries extends S2P_SDK_Language
 {
     private static $COUNTRIES_ARR = array(
         'AD' => 'Andorra',
