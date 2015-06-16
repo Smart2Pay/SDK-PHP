@@ -75,7 +75,7 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
                 $return_arr = S2P_SDK_Countries::get_countries();
                 foreach( $return_arr as $key => $text )
                 {
-                    $return_arr[$key] = $key.' - '.$text;
+                    $return_arr[$key] = $text.' - '.$key;
                 }
             break;
 

@@ -385,7 +385,7 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
             curl_setopt( $ch, CURLOPT_USERAGENT, $params['user_agent'] );
 
         @curl_setopt( $ch, CURLOPT_URL, $url );
-        @curl_setopt( $ch, CURLOPT_HEADER, 0 );
+        @curl_setopt( $ch, CURLOPT_HEADER, 1 );
         if( defined( 'CURLINFO_HEADER_OUT' ) )
             @curl_setopt( $ch, constant( 'CURLINFO_HEADER_OUT' ), true );
         @curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
@@ -398,6 +398,52 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
 
         $response_buf = @curl_exec( $ch );
 
+        $request_headers = array();
+        if( ($header_lines_arr = explode( "\n", $response_buf ))
+        and is_array( $header_lines_arr ) )
+        {
+            $new_response_buf = '';
+            $in_headers = true;
+            foreach( $header_lines_arr as $line_no => $line )
+            {
+                if( $in_headers and rtrim( $line ) === '' )
+                {
+                    $in_headers = false;
+                    continue;
+                }
+
+                if( !$in_headers )
+                    $new_response_buf .= $line."\n";
+
+                else
+                {
+                    if( ($header_key_val = explode( ':', $line, 2 ))
+                    and is_array( $header_key_val ) )
+                    {
+                        $key = false;
+                        if( !isset( $header_key_val[1] ) )
+                            $val = $header_key_val[0];
+
+                        else
+                        {
+                            $key = trim( $header_key_val[0] );
+                            $val = ltrim( $header_key_val[1] );
+                        }
+
+                        $val = trim( $val );
+
+                        if( $key === false )
+                            $request_headers[] = $val;
+                        else
+                            $request_headers[$key] = $val;
+                    }
+                }
+            }
+
+            $response_buf = $new_response_buf;
+            unset( $new_response_buf );
+        }
+
         $return_params = $params;
         if( isset( $return_params['userpass']['pass'] ) )
             $return_params['userpass']['pass'] = '(undisclosed_pass)';
@@ -408,6 +454,7 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         $response = self::default_response_array();
 
         $response['request_buffer'] = $post_string;
+        $response['response_headers'] = $request_headers;
         $response['response_buffer'] = $response_buf;
         if( !empty( $curl_info ) and !empty( $curl_info['http_code'] ) )
             $response['http_code'] = $curl_info['http_code'];

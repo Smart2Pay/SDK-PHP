@@ -551,9 +551,10 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
                 if( !empty( $get_var['value_source'] ) and $value_source_obj::valid_type( $get_var['value_source'] ) )
                 {
+                    $value_source_obj->source_type( $get_var['value_source'] );
                     if( !$value_source_obj->valid_value( $var_value ) )
                     {
-                        $this->set_error( self::ERR_VALUE_SOURCE, self::s2p_t( 'Variable %s contains invalid value.', $get_var['name'] ) );
+                        $this->set_error( self::ERR_VALUE_SOURCE, self::s2p_t( 'Variable %s contains invalid value [%s].', $get_var['name'], $var_value ) );
                         return false;
                     }
                 }
@@ -816,7 +817,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             return false;
         }
 
-        if( empty( $new_definition_arr['value_source'] ) or !S2P_SDK_Values_Source::valid_type( $new_definition_arr['value_source'] ) )
+        if( !empty( $new_definition_arr['value_source'] ) and !S2P_SDK_Values_Source::valid_type( $new_definition_arr['value_source'] ) )
         {
             self::st_set_error( self::ERR_GET_VARIABLES, self::s2p_t( 'Invalid values source for variable %s.', $new_definition_arr['name'] ) );
             return false;
@@ -905,6 +906,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         if( !is_null( $this->_definition ) )
             return true;
 
+        $this->reset_error();
+
         $default_definition = self::default_method_definition();
 
         $definition_arr = $this->get_method_definition();
@@ -955,6 +958,9 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
             $new_definition_arr['get_variables'] = $new_var_definition_arr;
         }
+
+        if( $this->has_error() )
+            return false;
 
         /** @var S2P_SDK_Scope_Structure $new_definition_arr['request_structure'] */
         if( empty( $new_definition_arr['request_structure'] ) )

@@ -164,6 +164,11 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     ),
                 ),
 
+                'context_from_request' => array(
+                    'currency' => 'Payment.Currency',
+                    'country' => 'Payment.Country',
+                ),
+
                 'request_structure' => $payment_request_obj,
 
                 'mandatory_in_response' => array(

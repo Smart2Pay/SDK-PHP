@@ -68,6 +68,11 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
                 return false;
         }
 
+        if( empty( $module_params['api_key'] ) and defined( 'S2P_SDK_API_KEY' ) and constant( 'S2P_SDK_API_KEY' ) )
+            $module_params['api_key'] = constant( 'S2P_SDK_API_KEY' );
+        if( empty( $module_params['environment'] ) and defined( 'S2P_SDK_ENVIRONMENT' ) and constant( 'S2P_SDK_ENVIRONMENT' ) )
+            $module_params['environment'] = constant( 'S2P_SDK_ENVIRONMENT' );
+
         if( !empty( $module_params['environment'] ) )
         {
             if( !$this->environment( $module_params['environment'] ) )
@@ -118,6 +123,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     public static function default_call_result()
     {
         return array(
+            'final_url' => '',
             'request' => array(),
             'response' => array(),
         );
@@ -321,6 +327,12 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     {
         $this->reset_call_result();
 
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+
+        if( empty( $params['quick_return_request'] ) )
+            $params['quick_return_request'] = false;
+
         if( empty( $this->_method ) )
         {
             $this->set_error( self::ERR_METHOD, self::s2p_t( 'Method not set' ) );
@@ -358,6 +370,15 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         }
 
         $final_url = $this->_base_url.$request_data['full_query'];
+
+        if( !empty( $params['quick_return_request'] ) )
+        {
+            $return_arr = array();
+            $return_arr['final_url'] = $final_url;
+            $return_arr['request_data'] = $request_data;
+
+            return $return_arr;
+        }
 
         if( !($this->_request = new S2P_SDK_Rest_API_Request()) )
         {
@@ -421,13 +442,21 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             if( empty( $request_result['response_buffer'] ) )
             {
                 // In case there's nothing to parse, throw generic error...
-                $this->throw_error();
+                if( $this->throw_errors() )
+                    $this->throw_error();
                 return false;
             }
         }
 
         if( !($response_data = $this->_method->parse_response( $request_result )) )
         {
+            if( $this->has_error() )
+            {
+                if( $this->throw_errors() )
+                    $this->throw_error();
+                return false;
+            }
+
             if( $this->_method->has_error() )
                 $this->copy_error( $this->_method );
             else
@@ -462,6 +491,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         }
 
         $return_arr = self::default_call_result();
+        $return_arr['final_url'] = $final_url;
         $return_arr['request'] = $request_result;
         $return_arr['response'] = $response_data;
 

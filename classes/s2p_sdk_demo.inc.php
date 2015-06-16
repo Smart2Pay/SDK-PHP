@@ -9,7 +9,8 @@ include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 
 class S2P_SDK_Demo extends S2P_SDK_Module
 {
-    const ERR_BASE_URL = 1, ERR_INSTANTIATE_METHOD = 2, ERR_FUNCTIONALITY = 3;
+    const ERR_BASE_URL = 1, ERR_INSTANTIATE_METHOD = 2, ERR_FUNCTIONALITY = 3,
+          ERR_APIKEY = 4, ERR_ENVIRONMENT = 5;
 
     /** @var string $_base_url */
     private $_base_url = '';
@@ -60,7 +61,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         $this->_post_data = null;
     }
 
-    // We assume all calls to Demo class are made from samples directory inside SDK root directory...
+    // We assume all calls to Demo class are made using full URL to demo.php file in root directory of SDK...
     public static function guess_base_url()
     {
         if( empty( $_SERVER['HTTP_HOST'] ) )
@@ -112,6 +113,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             'func' => '',
             'gvars' => array(),
             'mparams' => array(),
+            'do_submit' => 0,
         );
     }
 
@@ -206,12 +208,21 @@ class S2P_SDK_Demo extends S2P_SDK_Module
     {
         $post_arr = self::validate_post_data( $post_arr );
 
+        if( empty( $post_arr['foobar'] ) )
+        {
+            // form defaults
+            if( empty( $post_arr['api_key'] ) and defined( 'S2P_SDK_API_KEY' ) and constant( 'S2P_SDK_API_KEY' ) )
+                $post_arr['api_key'] = constant( 'S2P_SDK_API_KEY' );
+            if( empty( $post_arr['environment'] ) and defined( 'S2P_SDK_ENVIRONMENT' ) and constant( 'S2P_SDK_ENVIRONMENT' ) )
+                $post_arr['environment'] = constant( 'S2P_SDK_ENVIRONMENT' );
+        }
+
         ob_start();
         ?>
         <input type="hidden" name="foobar" value="1" />
         <div class="form_field">
             <label for="api_key">API Key</label>
-            <div class="form_input"><input type="text" id="api_key" name="api_key" value="<?php self::form_str( $post_arr['api_key'] )?>" style="width: 350px;" /></div>
+            <div class="form_input"><input type="text" id="api_key" name="api_key" value="<?php echo self::form_str( $post_arr['api_key'] )?>" style="width: 350px;" /></div>
         </div>
 
         <div class="form_field">
@@ -275,12 +286,50 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         return $buf;
     }
 
+    private function validate_form_method_get_params_fields( $post_arr, $submit_result_arr )
+    {
+        if( empty( $this->_method )
+         or empty( $this->_method_func )
+         or !($func_details = $this->_method_func_details)
+         or empty( $func_details['get_variables'] ) or !is_array( $func_details['get_variables'] ) )
+            return $submit_result_arr;
+
+        $post_arr = self::validate_post_data( $post_arr );
+        $submit_result_arr = self::validate_submit_result( $submit_result_arr );
+
+        foreach( $func_details['get_variables'] as $get_var )
+        {
+            if( empty( $get_var['type'] )
+             or !($field_type_arr = S2P_SDK_Scope_Variable::valid_type( $get_var['type'] )) )
+            {
+                $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Invalid variable type for variable %s.', $get_var['name'] );
+                continue;
+            }
+
+            if( isset( $post_arr['gvars'][ $get_var['name'] ] ) )
+                $field_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $post_arr['gvars'][ $get_var['name'] ] );
+            elseif( isset( $get_var['default'] ) )
+                $field_value = $get_var['default'];
+            else
+                $field_value = '';
+
+            if( !empty( $get_var['mandatory'] )
+            and empty( $field_value ) )
+            {
+                $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Mandatory field %s not provided.', $get_var['name'] );
+                continue;
+            }
+        }
+
+        return $submit_result_arr;
+    }
+
     private function get_form_method_get_params_fields( $post_arr, $form_arr )
     {
         if( empty( $this->_method )
          or empty( $form_arr ) or !is_array( $form_arr ) or empty( $form_arr['form_name'] )
-         or empty( $post_arr['func'] )
-         or !($func_details = $this->_method->valid_functionality( $post_arr['func'] ))
+         or empty( $this->_method_func )
+         or !($func_details = $this->_method_func_details)
          or empty( $func_details['get_variables'] ) or !is_array( $func_details['get_variables'] ) )
             return '';
 
@@ -319,10 +368,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                     and ($options_value = $value_source_obj->get_option_values()) )
                     {
                         ?><select id="<?php echo $field_id?>" name="<?php echo $field_name?>">
-                        <option value="0"> - <?php echo self::s2p_t( 'Choose an option' );?> - </option><?php
+                        <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> - </option><?php
                         foreach( $options_value as $key => $val )
                         {
-                            ?><option value="<?php echo self::form_str( $key )?>"><?php echo $val;?></option><?php
+                            ?><option value="<?php echo self::form_str( $key );?>" <?php echo ($field_value == $key?'selected="selected"':'')?>><?php echo $val;?></option><?php
                         }
                         ?></select><?php
                     }
@@ -403,7 +452,35 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
     public static function extract_field_value( $post_arr, $dotted_path )
     {
-        return 'working on it';
+        if( empty( $post_arr ) )
+            return '';
+
+        if( !is_array( $dotted_path ) and !is_string( $dotted_path ) )
+            return '';
+
+        if( is_string( $dotted_path ) )
+            $dotted_path = explode( '.', str_replace( '..', '.', $dotted_path ) );
+
+        if( empty( $dotted_path ) or !is_array( $dotted_path ) )
+            return '';
+
+        $current_index = $dotted_path[0];
+
+        if( !array_key_exists( $current_index, $post_arr ) )
+            return '';
+
+        if( is_scalar( $post_arr[$current_index] ) )
+            return $post_arr[$current_index];
+
+        if( is_array( $post_arr[$current_index] ) and !empty( $dotted_path[1] ) )
+        {
+            if( array_shift( $dotted_path ) === null )
+                return '';
+
+            return self::extract_field_value( $post_arr[$current_index], $dotted_path );
+        }
+
+        return '';
     }
 
     private function get_form_method_parameters_fields_detailed( $structure_definition, $mandatory_arr, $hide_keys_arr, $post_arr, $form_arr, $params = false )
@@ -435,7 +512,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
             $field_id = str_replace( '.', '_', $params['path'] );
             $field_name = 'mparams['.str_replace( '.', '][', $params['path'] ).']';
-            $field_value = self::extract_field_value( $post_arr, $params['path'] );
+            $field_value = self::extract_field_value( $post_arr['mparams'], $params['path'] );
 
             if( !($field_type_arr = S2P_SDK_Scope_Variable::valid_type( $structure_definition['type'] )) )
                 $field_type_arr = array( 'title' => '[undefined]' );
@@ -456,16 +533,23 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                         and ($options_value = $value_source_obj->get_option_values()) )
                         {
                             ?><select id="<?php echo $field_id?>" name="<?php echo $field_name?>">
-                            <option value="0"> - <?php echo self::s2p_t( 'Choose an option' );?> - </option><?php
+                            <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> - </option><?php
                             foreach( $options_value as $key => $val )
                             {
-                                ?><option value="<?php echo self::form_str( $key )?>"><?php echo $val;?></option><?php
+                                ?><option value="<?php echo self::form_str( $key )?>" <?php echo ($field_value==$key?'selected="selected"':'');?>><?php echo $val;?></option><?php
                             }
                             ?></select><?php
                         }
                     } else
                     {
-                        ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" /><?php
+                        // TODO: Add datepicker for TYPE_DATETIME
+                        if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_BOOL )
+                        {
+                            ?><input type="checkbox" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="1" <?php echo (!empty( $field_value )?'checked="checked"':'')?> /><?php
+                        } else
+                        {
+                            ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" /><?php
+                        }
 
                         echo ' ('.$field_type_arr['title'].')';
                     }
@@ -493,8 +577,8 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         foreach( $structure_definition['structure'] as $element_definition )
         {
             if( ($element_buffer = $this->get_form_method_parameters_fields_detailed( $element_definition,
-                ( array_key_exists( $element_definition['name'], $mandatory_arr ) ? $mandatory_arr[ $element_definition['name'] ] : array() ),
-                ( array_key_exists( $element_definition['name'], $hide_keys_arr ) ? $hide_keys_arr[ $element_definition['name'] ] : array() ),
+                ( array_key_exists( $structure_definition['name'], $mandatory_arr ) ? $mandatory_arr[ $structure_definition['name'] ] : array() ),
+                ( array_key_exists( $structure_definition['name'], $hide_keys_arr ) ? $hide_keys_arr[ $structure_definition['name'] ] : array() ),
                 $post_arr,
                 $form_arr,
                 $params ) ) )
@@ -507,20 +591,130 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         return $structure_buffer;
     }
 
-    public function get_init_payment_form( $params = false )
+    public static function default_submit_result()
     {
+        return array(
+            'form_submitted' => false,
+            'errors_arr' => array(),
+            'warnings_arr' => array(),
+            'success_arr' => array(),
+            'post_arr' => array(),
+            'api_obj' => null,
+        );
+    }
+
+    public static function validate_submit_result( $submit_arr )
+    {
+        $default_var = self::default_submit_result();
+
+        if( empty( $submit_arr ) or !is_array( $submit_arr ) )
+            return $default_var;
+
+        foreach( $default_var as $key => $val )
+        {
+            if( !array_key_exists( $key, $submit_arr ) )
+                $submit_arr[$key] = $val;
+        }
+
+        return $submit_arr;
+    }
+
+    public function handle_submit( $params = false )
+    {
+        $this->reset_error();
+
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
 
-        $params['method'] = 'payments';
-        //$params['func'] = 'payment_init';
-        $params['func'] = 'payments_list';
+        if( empty( $params['post_arr'] ) )
+            $params['post_arr'] = self::extract_post_data();
 
-        $params['submit_text'] = self::s2p_t( 'Initiate payment' );
+        if( !is_array( $params['post_arr'] ) )
+            $params['post_arr'] = array();
 
-        $params['form_action_suffix'] = 'samples/init_payment.php';
+        $post_arr = $params['post_arr'];
 
-        return $this->get_form( $params );
+        $return_arr = self::default_submit_result();
+        $return_arr['post_arr'] = $post_arr;
+
+        if( empty( $post_arr['do_submit'] ) )
+            return $return_arr;
+
+        $return_arr['form_submitted'] = true;
+
+        if( empty( $post_arr['method'] )
+         or !$this->init_method( $post_arr['method'] ) )
+        {
+            // Reset error generated by method initialization
+            $this->reset_error();
+
+            $post_arr['method'] = '';
+
+            $return_arr['errors_arr'][] = self::s2p_t( 'Invalid API method.' );
+        }
+
+        if( !empty( $post_arr['func'] )
+        and !$this->init_functionality( $post_arr['func'] ) )
+            $post_arr['func'] = '';
+
+        // check mandatory fields...
+        if( empty( $post_arr['api_key'] ) )
+            $return_arr['errors_arr'][] = self::s2p_t( 'Invalid API key.' );
+
+        if( empty( $post_arr['environment'] ) or !in_array( $post_arr['environment'], array( 'live', 'test' ) ) )
+            $return_arr['errors_arr'][] = self::s2p_t( 'Invalid API environment.' );
+
+        $return_arr['post_arr'] = $post_arr;
+
+        // If we have basic errors to display don't let script continue;
+        if( !empty( $return_arr['errors_arr'] ) )
+            return $return_arr;
+
+        if( ($new_return_arr = $this->validate_form_method_get_params_fields( $post_arr, $return_arr ))
+        and is_array( $new_return_arr ) )
+        {
+            if( !empty( $new_return_arr['errors_arr'] ) )
+                $return_arr['errors_arr'] = array_merge( $return_arr['errors_arr'], $new_return_arr['errors_arr'] );
+            if( !empty( $new_return_arr['warnings_arr'] ) )
+                $return_arr['warnings_arr'] = array_merge( $return_arr['warnings_arr'], $new_return_arr['warnings_arr'] );
+            if( !empty( $new_return_arr['success_arr'] ) )
+                $return_arr['success_arr'] = array_merge( $return_arr['success_arr'], $new_return_arr['success_arr'] );
+        }
+
+        if( empty( $return_arr['errors_arr'] ) )
+        {
+            $api_params = array();
+            $api_params['api_key'] = $post_arr['api_key'];
+            $api_params['environment'] = $post_arr['environment'];
+
+            $api_params['method'] = $post_arr['method'];
+            $api_params['func'] = $post_arr['func'];
+
+            $api_params['get_variables'] = $post_arr['gvars'];
+            $api_params['method_params'] = $post_arr['mparams'];
+
+            /** @var S2P_SDK_API $api */
+            if( !($api = self::get_instance( 'S2P_SDK_API', $api_params )) )
+            {
+                if( ($error_arr = self::st_get_error()) and is_array( $error_arr ) )
+                    $return_arr['errors_arr'][] = $error_arr['display_error'];
+                else
+                    $return_arr['errors_arr'][] = self::s2p_t( 'Error initializing API object.' );
+            } elseif( !$api->do_call() )
+            {
+                $return_arr['errors_arr'][] = self::s2p_t( 'API call FAILED. (%ss)', $api->get_call_time() );
+
+                if( ($error_arr = $api->get_error()) and is_array( $error_arr ) )
+                    $return_arr['errors_arr'][] = 'API said: '.$error_arr['display_error'];
+            } else
+            {
+                $return_arr['success_arr'][] = self::s2p_t( 'Successfull API call. (%ss)', $api->get_call_time() );
+
+                $return_arr['api_obj'] = $api;
+            }
+        }
+
+        return $return_arr;
     }
 
     public function get_form( $params = false )
@@ -532,12 +726,14 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             $params['form_action_suffix'] = '';
         if( empty( $params['post_params'] ) )
             $params['post_params'] = self::extract_post_data();
+        if( empty( $params['submit_result'] ) )
+            $params['submit_result'] = self::default_submit_result();
 
         if( empty( $params['base_url'] ) )
             $params['base_url'] = $this->base_url();
 
         if( empty( $params['submit_text'] ) )
-            $params['submit_text'] = 'Submit';
+            $params['submit_text'] = self::s2p_t( 'Simulate API call' );
         if( empty( $params['form_name'] ) )
             $params['form_name'] = 's2p_demo_form';
 
@@ -548,6 +744,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         }
 
         $post_params = self::validate_post_data( $params['post_params'] );
+        $submit_result = self::validate_submit_result( $params['submit_result'] );
 
         if( empty( $params['method'] ) )
             $params['method'] = '';
@@ -597,15 +794,138 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         If this URL doesn't look right you will have to edit the script and set right base URL using $demo->base_url(); call.</p>
         <form name="<?php echo $params['form_name']?>" action="<?php echo $params['base_url'].$params['form_action_suffix']?>" method="post" class="s2p_form">
 
-        <?php echo $this->get_form_common_fields( $post_params, $form_arr ); ?>
+        <?php
+            if( !empty( $submit_result['errors_arr'] ) and is_array( $submit_result['errors_arr'] ) )
+            {
+                ?><div class="errors_container"><?php
+                foreach( $submit_result['errors_arr'] as $key => $error )
+                {
+                    if( !is_numeric( $key ) )
+                        continue;
 
-        <?php echo $this->get_form_method_get_params_fields( $post_params, $form_arr ); ?>
+                    ?><div class="error_text"><?php echo $error?></div><?php
+                }
 
-        <?php echo $this->get_form_method_parameters_fields( $post_params, $form_arr ); ?>
+                if( !empty( $submit_result['errors_arr']['gvars'] ) and is_array( $submit_result['errors_arr']['gvars'] ) )
+                {
+                    foreach( $submit_result['errors_arr']['gvars'] as $key => $error )
+                    {
+                        ?><div class="error_text"><?php echo $error?></div><?php
+                    }
+                }
+                ?></div><?php
+            }
+        ?>
 
-        <div class="form_field" style="text-align: center;">
-            <input type="submit" id="do_submit" name="do_submit" value="<?php echo self::form_str( $params['submit_text'] );?>" />
+        <?php
+            if( !empty( $submit_result['success_arr'] ) and is_array( $submit_result['success_arr'] ) )
+            {
+                ?><div class="success_container"><?php
+                foreach( $submit_result['success_arr'] as $key => $error )
+                {
+                    if( !is_numeric( $key ) )
+                        continue;
+
+                    ?><span class="success_text"><?php echo $error?></span><?php
+                }
+                ?></div><?php
+            }
+
+
+        /** @var S2P_SDK_API $api_obj */
+        $api_obj = $submit_result['api_obj']
+        ?>
+
+        <div id="api_form" style="width: 100%;<?php echo (!empty( $api_obj )?'display:none;':'');?>">
+
+            <?php
+            if( !empty( $api_obj ) )
+            {
+                ?><div style="width: 100%; text-align: right; margin-bottom: 10px; clear: both;"><a href="javascript:void(0);" onclick="toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API result' )?></a> &raquo;</div><?php
+            }
+            ?>
+
+            <?php echo $this->get_form_common_fields( $post_params, $form_arr ); ?>
+
+            <?php echo $this->get_form_method_get_params_fields( $post_params, $form_arr ); ?>
+
+            <?php echo $this->get_form_method_parameters_fields( $post_params, $form_arr ); ?>
+
+            <div class="form_field" style="text-align: center;">
+                <input type="submit" id="do_submit" name="do_submit" value="<?php echo self::form_str( $params['submit_text'] );?>" />
+            </div>
         </div>
+
+        <?php
+        if( !empty( $api_obj ) )
+        {
+            if( !($base_api_obj = $api_obj->get_api_obj())
+             or !($call_result = $base_api_obj->get_call_result())
+             or !is_array( $call_result ) )
+                $call_result = array();
+
+            if( empty( $call_result['request']['request_details']['request_header'] ) )
+                $call_result['request']['request_details']['request_header'] = '';
+            if( empty( $call_result['request']['request_buffer'] ) )
+                $call_result['request']['request_buffer'] = '';
+            if( empty( $call_result['request']['response_buffer'] ) )
+                $call_result['request']['response_buffer'] = '';
+
+            ?>
+            <div id="api_result" style="width: 100%; display:block;">
+
+                <div style="width: 100%; text-align: left; margin-bottom: 10px; clear: both;">&laquo; <a href="javascript:void(0);" onclick="toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API form' )?></a></div>
+
+                <div class="http_headers_code">
+                    <div class="http_headers_code_title"><?php echo self::s2p_t( 'Request headers' );?></div>
+                    <?php echo nl2br( trim( $call_result['request']['request_details']['request_header'] ) );?>
+                </div>
+
+                <div class="http_headers_code">
+                    <div class="http_headers_code_title"><a href="javascript:void(0);" onclick="toggle_container( 's2p_api_request_body' )"><?php echo self::s2p_t( 'Request body' );?></a></div>
+                    <div id="s2p_api_request_body" style="display: none;"><?php echo (empty( $call_result['request']['request_buffer'] )?'(empty)':nl2br( trim( $call_result['request']['request_buffer'] ) ));?></div>
+                </div>
+
+                <div class="http_headers_code">
+                    <div class="http_headers_code_title"><?php echo self::s2p_t( 'Response headers' );?></div>
+                    <?php
+                    if( !empty( $call_result['request']['response_headers'] ) and is_array( $call_result['request']['response_headers'] ) )
+                    {
+                        foreach( $call_result['request']['response_headers'] as $header_key => $header_val )
+                        {
+                            if( !is_numeric( $header_key ) )
+                                echo $header_key.': ';
+
+                            echo $header_val."\n<br/>";
+                        }
+                    }
+                    ?>
+                </div>
+
+                <div class="http_headers_code">
+                    <div class="http_headers_code_title"><a href="javascript:void(0);" onclick="toggle_container( 's2p_api_response_body' )"><?php echo self::s2p_t( 'Response body' );?></a></div>
+                    <div id="s2p_api_response_body" style="display: none;"><?php echo (empty( $call_result['request']['response_buffer'] )?'(empty)':nl2br( trim( $call_result['request']['response_buffer'] ) ));?></div>
+                </div>
+
+                <div class="http_headers_code">
+                    <div class="http_headers_code_title"><?php echo self::s2p_t( 'Processed response (array)' );?></div>
+                    <?php if( empty( $call_result['response']['response_array'] ) )
+                            echo '(empty)';
+                        else
+                        {
+                            ob_start();
+                            var_dump( $call_result['response']['response_array'] );
+                            $buf = ob_get_clean();
+
+                            echo nl2br( str_replace( '  ', ' &nbsp;', $buf ) );
+                        }
+                    ?>
+                </div>
+
+            </div>
+            <?php
+        }
+        ?>
 
         </form>
         <?php
@@ -619,15 +939,22 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         ?><html><head>
 <title><?php self::s2p_t( 'SDK demo page' )?></title>
 <style>
+body { font-size: 0.8em; }
 .clearfix { clear: both; }
 .s2p_form { margin: 10px auto; width: 800px; }
 .s2p_form fieldset { margin-bottom: 5px; }
 .form_field { clear: both; width: 100%; padding: 3px; min-height: 30px; margin-bottom: 5px; }
-.form_field label { width: 250px; float: left; line-height: 25px; }
+.form_field label { width: 180px; float: left; line-height: 25px; }
 .form_field .form_input { float: left; min-height: 30px; vertical-align: middle; }
 .form_field .form_input input { padding: 3px; }
 .form_field .form_input select { padding: 2px; max-width: 300px; }
 .form_field .form_input input:not([type='checkbox']) { padding: 3px; border: 1px solid #a1a1a1; }
+.s2p_form .errors_container { border: 2px dotted red; width: 100%; padding: 10px; margin: 10px auto; }
+.s2p_form .errors_container .error_text { width: 100%; clear: both; }
+.s2p_form .success_container { border: 2px dotted green; width: 100%; padding: 10px; margin: 10px auto; }
+.s2p_form .success_container .success_text { width: 100%; clear: both; }
+.http_headers_code { padding: 5px; border: 2px solid slategray; font-family: "Courier New", Courier, monospace; width: 100%; clear: both; margin: 5px 0;  }
+.http_headers_code .http_headers_code_title { width: 100%; font-family: inherit !important; font-weight: bold; clear: both; }
 </style>
 <script type="text/javascript">
 function toggle_container( id )

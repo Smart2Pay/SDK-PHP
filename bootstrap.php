@@ -12,6 +12,13 @@
     define( 'S2P_SDK_DIR_METHODS', $_current_directory_path.'/methods/' );
     define( 'S2P_SDK_DIR_LANGUAGES', $_current_directory_path.'/languages/' );
 
+    if( !@file_exists( S2P_SDK_DIR_PATH.'config.inc.php' ) )
+    {
+        die( 'SDK config file not found. Please configure bootstrap file.' );
+    }
+
+    include_once( S2P_SDK_DIR_PATH.'config.inc.php' );
+
     include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_error.inc.php' );
     include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_language.inc.php' );
     include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_module.inc.php' );
