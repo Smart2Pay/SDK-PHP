@@ -258,13 +258,13 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
             }
         }
 
+        $module_with_namespace = 'S2P_SDK\\' . $module;
+
         if( !empty( $singleton )
         and isset( self::$instances[ $module ] ) )
-            return self::$instances[ $module ];
-
-        $module_with_namespace = 'S2P_SDK\\'.$module;
-
-        $module_instance = new $module_with_namespace();
+            $module_instance = self::$instances[ $module ];
+        else
+            $module_instance = new $module_with_namespace();
 
         if( !($module_instance instanceof \S2P_SDK\S2P_SDK_Module) )
         {

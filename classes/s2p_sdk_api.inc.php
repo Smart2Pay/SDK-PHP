@@ -166,7 +166,7 @@ class S2P_SDK_API extends S2P_SDK_Module
 
             case self::TYPE_REST:
                 if( empty( $this->_api )
-                and !($this->_api = self::get_instance( 'S2P_SDK_Rest_API', $api_params )) )
+                and !($this->_api = self::get_instance( 'S2P_SDK_Rest_API', $api_params, false )) )
                 {
                     if( self::st_has_error() )
                         $this->copy_static_error();

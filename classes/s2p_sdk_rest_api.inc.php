@@ -330,6 +330,8 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
 
+        if( empty( $params['allow_remote_calls'] ) )
+            $params['allow_remote_calls'] = false;
         if( empty( $params['quick_return_request'] ) )
             $params['quick_return_request'] = false;
 
@@ -430,6 +432,12 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             return false;
         }
 
+        $return_arr = self::default_call_result();
+        $return_arr['final_url'] = $final_url;
+        $return_arr['request'] = $request_result;
+
+        $this->_call_result = $return_arr;
+
         if( !in_array( $request_result['http_code'], S2P_SDK_Rest_API_Codes::success_codes() ) )
         {
             $code_str = $request_result['http_code'];
@@ -482,6 +490,10 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             return false;
         }
 
+        $return_arr['response'] = $response_data;
+
+        $this->_call_result = $return_arr;
+
         // Make sure errors get thrown if any...
         if( $this->has_error()
         and $this->throw_errors() )
@@ -490,12 +502,12 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             return false;
         }
 
-        $return_arr = self::default_call_result();
-        $return_arr['final_url'] = $final_url;
-        $return_arr['request'] = $request_result;
-        $return_arr['response'] = $response_data;
-
-        $this->_call_result = $return_arr;
+        //$return_arr = self::default_call_result();
+        //$return_arr['final_url'] = $final_url;
+        //$return_arr['request'] = $request_result;
+        //$return_arr['response'] = $response_data;
+        //
+        //$this->_call_result = $return_arr;
 
         return $return_arr;
     }
@@ -507,7 +519,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         $method = 'S2P_SDK_Meth_'.ucfirst( strtolower( $method ) );
 
         /** @var S2P_SDK_Method $method */
-        if( !($method_obj = self::get_instance( $method )) )
+        if( !($method_obj = self::get_instance( $method, $params, false )) )
         {
             if( self::st_has_error() )
                 $this->copy_static_error();

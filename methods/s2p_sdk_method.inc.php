@@ -14,7 +14,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 {
     const ERR_NAME = 200, ERR_GET_VARIABLES = 201, ERR_REQUEST_STRUCTURE = 202, ERR_RESPONSE_STRUCTURE = 203, ERR_MANDATORY = 204, ERR_FUNCTIONALITY = 205,
           ERR_REQUEST_DATA = 206, ERR_REQUEST_MANDATORY = 207, ERR_RESPONSE_DATA = 208, ERR_RESPONSE_MANDATORY = 209, ERR_HTTP_METHOD = 210,
-          ERR_METHOD_FILES = 211, ERR_INSTANTIATE_METHOD = 212, ERR_VALUE_SOURCE = 213;
+          ERR_METHOD_FILES = 211, ERR_INSTANTIATE_METHOD = 212, ERR_VALUE_SOURCE = 213, ERR_ERROR_STRUCTURE = 214, ERR_DEFINITION = 215;
     /**
      * Variable which holds all details regarding method
      * @var array $_definition
@@ -133,6 +133,9 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
         $this->validate_details();
 
+        if( !$this->validate_definition() )
+            return false;
+
         return true;
     }
 
@@ -176,7 +179,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
              or !is_array( $matches ) or empty( $matches[1] ) )
                 continue;
 
-            if( !($instance = self::get_instance( 'S2P_SDK_Meth_'.ucfirst( $matches[1] ) )) )
+            if( !($instance = self::get_instance( 'S2P_SDK_Meth_'.ucfirst( $matches[1] ), null, false )) )
             {
                 if( !self::st_has_error() )
                     self::st_set_error( self::ERR_INSTANTIATE_METHOD, self::s2p_t( 'Error instantiating method %s.', ucfirst( $matches[1] ) ) );
@@ -228,11 +231,27 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
     public function get_method_definition()
     {
         $functionality = $this->_functionality;
-        if( empty( $functionality )
-         or !($method_definition = $this->valid_functionality( $functionality ))
-         or !is_array( $method_definition ) )
+        if( empty( $functionality ) )
         {
             $this->set_error( self::ERR_FUNCTIONALITY, self::s2p_t( 'Functionality not set.' ) );
+            return false;
+        }
+
+        if( !($method_definition = $this->valid_functionality( $functionality ))
+         or !is_array( $method_definition ) )
+        {
+            $this->set_error( self::ERR_FUNCTIONALITY, self::s2p_t( 'Invalid functionality.' ) );
+            return false;
+        }
+
+        if( !($method_definition = self::validate_definition_arr( $method_definition ))
+         or !is_array( $method_definition ) )
+        {
+            if( self::st_has_error() )
+                $this->copy_static_error();
+
+            else
+                $this->set_error( self::ERR_FUNCTIONALITY, self::s2p_t( 'Functionality failed validation.' ) );
             return false;
         }
 
@@ -250,10 +269,11 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
     {
         $func = trim( strtolower( $func ) );
         if( !($all_functionalities = $this->get_functionalities())
-         or !is_array( $all_functionalities ) or empty( $all_functionalities[$func] ) )
+         or !is_array( $all_functionalities ) or empty( $all_functionalities[$func] )
+         or !($valiated_functionality = self::validate_definition_arr( $all_functionalities[$func] )) )
             return false;
 
-        return $all_functionalities[$func];
+        return $valiated_functionality;
     }
 
     public function get_available_functionalities()
@@ -400,7 +420,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
      */
     public function parse_response( $request_result )
     {
-        if( ! $this->validate_definition() )
+        if( !$this->validate_definition() )
             return false;
 
         $return_arr = self::default_response_data();
@@ -503,6 +523,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
 
+        if( empty( $params['allow_remote_calls'] ) )
+            $params['allow_remote_calls'] = false;
         if( empty( $params['get_variables'] ) or !is_array( $params['get_variables'] ) )
             $params['get_variables'] = array();
         if( empty( $params['method_params'] ) or !is_array( $params['method_params'] ) )
@@ -529,6 +551,11 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         {
             $value_source_obj = new S2P_SDK_Values_Source();
 
+            if( !empty( $params['allow_remote_calls'] ) )
+                $value_source_obj->remote_calls( true );
+            else
+                $value_source_obj->remote_calls( false );
+
             foreach( $this->_definition['get_variables'] as $get_var )
             {
                 if( !array_key_exists( $get_var['name'], $params['get_variables'] ) )
@@ -542,12 +569,14 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                     continue;
                 }
 
-                if( !empty( $get_var['skip_if_default'] )
-                and array_key_exists( 'default', $get_var )
-                and $get_var['default'] === $params['get_variables'][$get_var['name']] )
-                    continue;
+                $var_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $params['get_variables'][$get_var['name']], $get_var['array_type'], $get_var['array_numeric_keys'] );
+                $default_var_value = null;
+                if( array_key_exists( 'default', $get_var ) )
+                    $default_var_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $get_var['default'], $get_var['array_type'], $get_var['array_numeric_keys'] );
 
-                $var_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $params['get_variables'][$get_var['name']] );
+                if( !empty( $get_var['skip_if_default'] )
+                and $var_value === $default_var_value )
+                    continue;
 
                 if( !empty( $get_var['value_source'] ) and $value_source_obj::valid_type( $get_var['value_source'] ) )
                 {
@@ -560,9 +589,9 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 }
 
                 if( !empty( $get_var['move_in_url'] ) )
-                    $return_arr['url_variables'][$get_var['name']] = $var_value;
+                    $return_arr['url_variables'][$get_var['external_name']] = $var_value;
                 else
-                    $return_arr['get_variables'][$get_var['name']] = $var_value;
+                    $return_arr['get_variables'][$get_var['external_name']] = $var_value;
             }
         }
 
@@ -776,6 +805,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             'external_name' => '',
             // S2P_SDK_Scope_Variable::TYPE_*. Resulting value will be validated through S2P_SDK_Scope_Variable::scalar_value()
             'type' => 0,
+            'array_type' => 0,
+            'array_numeric_keys' => true,
             'default' => '',
             'mandatory' => false,
             'move_in_url' => false,
@@ -814,6 +845,12 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         if( empty( $new_definition_arr['type'] ) or !S2P_SDK_Scope_Variable::valid_type( $new_definition_arr['type'] ) )
         {
             self::st_set_error( self::ERR_GET_VARIABLES, self::s2p_t( 'Invalid type for variable %s.', $new_definition_arr['name'] ) );
+            return false;
+        }
+
+        if( !empty( $new_definition_arr['array_type'] ) and !S2P_SDK_Scope_Variable::valid_type( $new_definition_arr['array_type'] ) )
+        {
+            self::st_set_error( self::ERR_GET_VARIABLES, self::s2p_t( 'Invalid array type for variable %s.', $new_definition_arr['name'] ) );
             return false;
         }
 
@@ -901,35 +938,36 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         );
     }
 
-    private function validate_definition()
+    public static function validate_definition_arr( $definition_arr )
     {
-        if( !is_null( $this->_definition ) )
-            return true;
+        self::st_reset_error();
 
-        $this->reset_error();
+        if( empty( $definition_arr ) or !is_array( $definition_arr ) )
+        {
+            self::st_set_error( self::ERR_DEFINITION, self::s2p_t( 'Definition is not an array.' ) );
+            return true;
+        }
 
         $default_definition = self::default_method_definition();
-
-        $definition_arr = $this->get_method_definition();
 
         $new_definition_arr = array();
         foreach( $default_definition as $key => $def_value )
         {
             if( !array_key_exists( $key, $definition_arr ) )
-                $new_definition_arr[ $key ] = $def_value;
+                $new_definition_arr[$key] = $def_value;
             else
-                $new_definition_arr[ $key ] = $definition_arr[ $key ];
+                $new_definition_arr[$key] = $definition_arr[$key];
         }
 
         if( empty( $new_definition_arr['name'] ) )
         {
-            $this->set_error( self::ERR_NAME, self::s2p_t( 'You should provide a name in method definition.' ) );
+            self::st_set_error( self::ERR_NAME, self::s2p_t( 'You should provide a name in method definition.' ) );
             return false;
         }
 
         if( empty( $new_definition_arr['http_method'] ) or !S2P_SDK_Rest_API_Request::valid_http_method( $new_definition_arr['http_method'] ) )
         {
-            $this->set_error( self::ERR_HTTP_METHOD, self::s2p_t( 'Invalid HTTP method for API method %s', $new_definition_arr['name'] ) );
+            self::st_set_error( self::ERR_HTTP_METHOD, self::s2p_t( 'Invalid HTTP method for API method %s', $new_definition_arr['name'] ) );
             return false;
         }
 
@@ -937,7 +975,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         {
             if( !is_array( $new_definition_arr['get_variables'] ) )
             {
-                $this->set_error( self::ERR_GET_VARIABLES, self::s2p_t( 'Invalid get variables for method %s.', $new_definition_arr['name'] ) );
+                self::st_set_error( self::ERR_GET_VARIABLES, self::s2p_t( 'Invalid get variables for method %s.', $new_definition_arr['name'] ) );
                 return false;
             }
 
@@ -945,10 +983,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             foreach( $new_definition_arr['get_variables'] as $key => $var_definition )
             {
                 if( !($new_definition = self::validate_get_variable_definition( $var_definition )) )
-                {
-                    $this->copy_static_error();
                     continue;
-                }
 
                 $new_var_definition_arr[$key] = $new_definition;
             }
@@ -959,7 +994,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             $new_definition_arr['get_variables'] = $new_var_definition_arr;
         }
 
-        if( $this->has_error() )
+        if( self::st_has_error() )
             return false;
 
         /** @var S2P_SDK_Scope_Structure $new_definition_arr['request_structure'] */
@@ -968,11 +1003,11 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
         elseif( !($new_definition_arr['request_structure'] instanceof S2P_SDK_Scope_Structure) )
         {
-            $this->set_error( self::ERR_REQUEST_STRUCTURE, self::s2p_t( 'Invalid request structure object for method %s.', $new_definition_arr['name'] ) );
+            self::st_set_error( self::ERR_REQUEST_STRUCTURE, self::s2p_t( 'Invalid request structure object for method %s.', $new_definition_arr['name'] ) );
             return false;
         } elseif( !$new_definition_arr['request_structure']->get_validated_definition() )
         {
-            $this->copy_error( $new_definition_arr['request_structure'] );
+            self::st_copy_error( $new_definition_arr['request_structure'] );
             return false;
         }
 
@@ -982,11 +1017,47 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
         elseif( !($new_definition_arr['response_structure'] instanceof S2P_SDK_Scope_Structure) )
         {
-            $this->set_error( self::ERR_RESPONSE_STRUCTURE, self::s2p_t( 'Invalid response structure object for method %s.', $new_definition_arr['name'] ) );
+            self::st_set_error( self::ERR_RESPONSE_STRUCTURE, self::s2p_t( 'Invalid response structure object for method %s.', $new_definition_arr['name'] ) );
             return false;
         } elseif( !$new_definition_arr['response_structure']->get_validated_definition() )
         {
-            $this->copy_error( $new_definition_arr['response_structure'] );
+            self::st_copy_error( $new_definition_arr['response_structure'] );
+            return false;
+        }
+
+        /** @var S2P_SDK_Scope_Structure $new_definition_arr['error_structure'] */
+        if( empty( $new_definition_arr['error_structure'] ) )
+            $new_definition_arr['error_structure'] = null;
+
+        elseif( !($new_definition_arr['error_structure'] instanceof S2P_SDK_Scope_Structure) )
+        {
+            self::st_set_error( self::ERR_ERROR_STRUCTURE, self::s2p_t( 'Invalid error structure object for method %s.', $new_definition_arr['name'] ) );
+            return false;
+        } elseif( !$new_definition_arr['error_structure']->get_validated_definition() )
+        {
+            self::st_copy_error( $new_definition_arr['error_structure'] );
+            return false;
+        }
+
+        return $new_definition_arr;
+    }
+
+    private function validate_definition()
+    {
+        if( !is_null( $this->_definition ) )
+            return true;
+
+        $this->reset_error();
+
+        $definition_arr = $this->get_method_definition();
+
+        if( !($new_definition_arr = self::validate_definition_arr( $definition_arr )) )
+        {
+            if( self::st_has_error() )
+                $this->copy_static_error();
+            else
+                $this->set_error( self::ERR_DEFINITION, self::s2p_t( 'Couldn\'t validate definition.' ) );
+
             return false;
         }
 

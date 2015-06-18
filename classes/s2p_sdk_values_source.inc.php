@@ -7,20 +7,28 @@ if( !defined( 'S2P_SDK_DIR_CLASSES' ) )
 
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_currencies.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_countries.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source_methods.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source_article_type.inc.php' );
 
 class S2P_SDK_Values_Source extends S2P_SDK_Language
 {
     const ERR_TYPE = 1;
 
-    const TYPE_COUNTRY = 1, TYPE_CURRENCY = 2;
+    const TYPE_COUNTRY = 1, TYPE_CURRENCY = 2, TYPE_AVAILABLE_METHODS = 3, TYPE_METHODS = 4, TYPE_ARTICLE_TYPE = 5;
 
     private static $TYPES_ARR = array(
         self::TYPE_COUNTRY => 'Country',
         self::TYPE_CURRENCY => 'Currency',
+        self::TYPE_AVAILABLE_METHODS => 'Available Methods',
+        self::TYPE_METHODS => 'Methods',
+        self::TYPE_ARTICLE_TYPE => 'Article Type',
     );
 
     /** @var int $_type */
     private $_type = 0;
+
+    /** @var bool $_remote_calls */
+    private $_remote_calls = false;
 
     function __construct( $type = 0 )
     {
@@ -60,6 +68,17 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
         return $this->_type;
     }
 
+    public function remote_calls( $remote_calls = null )
+    {
+        if( $remote_calls === null )
+            return $this->_remote_calls;
+
+        $remote_calls = (!empty( $remote_calls )?true:false);
+
+        $this->_remote_calls = $remote_calls;
+        return $this->_remote_calls;
+    }
+
     public function get_option_values()
     {
         $this->reset_error();
@@ -81,6 +100,42 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
 
             case self::TYPE_CURRENCY:
                 $return_arr = S2P_SDK_Currencies::get_currencies();
+                foreach( $return_arr as $key => $text )
+                {
+                    $return_arr[$key] = $key.' - '.$text;
+                }
+            break;
+
+            case self::TYPE_AVAILABLE_METHODS:
+                if( !$this->remote_calls() )
+                    $return_arr = array();
+
+                else
+                {
+                    $return_arr = S2P_SDK_Values_Source_Methods::get_available_methods();
+                    foreach( $return_arr as $key => $method_arr )
+                    {
+                        $return_arr[ $key ] = $method_arr['displayname'].' ('.$key.')';
+                    }
+                }
+            break;
+
+            case self::TYPE_METHODS:
+                if( !$this->remote_calls() )
+                    $return_arr = array();
+
+                else
+                {
+                    $return_arr = S2P_SDK_Values_Source_Methods::get_all_methods();
+                    foreach( $return_arr as $key => $method_arr )
+                    {
+                        $return_arr[ $key ] = $method_arr['displayname'].' ('.$key.')';
+                    }
+                }
+            break;
+
+            case self::TYPE_ARTICLE_TYPE:
+                $return_arr = S2P_SDK_Values_Sources_Article_Type::get_types();
                 foreach( $return_arr as $key => $text )
                 {
                     $return_arr[$key] = $key.' - '.$text;
@@ -108,6 +163,24 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
 
             case self::TYPE_CURRENCY:
                 $return_check = S2P_SDK_Currencies::valid_currency( $val );
+            break;
+
+            case self::TYPE_AVAILABLE_METHODS:
+                if( !$this->remote_calls() )
+                    $return_check = (is_numeric( $val )?true:false);
+                else
+                    $return_check = S2P_SDK_Values_Source_Methods::valid_available_method_id( $val );
+            break;
+
+            case self::TYPE_METHODS:
+                if( !$this->remote_calls() )
+                    $return_check = (is_numeric( $val )?true:false);
+                else
+                    $return_check = S2P_SDK_Values_Source_Methods::valid_method_id( $val );
+            break;
+
+            case self::TYPE_ARTICLE_TYPE:
+                $return_check = S2P_SDK_Values_Sources_Article_Type::valid_type( $val );
             break;
         }
 

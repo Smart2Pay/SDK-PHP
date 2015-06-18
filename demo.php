@@ -30,9 +30,6 @@
     $form_params['form_action_suffix'] = 'demo.php';
     $form_params['submit_result'] = $submit_result;
 
-    //if( ($form_buff = $demo->get_init_payment_form( $form_params )) )
-    //    echo $form_buff;
-
     if( ($form_buff = $demo->get_form( $form_params )) )
         echo $form_buff;
 

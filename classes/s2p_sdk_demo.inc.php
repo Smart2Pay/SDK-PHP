@@ -9,6 +9,8 @@ include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 
 class S2P_SDK_Demo extends S2P_SDK_Module
 {
+    const ALLOW_REMOTE_CALLS = true;
+
     const ERR_BASE_URL = 1, ERR_INSTANTIATE_METHOD = 2, ERR_FUNCTIONALITY = 3,
           ERR_APIKEY = 4, ERR_ENVIRONMENT = 5;
 
@@ -112,7 +114,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             'method' => '',
             'func' => '',
             'gvars' => array(),
+            'gvars_arrays' => array(),
             'mparams' => array(),
+            'mparams_arrays' => array(),
             'do_submit' => 0,
         );
     }
@@ -158,7 +162,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         $method = trim( $method );
         /** @var S2P_SDK_Method $instance */
         if( empty( $method )
-         or !($instance = self::get_instance( 'S2P_SDK_Meth_'.ucfirst( $method ) )) )
+         or !($instance = self::get_instance( 'S2P_SDK_Meth_'.ucfirst( $method ), null, false )) )
         {
             if( self::st_has_error() )
                 $this->copy_static_error();
@@ -307,7 +311,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             }
 
             if( isset( $post_arr['gvars'][ $get_var['name'] ] ) )
-                $field_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $post_arr['gvars'][ $get_var['name'] ] );
+                $field_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $post_arr['gvars'][ $get_var['name'] ], $get_var['array_type'] );
             elseif( isset( $get_var['default'] ) )
                 $field_value = $get_var['default'];
             else
@@ -361,23 +365,33 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             <div class="form_field">
                 <label for="<?php echo $field_id?>"><?php echo $get_var['name'].(!empty( $get_var['mandatory'] )?'<span style="color:red;font-weight: bold;">*</span>':'')?></label>
                 <div class="form_input"><?php
-                if( !empty( $get_var['value_source'] ) )
+                if( !empty( $get_var['value_source'] )
+                and S2P_SDK_Values_Source::valid_type( $get_var['value_source'] )
+                and ($value_source_obj = new S2P_SDK_Values_Source( $get_var['value_source'] ))
+                // make sure we don't stop here...
+                and ($value_source_obj->remote_calls( self::ALLOW_REMOTE_CALLS ) or true)
+                and ($options_value = $value_source_obj->get_option_values())
+                and is_array( $options_value ) )
                 {
-                    if( S2P_SDK_Values_Source::valid_type( $get_var['value_source'] )
-                    and ($value_source_obj = new S2P_SDK_Values_Source( $get_var['value_source'] ))
-                    and ($options_value = $value_source_obj->get_option_values()) )
+                    ?><select id="<?php echo $field_id?>" name="<?php echo $field_name?>">
+                    <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> [<?php echo count( $options_value)?>] - </option><?php
+                    foreach( $options_value as $key => $val )
                     {
-                        ?><select id="<?php echo $field_id?>" name="<?php echo $field_name?>">
-                        <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> - </option><?php
-                        foreach( $options_value as $key => $val )
-                        {
-                            ?><option value="<?php echo self::form_str( $key );?>" <?php echo ($field_value == $key?'selected="selected"':'')?>><?php echo $val;?></option><?php
-                        }
-                        ?></select><?php
+                        ?><option value="<?php echo self::form_str( $key );?>" <?php echo ($field_value == $key?'selected="selected"':'')?>><?php echo $val;?></option><?php
                     }
+                    ?></select><?php
                 } else
                 {
-                    ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" /><?php
+                    if( $get_var['type'] == S2P_SDK_Scope_Variable::TYPE_BOOL )
+                    {
+                        ?><input type="checkbox" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="1" <?php echo (!empty( $field_value )?'checked="checked"':'')?> /><?php
+                    } elseif( $get_var['type'] == S2P_SDK_Scope_Variable::TYPE_DATETIME )
+                    {
+                        ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" class="datepicker" /><?php
+                    } else
+                    {
+                        ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" /><?php
+                    }
 
                     echo ' ('.$field_type_arr['title'].')';
                 }
@@ -402,11 +416,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
     private function get_form_method_parameters_fields( $post_arr, $form_arr )
     {
         if( empty( $this->_method )
-            or empty( $form_arr ) or ! is_array( $form_arr ) or empty( $form_arr['form_name'] )
-            or empty( $post_arr['func'] )
-            or ! ( $func_details = $this->_method->valid_functionality( $post_arr['func'] ) )
-            or empty( $func_details['request_structure'] )
-        )
+         or empty( $form_arr ) or ! is_array( $form_arr ) or empty( $form_arr['form_name'] )
+         or empty( $post_arr['func'] )
+         or ! ( $func_details = $this->_method->valid_functionality( $post_arr['func'] ) )
+         or empty( $func_details['request_structure'] ) )
             return '';
 
         $post_arr = self::validate_post_data( $post_arr );
@@ -420,12 +433,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
         if( ($method_definition = $structure_obj->get_validated_definition()) )
         {
-            $mandatory_arr = array();
             if( empty( $func_details['mandatory_in_request'] )
              or !($mandatory_arr = $structure_obj->transfrom_keys_to_internal_names( $func_details['mandatory_in_request'] )) )
                 $mandatory_arr = array();
 
-            $hide_keys_arr = array();
             if( empty( $func_details['hide_in_request'] )
              or !($hide_keys_arr = $structure_obj->transfrom_keys_to_internal_names( $func_details['hide_in_request'] )) )
                 $hide_keys_arr = array();
@@ -450,6 +461,77 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
     }
 
+    public static function transform_post_arrays( $post_arr, $dotted_paths_arr )
+    {
+        if( empty( $post_arr ) or !is_array( $post_arr )
+         or empty( $dotted_paths_arr ) or !is_array( $dotted_paths_arr ) )
+            return $post_arr;
+
+        foreach( $dotted_paths_arr as $dotted_path )
+        {
+            if( empty( $dotted_path )
+             or !($dotted_path_arr = explode( '.', str_replace( '..', '.', $dotted_path ) )) )
+                continue;
+
+            if( !($post_arr = self::transform_post_array( $post_arr, $dotted_path_arr )) )
+                return false;
+        }
+
+        return $post_arr;
+    }
+
+    private static function transform_post_array( $post_arr, $dotted_path_arr )
+    {
+        if( empty( $post_arr ) or !is_array( $dotted_path_arr ) )
+            return null;
+
+        if( empty( $dotted_path_arr[0] ) )
+            $current_index = null;
+
+        else
+        {
+            $current_index = $dotted_path_arr[0];
+
+            if( !array_key_exists( $current_index, $post_arr ) )
+                return null;
+        }
+
+        if( $current_index === null )
+        {
+            // we reached a leaf... try converting values...
+            if( !is_array( $post_arr )
+             or empty( $post_arr['vals'] ) or !is_array( $post_arr['vals'] ) )
+                return null;
+
+            // for numeric array keys
+            if( empty( $post_arr['keys'] ) or !is_array( $post_arr['keys'] ) )
+                $post_arr['keys'] = array();
+
+            $transformed_arr = array();
+            foreach( $post_arr['vals'] as $key => $val )
+            {
+                if( !isset( $post_arr['keys'][$key] ) )
+                    $transformed_arr[] = $val;
+                else
+                    $transformed_arr[$post_arr['keys'][$key]] = $val;
+            }
+
+            return $transformed_arr;
+        }
+
+        if( is_array( $post_arr[$current_index] ) and !empty( $dotted_path_arr ) )
+        {
+            if( array_shift( $dotted_path_arr ) === null )
+                return null;
+
+            $post_arr[$current_index] = self::transform_post_array( $post_arr[$current_index], $dotted_path_arr );
+
+            return $post_arr;
+        }
+
+        return null;
+    }
+
     public static function extract_field_value( $post_arr, $dotted_path )
     {
         if( empty( $post_arr ) )
@@ -469,10 +551,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( !array_key_exists( $current_index, $post_arr ) )
             return '';
 
-        if( is_scalar( $post_arr[$current_index] ) )
+        if( is_scalar( $post_arr[$current_index] ) or !isset( $dotted_path[1] ) )
             return $post_arr[$current_index];
 
-        if( is_array( $post_arr[$current_index] ) and !empty( $dotted_path[1] ) )
+        if( is_array( $post_arr[$current_index] ) and isset( $dotted_path[1] ) )
         {
             if( array_shift( $dotted_path ) === null )
                 return '';
@@ -490,6 +572,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
         if( empty( $params['path'] ) )
             $params['path'] = '';
+        if( empty( $params['name'] ) )
+            $params['name'] = '';
+        if( !isset( $params['blob_array_index'] ) )
+            $params['blob_array_index'] = false;
         if( empty( $params['level'] ) )
             $params['level'] = -1;
 
@@ -501,7 +587,8 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( empty( $structure_definition ) or !is_array( $structure_definition ) )
             return '';
 
-        $params['path'] .= (!empty( $params['path'] )?'.':'').$structure_definition['name'];
+        $params['path'] .= (!empty( $params['path'] )?'.':'').($params['blob_array_index']!==false?$params['blob_array_index'].'.':'').$structure_definition['name'];
+        $params['name'] .= ($params['blob_array_index']!==false?'['.$params['blob_array_index'].']':'').'['.$structure_definition['name'].']';
         $params['level']++;
 
         if( empty( $structure_definition['structure'] ) or !is_array( $structure_definition['structure'] ) )
@@ -510,12 +597,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             if( array_key_exists( $structure_definition['name'], $hide_keys_arr ) )
                 return '';
 
-            $field_id = str_replace( '.', '_', $params['path'] );
-            $field_name = 'mparams['.str_replace( '.', '][', $params['path'] ).']';
+            $field_id = str_replace( array( '.', '[', ']' ), '_', $params['path'] );
+            $field_name = 'mparams'.$params['name'];
             $field_value = self::extract_field_value( $post_arr['mparams'], $params['path'] );
-
-            if( !($field_type_arr = S2P_SDK_Scope_Variable::valid_type( $structure_definition['type'] )) )
-                $field_type_arr = array( 'title' => '[undefined]' );
 
             $field_mandatory = false;
             if( array_key_exists( $structure_definition['name'], $mandatory_arr ) )
@@ -524,34 +608,131 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             ob_start();
             ?>
             <div class="form_field">
-                <label for="<?php echo $field_id?>" title="<?php echo self::form_str( $params['path'] )?>"><?php echo $structure_definition['name'].(!empty( $field_mandatory )?'<span style="color:red;font-weight: bold;">*</span>':'')?></label>
+                <label for="<?php echo $field_id?>" title="<?php echo self::form_str( $params['path'] )?>" class="<?php echo (!empty( $field_mandatory )?'mandatory':'')?>"><?php echo $structure_definition['name']?></label>
                 <div class="form_input"><?php
-                    if( !empty( $structure_definition['value_source'] ) )
+
+                    if( empty( $structure_definition['value_source'] )
+                     or !S2P_SDK_Values_Source::valid_type( $structure_definition['value_source'] )
+                     or !($value_source_obj = new S2P_SDK_Values_Source( $structure_definition['value_source'] ))
+                     // make sure we don't stop here...
+                     or ($value_source_obj->remote_calls( self::ALLOW_REMOTE_CALLS ) and false)
+                     or !($options_value = $value_source_obj->get_option_values())
+                     or !is_array( $options_value ) )
+                        $options_value = array();
+
+                    if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_BOOL )
                     {
-                        if( S2P_SDK_Values_Source::valid_type( $structure_definition['value_source'] )
-                        and ($value_source_obj = new S2P_SDK_Values_Source( $structure_definition['value_source'] ))
-                        and ($options_value = $value_source_obj->get_option_values()) )
+                        ?><input type="checkbox" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="1" <?php echo (!empty( $field_value )?'checked="checked"':'')?> /><?php
+                    } elseif( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_DATETIME )
+                    {
+                        ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" class="datepicker" /><?php
+                    } elseif( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_ARRAY )
+                    {
+                        if( empty( $field_value ) or !is_array( $field_value ) )
+                            $field_value = array();
+
+                        if( empty( $field_value['keys'] ) or !is_array( $field_value['keys'] ) )
+                            $field_value['keys'] = array();
+                        if( empty( $field_value['vals'] ) or !is_array( $field_value['vals'] ) )
+                            $field_value['vals'] = array();
+
+                        ?>
+                        <input type="hidden" name="mparams_arrays[]" value="<?php echo self::form_str( $params['path'] )?>" />
+                        <div id="<?php echo $field_id?>___container">
+                        <?php
+                        foreach( $field_value['vals'] as $key => $val )
                         {
-                            ?><select id="<?php echo $field_id?>" name="<?php echo $field_name?>">
-                            <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> - </option><?php
-                            foreach( $options_value as $key => $val )
+                            $field_key = '';
+                            if( !empty( $field_value['keys'][$key] ) )
+                                $field_key = $field_value['keys'][$key];
+
+                            ?>
+                            <div class="form_input_array">
+                            <?php
+                            if( empty( $structure_definition['array_numeric_keys'] ) )
                             {
-                                ?><option value="<?php echo self::form_str( $key )?>" <?php echo ($field_value==$key?'selected="selected"':'');?>><?php echo $val;?></option><?php
+                                ?><input type="text" name="<?php echo $field_name?>[keys][]" value="<?php echo self::form_str( $field_key )?>" placeholder="<?php echo self::form_str( self::s2p_t( 'Key' ) )?>" /><?php
                             }
-                            ?></select><?php
+
+                            $options_params = array();
+                            $options_params['field_id'] = false;
+                            $options_params['field_name'] = $field_name.'[vals][]';
+                            $options_params['field_value'] = $val;
+
+                            if( !empty( $options_value )
+                                and ($select_buf = self::display_select_options( $options_value, $options_params )) !== false )
+                                echo $select_buf;
+
+                            else
+                            {
+                                if( empty( $structure_definition['array_type'] )
+                                    or !($field_type_arr = S2P_SDK_Scope_Variable::valid_type( $structure_definition['array_type'] )) )
+                                    $field_type_arr = array( 'title' => 'string' );
+
+                                ?>
+                                <input type="text" name="<?php echo $field_name?>[vals][]" value="<?php echo self::form_str( $val )?>" placeholder="<?php echo self::form_str( self::s2p_t( 'Value' ) );?>" />
+                                (<?php echo $field_type_arr['title']?>)
+                                <?php
+                            }
+                            ?>
+                            <a href="javascript:void(0);" onclick="remove_methods_array_element( $(this), '<?php echo $field_id?>' )"><?php echo self::s2p_t( 'Remove' )?></a>
+                            </div>
+                            <?php
                         }
+                        ?>
+                        </div>
+                        <div class="form_input_array input_disabler_container" id="<?php echo $field_id?>___template" style="display: none;">
+                            <?php
+                            if( empty( $structure_definition['array_numeric_keys'] ) )
+                            {
+                                ?><input type="text" name="<?php echo $field_name?>[keys][]" value="" placeholder="<?php echo self::form_str( self::s2p_t( 'Key' ) )?>" /><?php
+                            }
+
+                            $options_params = array();
+                            $options_params['field_id'] = false;
+                            $options_params['field_name'] = $field_name.'[vals][]';
+                            $options_params['field_value'] = '';
+
+                            if( !empty( $options_value )
+                            and ($select_buf = self::display_select_options( $options_value, $options_params )) !== false )
+                                echo $select_buf;
+
+                            else
+                            {
+                                if( empty( $structure_definition['array_type'] )
+                                 or !($field_type_arr = S2P_SDK_Scope_Variable::valid_type( $structure_definition['array_type'] )) )
+                                    $field_type_arr = array( 'title' => 'string' );
+
+                                ?>
+                                <input type="text" name="<?php echo $field_name?>[vals][]" value="" placeholder="<?php echo self::form_str( self::s2p_t( 'Value' ) );?>" />
+                                (<?php echo $field_type_arr['title']?>)
+                                <?php
+                            }
+                            ?>
+                            <a href="javascript:void(0);" onclick="remove_methods_array_element( $(this), '<?php echo $field_id?>' )"><?php echo self::s2p_t( 'Remove' )?></a>
+                        </div>
+                        <div id="<?php echo $field_id?>" class="field_adder_container"><a href="javascript:void(0);" onclick="add_methods_array_element( '<?php echo $field_id?>' )"><?php echo self::s2p_t( 'Add value' )?></a></div>
+                        <?php
                     } else
                     {
-                        // TODO: Add datepicker for TYPE_DATETIME
-                        if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_BOOL )
-                        {
-                            ?><input type="checkbox" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="1" <?php echo (!empty( $field_value )?'checked="checked"':'')?> /><?php
-                        } else
-                        {
-                            ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" /><?php
-                        }
+                        $options_params = array();
+                        $options_params['field_id'] = $field_id;
+                        $options_params['field_name'] = $field_name;
+                        $options_params['field_value'] = $field_value;
 
-                        echo ' ('.$field_type_arr['title'].')';
+                        if( !empty( $options_value )
+                        and ($select_buf = self::display_select_options( $options_value, $options_params )) !== false )
+                            echo $select_buf;
+
+                        else
+                        {
+                            if( !($field_type_arr = S2P_SDK_Scope_Variable::valid_type( $structure_definition['type'] )) )
+                                $field_type_arr = array( 'title' => '[undefined]' );
+
+                            ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" /><?php
+
+                            echo ' ('.$field_type_arr['title'].')';
+                        }
                     }
 
                     if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_DATETIME )
@@ -569,26 +750,110 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
         $field_id = str_replace( '.', '_', $params['path'] );
 
-        $structure_buffer = '<fieldset id="mparam_'.$field_id.'">'.
-            '<label for="mparam_'.$field_id.'"><a href="javascript:void(0);" onclick="toggle_container( \'mparam_container_'.$field_id.'\' )"><strong>'.$params['path'].'</strong></a></label>'.
-            '<div id="mparam_container_'.$field_id.'" style="display: block;">';
+        ?>
+        <fieldset id="mparam_<?php echo $field_id?>">
+        <label for="mparam_<?php echo $field_id?>"><a href="javascript:void(0);" onclick="toggle_container( 'mparam_container_<?php echo $field_id?>' )"><strong><?php echo $params['path']?></strong></a></label>
+        <div id="mparam_container_<?php echo $field_id?>" style="display: block;">
+        <?php
 
+        $new_mandatory_arr = array();
+        if( array_key_exists( $structure_definition['name'], $mandatory_arr ) )
+            $new_mandatory_arr = $mandatory_arr[ $structure_definition['name'] ];
+        $new_hide_keys_arr = array();
+        if( array_key_exists( $structure_definition['name'], $hide_keys_arr ) )
+            $new_hide_keys_arr = $hide_keys_arr[ $structure_definition['name'] ];
+
+        if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_BLOB_ARRAY )
+        {
+            if( ($blob_array_value = self::extract_field_value( $post_arr['mparams'], $params['path'] ))
+            and is_array( $blob_array_value ) )
+            {
+                $elements_params = $params;
+                $elements_params['blob_array_index'] = 0;
+
+                foreach( $blob_array_value as $element_key => $element_arr )
+                {
+                    ?><div class="form_input_blob_array"><?php
+                    foreach( $structure_definition['structure'] as $element_definition )
+                    {
+                        if( ($element_buffer = $this->get_form_method_parameters_fields_detailed( $element_definition,
+                            $new_mandatory_arr,
+                            $new_hide_keys_arr,
+                            $post_arr,
+                            $form_arr,
+                            $elements_params ) ) )
+                            echo $element_buffer;
+                    }
+                    ?>
+                    <a href="javascript:void(0);" onclick="remove_methods_blob_array_element( $(this), '<?php echo $field_id?>' )"><?php echo self::s2p_t( 'Remove' )?></a>
+                    </div>
+                    <?php
+
+                    $elements_params['blob_array_index']++;
+                }
+            }
+            ?>
+            </div>
+            <div id="mparam_container_<?php echo $field_id?>___template" class="form_input_blob_array input_disabler_container" style="display: none;">
+            <?php
+        }
+
+        if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_BLOB_ARRAY )
+            $params['name'] .= '[{*BLOB_ARRAY_INDEX*}]';
 
         foreach( $structure_definition['structure'] as $element_definition )
         {
             if( ($element_buffer = $this->get_form_method_parameters_fields_detailed( $element_definition,
-                ( array_key_exists( $structure_definition['name'], $mandatory_arr ) ? $mandatory_arr[ $structure_definition['name'] ] : array() ),
-                ( array_key_exists( $structure_definition['name'], $hide_keys_arr ) ? $hide_keys_arr[ $structure_definition['name'] ] : array() ),
+                $new_mandatory_arr,
+                $new_hide_keys_arr,
                 $post_arr,
                 $form_arr,
                 $params ) ) )
-                $structure_buffer .= $element_buffer;
+                echo $element_buffer;
         }
 
-        $structure_buffer .= '</div></fieldset>';
+        ?></div><?php
 
+        if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_BLOB_ARRAY )
+        {
+            ?>
+            <div class="field_adder_container"><a href="javascript:void(0);" onclick="add_methods_blob_array_element( '<?php echo $field_id?>' )"><?php echo self::s2p_t( 'Add value' )?></a></div>
+            <?php
+        }
+
+        ?></fieldset><?php
+        $structure_buffer = ob_get_clean();
 
         return $structure_buffer;
+    }
+
+    public static function display_select_options( $options_arr, $params )
+    {
+        if( empty( $options_arr ) or !is_array( $options_arr )
+         or empty( $params ) or !is_array( $params )
+         or !isset( $params['field_id'] ) or empty( $params['field_name'] ) )
+            return false;
+
+        if( empty( $params['style'] ) )
+            $params['style'] = '';
+        if( empty( $params['field_id'] ) )
+            $params['field_id'] = false;
+        if( !isset( $params['field_value'] ) )
+            $params['field_value'] = '';
+        if( !isset( $params['field_disabled'] ) )
+            $params['field_disabled'] = false;
+
+        ob_start();
+        ?><select <?php echo (!empty( $params['field_id'] )?' id="'.$params['field_id'].'"':'')?> name="<?php echo $params['field_name']?>" <?php echo (!empty( $params['field_disabled'] )?'disabled="disabled"':'')?>>
+        <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> [<?php echo count( $options_arr )?>] - </option><?php
+        foreach( $options_arr as $key => $val )
+        {
+            ?><option value="<?php echo self::form_str( $key )?>" <?php echo ($params['field_value']==$key?'selected="selected"':'');?> style="<?php echo self::form_str( $params['style'] )?>"><?php echo $val;?></option><?php
+        }
+        ?></select><?php
+        $buf = ob_get_clean();
+
+        return $buf;
     }
 
     public static function default_submit_result()
@@ -664,6 +929,22 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( empty( $post_arr['environment'] ) or !in_array( $post_arr['environment'], array( 'live', 'test' ) ) )
             $return_arr['errors_arr'][] = self::s2p_t( 'Invalid API environment.' );
 
+        if( !empty( $post_arr['gvars_arrays'] ) and is_array( $post_arr['gvars_arrays'] ) )
+        {
+            if( ($gvars_post_arr = self::transform_post_arrays( $post_arr['gvars'], $post_arr['gvars_arrays'] )) )
+                $post_arr['gvars'] = $gvars_post_arr;
+            else
+                $return_arr['errors_arr'][] = self::s2p_t( 'Couldn\'t extract get parameters.' );
+        }
+
+        if( !empty( $post_arr['mparams_arrays'] ) and is_array( $post_arr['mparams_arrays'] ) )
+        {
+            if( ($mparams_post_arr = self::transform_post_arrays( $post_arr['mparams'], $post_arr['mparams_arrays'] )) )
+                $post_arr['mparams'] = $mparams_post_arr;
+            else
+                $return_arr['errors_arr'][] = self::s2p_t( 'Couldn\'t extract method parameters.' );
+        }
+
         $return_arr['post_arr'] = $post_arr;
 
         // If we have basic errors to display don't let script continue;
@@ -694,13 +975,13 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             $api_params['method_params'] = $post_arr['mparams'];
 
             /** @var S2P_SDK_API $api */
-            if( !($api = self::get_instance( 'S2P_SDK_API', $api_params )) )
+            if( !($api = self::get_instance( 'S2P_SDK_API', $api_params, false )) )
             {
                 if( ($error_arr = self::st_get_error()) and is_array( $error_arr ) )
                     $return_arr['errors_arr'][] = $error_arr['display_error'];
                 else
                     $return_arr['errors_arr'][] = self::s2p_t( 'Error initializing API object.' );
-            } elseif( !$api->do_call() )
+            } elseif( !$api->do_call( array( 'allow_remote_calls' => false ) ) )
             {
                 $return_arr['errors_arr'][] = self::s2p_t( 'API call FAILED. (%ss)', $api->get_call_time() );
 
@@ -709,12 +990,17 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             } else
             {
                 $return_arr['success_arr'][] = self::s2p_t( 'Successfull API call. (%ss)', $api->get_call_time() );
-
-                $return_arr['api_obj'] = $api;
             }
+
+            $return_arr['api_obj'] = $api;
         }
 
         return $return_arr;
+    }
+
+    static public function json_display( $str )
+    {
+        return str_replace( array( ',', '{', '}', '[', ']', "\n\n", "}\n,", "]\n," ), array( ",\n", "{\n", "\n}\n", "[\n", "]\n", "\n", '},', '],' ), $str );
     }
 
     public function get_form( $params = false )
@@ -769,12 +1055,6 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         $post_params['func'] = $func;
         $params['func'] = $func;
 
-        //if( empty( $method ) or empty( $func ) )
-        //{
-        //    $this->set_error( self::ERR_BASE_URL, self::s2p_t( 'Please provide method and functionality.' ) );
-        //    return false;
-        //}
-
         if( !empty( $method ) and !$this->init_method( $method ) )
             return false;
 
@@ -810,7 +1090,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                 {
                     foreach( $submit_result['errors_arr']['gvars'] as $key => $error )
                     {
-                        ?><div class="error_text"><?php echo $error?></div><?php
+                        ?><div class="error_text"><?php echo 'Error ['.$key.']: '.$error?></div><?php
                     }
                 }
                 ?></div><?php
@@ -831,7 +1111,6 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                 ?></div><?php
             }
 
-
         /** @var S2P_SDK_API $api_obj */
         $api_obj = $submit_result['api_obj']
         ?>
@@ -841,7 +1120,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             <?php
             if( !empty( $api_obj ) )
             {
-                ?><div style="width: 100%; text-align: right; margin-bottom: 10px; clear: both;"><a href="javascript:void(0);" onclick="toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API result' )?></a> &raquo;</div><?php
+                ?><div id="s2p_api_result_toggler"><a href="javascript:void(0);" onclick="toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API result' )?></a> &raquo;</div><?php
             }
             ?>
 
@@ -874,7 +1153,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             ?>
             <div id="api_result" style="width: 100%; display:block;">
 
-                <div style="width: 100%; text-align: left; margin-bottom: 10px; clear: both;">&laquo; <a href="javascript:void(0);" onclick="toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API form' )?></a></div>
+                <div id="s2p_api_form_toggler">&laquo; <a href="javascript:void(0);" onclick="toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API form' )?></a></div>
 
                 <div class="http_headers_code">
                     <div class="http_headers_code_title"><?php echo self::s2p_t( 'Request headers' );?></div>
@@ -883,7 +1162,11 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
                 <div class="http_headers_code">
                     <div class="http_headers_code_title"><a href="javascript:void(0);" onclick="toggle_container( 's2p_api_request_body' )"><?php echo self::s2p_t( 'Request body' );?></a></div>
-                    <div id="s2p_api_request_body" style="display: none;"><?php echo (empty( $call_result['request']['request_buffer'] )?'(empty)':nl2br( trim( $call_result['request']['request_buffer'] ) ));?></div>
+                    <div id="s2p_api_request_body" style="display: none;">
+                        <div id="s2p_api_request_body_raw_toggler">&laquo; <a href="javascript:void(0)" onclick="toggle_container( 's2p_api_request_body_raw' );toggle_container( 's2p_api_request_body_formatted' );"><?php echo self::s2p_t( 'Raw / Formatted response' )?></a> &raquo; </div>
+                        <div id="s2p_api_request_body_raw" style="display: block;"><?php echo (empty( $call_result['request']['request_buffer'] )?'(empty)':nl2br( trim( $call_result['request']['request_buffer'] ) ));?></div>
+                        <div id="s2p_api_request_body_formatted" style="display: none;"><?php echo (empty( $call_result['request']['request_buffer'] )?'(empty)':nl2br( self::json_display( trim( $call_result['request']['request_buffer'] ) ) ));?></div>
+                    </div>
                 </div>
 
                 <div class="http_headers_code">
@@ -939,26 +1222,51 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         ?><html><head>
 <title><?php self::s2p_t( 'SDK demo page' )?></title>
 <style>
-body { font-size: 0.8em; }
+body { font-family: 'Droid Sans', sans-serif; font-size: 0.8em; }
+input, select { font-family: 'Droid Sans', sans-serif; font-size: 1em; }
 .clearfix { clear: both; }
 .s2p_form { margin: 10px auto; width: 800px; }
+#s2p_api_result_toggler { width: 100%; text-align: right; margin-bottom: 10px; clear: both; }
+#s2p_api_form_toggler { width: 100%; text-align: left; margin-bottom: 10px; clear: both; }
 .s2p_form fieldset { margin-bottom: 5px; }
 .form_field { clear: both; width: 100%; padding: 3px; min-height: 30px; margin-bottom: 5px; }
 .form_field label { width: 180px; float: left; line-height: 25px; }
+.form_field label.mandatory:after { color: red; content: '*'; }
 .form_field .form_input { float: left; min-height: 30px; vertical-align: middle; }
 .form_field .form_input input { padding: 3px; }
 .form_field .form_input select { padding: 2px; max-width: 300px; }
-.form_field .form_input input:not([type='checkbox']) { padding: 3px; border: 1px solid #a1a1a1; }
+.form_field .form_input input:not([type='checkbox']) { width: 300px; padding: 3px; border: 1px solid #a1a1a1; }
+.form_field .form_input_array { width: 100%; clear: both; margin: 5px; 0; }
+.form_field .form_input_array input:not([type='checkbox']) { width: 150px; padding: 3px; border: 1px solid #a1a1a1; }
+.form_field .form_input_array select { max-width: 200px; }
+.s2p_form .form_input_blob_array { width: 100%; clear: both; margin: 5px; 0; border-bottom: 1px solid #808080; }
+.s2p_form .form_input_blob_array input:not([type='checkbox']) { width: 150px; padding: 3px; border: 1px solid #a1a1a1; }
+.s2p_form .form_input_blob_array select { max-width: 200px; }
+.field_adder_container { clear:both; width:100%; margin-bottom: 5px; }
 .s2p_form .errors_container { border: 2px dotted red; width: 100%; padding: 10px; margin: 10px auto; }
 .s2p_form .errors_container .error_text { width: 100%; clear: both; }
 .s2p_form .success_container { border: 2px dotted green; width: 100%; padding: 10px; margin: 10px auto; }
 .s2p_form .success_container .success_text { width: 100%; clear: both; }
-.http_headers_code { padding: 5px; border: 2px solid slategray; font-family: "Courier New", Courier, monospace; width: 100%; clear: both; margin: 5px 0;  }
+.http_headers_code { padding: 5px; border: 2px solid slategray; font-family: 'Ubuntu Mono', "Courier New", Courier, monospace; width: 100%; clear: both; margin: 5px 0;  }
 .http_headers_code .http_headers_code_title { width: 100%; font-family: inherit !important; font-weight: bold; clear: both; }
+.datepicker { width: 120px !important; }
+#s2p_api_request_body_raw_toggler { margin: 5px 0; }
 </style>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+<link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic|Droid+Sans:400,700&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+
 <script type="text/javascript">
 function toggle_container( id )
 {
+    var obj = $('#'+id);
+    if( obj )
+    {
+        obj.toggle();
+    }
+    /*
     var obj = document.getElementById(id);
     if( obj )
     {
@@ -967,9 +1275,110 @@ function toggle_container( id )
         else
             obj.style.display = 'none';
     }
+    */
 }
+
+function add_methods_array_element( template_id )
+{
+    var template_obj = $('#'+template_id+'___template');
+    var container_obj = $('#'+template_id+'___container');
+
+    if( !template_obj || !container_obj )
+        return;
+
+    var clone_obj = template_obj.clone();
+
+    clone_obj.prop( 'id', '' );
+
+    // enable all inputs
+    clone_obj.find( 'input').prop( 'disabled', false );
+    clone_obj.find( 'select').prop( 'disabled', false );
+    clone_obj.find( 'textarea').prop( 'disabled', false );
+
+    clone_obj.show();
+
+    clone_obj.appendTo( container_obj );
+}
+
+function add_methods_blob_array_element( template_id )
+{
+    var template_obj = $('#mparam_container_'+template_id+'___template');
+    var container_obj = $('#mparam_container_'+template_id);
+
+    if( !template_obj || !container_obj )
+        return;
+
+    var clone_obj = template_obj.clone();
+
+    clone_obj.prop( 'id', '' );
+
+    // enable all inputs
+    clone_obj.find( 'input').prop( 'disabled', false );
+    clone_obj.find( 'select').prop( 'disabled', false );
+    clone_obj.find( 'textarea').prop( 'disabled', false );
+
+    var container_index = container_obj.children().length;
+
+    clone_obj.find( 'input').each(function() {
+        var new_name = $(this).prop( 'name' ).replace( '{*BLOB_ARRAY_INDEX*}', container_index );
+        var new_id = $(this).prop( 'id' ) + '_' + container_index;
+
+        $(this).attr( 'name', new_name );
+        $(this).attr( 'id', new_id );
+    });
+    clone_obj.find( 'select').each(function() {
+        var new_name = $(this).prop( 'name' ).replace( '{*BLOB_ARRAY_INDEX*}', container_index );
+        var new_id = $(this).prop( 'id' ) + '_' + container_index;
+
+        $(this).attr( 'name', new_name );
+        $(this).attr( 'id', new_id );
+    });
+    clone_obj.find( 'textarea').each(function() {
+        var new_name = $(this).prop( 'name' ).replace( '{*BLOB_ARRAY_INDEX*}', container_index );
+        var new_id = $(this).prop( 'id' ) + '_' + container_index;
+
+        $(this).attr( 'name', new_name );
+        $(this).attr( 'id', new_id );
+    });
+
+    clone_obj.show();
+
+    clone_obj.appendTo( container_obj );
+}
+
+function remove_methods_array_element( a_element, template_id )
+{
+    if( !a_element || !a_element.parent() || a_element.parent().attr( 'id' ) == template_id + '___template' )
+        return;
+
+    a_element.parent().remove();
+}
+
+function remove_methods_blob_array_element( a_element, template_id )
+{
+    if( !a_element || !a_element.parent() || a_element.parent().attr( 'id' ) == 'mparam_container_' + template_id + '___template' )
+        return;
+
+    a_element.parent().remove();
+}
+
+$(function(){
+    $('.datepicker').datepicker({
+        firstDay: 1,
+        dateFormat: 'yymmdd000000'
+    });
+
+    var disabler_obj = $('.input_disabler_container');
+    if( disabler_obj )
+    {
+        disabler_obj.find('input').prop('disabled', true);
+        disabler_obj.find('select').prop('disabled', true);
+        disabler_obj.find('textarea').prop('disabled', true);
+    }
+});
 </script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+
+
 </head>
 <body>
 <h1>Welcome to Smart2Pay SDK demo page!</h1>

@@ -270,10 +270,10 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                     return false;
                 }
 
-                if( $scope_arr[ $definition[ $scope_name_key ] ] === null )
-                    $current_value[ $definition[ $output_name_key ] ] = null;
+                if( $scope_arr[$definition[$scope_name_key]] === null )
+                    $current_value[$definition[$output_name_key]] = null;
                 else
-                    $current_value[ $definition[ $output_name_key ] ] = self::scalar_value( $definition['type'], $scope_arr[ $definition[ $scope_name_key ] ] );
+                    $current_value[$definition[$output_name_key]] = self::scalar_value( $definition['type'], $scope_arr[$definition[$scope_name_key]], $definition['array_type'], $definition['array_numeric_keys'] );
             }
 
             else
@@ -281,7 +281,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                 if( empty( $scope_arr[$definition[$scope_name_key]] )
                  or !is_array( $scope_arr[$definition[$scope_name_key]] )
                  or !self::object_type( $definition['type'] ) )
-                    $current_value[ $definition[$output_name_key] ] = null;
+                    $current_value[$definition[$output_name_key]] = null;
 
                 else
                 {
@@ -415,7 +415,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         return $null_arr;
     }
 
-    public static function scalar_value( $var_type, $value, $array_type = false )
+    public static function scalar_value( $var_type, $value, $array_type = false, $array_numeric_keys = false )
     {
         if( !self::scalar_type( $var_type ) )
             return null;
@@ -480,9 +480,14 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                             continue;
 
                         if( !empty( $array_type ) and self::scalar_type( $array_type ) )
-                            $result[$key] = self::scalar_value( $array_type, $val );
+                            $key_val = self::scalar_value( $array_type, $val );
                         else
-                            $result[$key] = $val;
+                            $key_val = $val;
+
+                        if( !empty( $array_numeric_keys ) )
+                            $result[] = $key_val;
+                        else
+                            $result[$key] = $key_val;
                     }
                 }
             break;
@@ -552,9 +557,11 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             'external_name' => '',
             'type' => 0,
             'array_type' => 0,
+            'array_numeric_keys' => true,
             'default' => null,
             'regexp' => '',
             'structure' => null,
+            'value_source' => 0,
         );
     }
 

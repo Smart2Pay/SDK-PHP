@@ -71,6 +71,7 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
                         'default' => 0,
                         'mandatory' => true,
                         'move_in_url' => true,
+                        'value_source' => S2P_SDK_Values_Source::TYPE_METHODS,
                     ),
                 ),
 
