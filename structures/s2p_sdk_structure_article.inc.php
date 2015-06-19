@@ -63,32 +63,14 @@ class S2P_SDK_Structure_Article extends S2P_SDK_Scope_Structure
                 'external_name' => 'VAT',
                 'type' => S2P_SDK_VTYPE_FLOAT,
                 'default' => 0,
-                // 'regexp' => '^\d{1,2}$', ???
+                'regexp' => '^\d{1,4}$',
             ),
             array(
                 'name' => 'discount',
                 'external_name' => 'Discount',
                 'type' => S2P_SDK_VTYPE_FLOAT,
                 'default' => 0,
-                // 'regexp' => '^\d{1,2}$', ???
-            ),
-            array(
-                'name' => 'foobarparam2',
-                'external_name' => 'foobarparam2',
-                'type' => S2P_SDK_VTYPE_ARRAY,
-                'array_type' => S2P_SDK_VTYPE_STRING,
-                'array_numeric_keys' => true,
-                'default' => null,
-                'value_source' => S2P_SDK_Values_Source::TYPE_CURRENCY,
-            ),
-            array(
-                'name' => 'foobarparam3',
-                'external_name' => 'foobarparam3',
-                'type' => S2P_SDK_VTYPE_ARRAY,
-                'array_type' => S2P_SDK_VTYPE_STRING,
-                'array_numeric_keys' => false,
-                'default' => null,
-                'value_source' => S2P_SDK_Values_Source::TYPE_COUNTRY,
+                'regexp' => '^\d{1,4}$',
             ),
             array(
                 'name' => 'type',

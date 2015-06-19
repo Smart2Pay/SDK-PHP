@@ -23,12 +23,12 @@
             $submit_result['errors_arr'] = array( $demo::s2p_t( 'Error handling form submit.' ) );
     }
 
-    $demo->display_header();
-
     $form_params = array();
     $form_params['post_params'] = $post_arr;
     $form_params['form_action_suffix'] = 'demo.php';
     $form_params['submit_result'] = $submit_result;
+
+    $demo->display_header( $form_params );
 
     if( ($form_buff = $demo->get_form( $form_params )) )
         echo $form_buff;
@@ -43,4 +43,4 @@
         ?></p><?php
     }
 
-    $demo->display_footer();
+    $demo->display_footer( $form_params );

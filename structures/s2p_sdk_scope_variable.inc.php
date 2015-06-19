@@ -385,7 +385,19 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
          or empty( $definition['structure'] ) or !is_array( $definition['structure'] )
          or self::scalar_type( $definition['type'] )
          or (empty( $params['nullify_full_object'] ) and array_key_exists( 'default', $definition )) )
-            return ( ( ! empty( $definition ) and is_array( $definition ) and array_key_exists( 'default', $definition ) ) ? $definition['default'] : null );
+        {
+            if( empty( $definition ) or !is_array( $definition ) )
+                return null;
+
+            if( !empty( $definition['check_constant'] ) and defined( $definition['check_constant'] )
+            and constant( $definition['check_constant'] ) )
+                return constant( $definition['check_constant'] );
+
+            elseif( array_key_exists( 'default', $definition ) )
+                return $definition['default'];
+
+            return null;
+        }
 
         $null_arr = array();
         switch( $definition['type'] )
@@ -562,6 +574,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             'regexp' => '',
             'structure' => null,
             'value_source' => 0,
+            'check_constant' => '',
         );
     }
 

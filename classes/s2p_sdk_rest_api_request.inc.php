@@ -403,16 +403,30 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         and is_array( $header_lines_arr ) )
         {
             $new_response_buf = '';
+            $in_body = false;
             $in_headers = true;
+            $headers_received = false;
             foreach( $header_lines_arr as $line_no => $line )
             {
                 if( $in_headers and rtrim( $line ) === '' )
                 {
+                    $headers_received = true;
                     $in_headers = false;
                     continue;
                 }
 
-                if( !$in_headers )
+                if( $headers_received )
+                {
+                    if( strtolower( substr( $line, 0, 7 ) ) != 'http/1.' )
+                        $in_body = true;
+                    else
+                    {
+                        $in_headers = true;
+                        $headers_received = false;
+                    }
+                }
+
+                if( $in_body or !$in_headers )
                     $new_response_buf .= $line."\n";
 
                 else
@@ -462,8 +476,6 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         $response['request_error_msg'] = @curl_error( $ch );
         $response['request_error_no'] = @curl_errno( $ch );
         $response['request_params'] = $return_params;
-
-        // var_dump( $response );
 
         $this->_request_result = $response;
 

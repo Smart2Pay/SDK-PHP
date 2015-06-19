@@ -427,10 +427,6 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         /** @var S2P_SDK_Scope_Structure $structure_obj */
         $structure_obj = $func_details['request_structure'];
 
-        $extraction_arr                        = array();
-        $extraction_arr['nullify_full_object'] = true;
-        $extraction_arr['skip_regexps']        = true;
-
         if( ($method_definition = $structure_obj->get_validated_definition()) )
         {
             if( empty( $func_details['mandatory_in_request'] )
@@ -485,7 +481,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( empty( $post_arr ) or !is_array( $dotted_path_arr ) )
             return null;
 
-        if( empty( $dotted_path_arr[0] ) )
+        if( !isset( $dotted_path_arr[0] ) )
             $current_index = null;
 
         else
@@ -493,7 +489,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             $current_index = $dotted_path_arr[0];
 
             if( !array_key_exists( $current_index, $post_arr ) )
-                return null;
+                return $post_arr;
         }
 
         if( $current_index === null )
@@ -513,7 +509,12 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                 if( !isset( $post_arr['keys'][$key] ) )
                     $transformed_arr[] = $val;
                 else
-                    $transformed_arr[$post_arr['keys'][$key]] = $val;
+                {
+                    if( $post_arr['keys'][$key] == '' )
+                        continue;
+
+                    $transformed_arr[(string)$post_arr['keys'][$key]] = $val;
+                }
             }
 
             return $transformed_arr;
@@ -535,21 +536,21 @@ class S2P_SDK_Demo extends S2P_SDK_Module
     public static function extract_field_value( $post_arr, $dotted_path )
     {
         if( empty( $post_arr ) )
-            return '';
+            return null;
 
         if( !is_array( $dotted_path ) and !is_string( $dotted_path ) )
-            return '';
+            return null;
 
         if( is_string( $dotted_path ) )
             $dotted_path = explode( '.', str_replace( '..', '.', $dotted_path ) );
 
         if( empty( $dotted_path ) or !is_array( $dotted_path ) )
-            return '';
+            return null;
 
         $current_index = $dotted_path[0];
 
         if( !array_key_exists( $current_index, $post_arr ) )
-            return '';
+            return null;
 
         if( is_scalar( $post_arr[$current_index] ) or !isset( $dotted_path[1] ) )
             return $post_arr[$current_index];
@@ -557,12 +558,12 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( is_array( $post_arr[$current_index] ) and isset( $dotted_path[1] ) )
         {
             if( array_shift( $dotted_path ) === null )
-                return '';
+                return null;
 
             return self::extract_field_value( $post_arr[$current_index], $dotted_path );
         }
 
-        return '';
+        return null;
     }
 
     private function get_form_method_parameters_fields_detailed( $structure_definition, $mandatory_arr, $hide_keys_arr, $post_arr, $form_arr, $params = false )
@@ -572,12 +573,19 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
         if( empty( $params['path'] ) )
             $params['path'] = '';
+        if( empty( $params['read_path'] ) )
+            $params['read_path'] = '';
         if( empty( $params['name'] ) )
             $params['name'] = '';
         if( !isset( $params['blob_array_index'] ) )
             $params['blob_array_index'] = false;
+        if( !isset( $params['blob_array_index_read'] ) )
+            $params['blob_array_index_read'] = false;
         if( empty( $params['level'] ) )
             $params['level'] = -1;
+
+        if( empty( $params['blob_array_index_read'] ) and !empty( $params['blob_array_index'] ) )
+            $params['blob_array_index_read'] = $params['blob_array_index'];
 
         if( empty( $mandatory_arr ) or !is_array( $mandatory_arr ) )
             $mandatory_arr = array();
@@ -588,6 +596,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             return '';
 
         $params['path'] .= (!empty( $params['path'] )?'.':'').($params['blob_array_index']!==false?$params['blob_array_index'].'.':'').$structure_definition['name'];
+        $params['read_path'] .= (!empty( $params['read_path'] )?'.':'').($params['blob_array_index_read']!==false?$params['blob_array_index_read'].'.':'').$structure_definition['name'];
         $params['name'] .= ($params['blob_array_index']!==false?'['.$params['blob_array_index'].']':'').'['.$structure_definition['name'].']';
         $params['level']++;
 
@@ -599,7 +608,13 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
             $field_id = str_replace( array( '.', '[', ']' ), '_', $params['path'] );
             $field_name = 'mparams'.$params['name'];
-            $field_value = self::extract_field_value( $post_arr['mparams'], $params['path'] );
+            $field_value = self::extract_field_value( $post_arr['mparams'], $params['read_path'] );
+
+            if( $field_value === null
+            and !empty( $structure_definition['check_constant'] ) and defined( $structure_definition['check_constant'] ) )
+                $field_value = constant( $structure_definition['check_constant'] );
+            else
+                $field_value = '';
 
             $field_mandatory = false;
             if( array_key_exists( $structure_definition['name'], $mandatory_arr ) )
@@ -765,14 +780,18 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
         if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_BLOB_ARRAY )
         {
+            $blob_array_count = 0;
             if( ($blob_array_value = self::extract_field_value( $post_arr['mparams'], $params['path'] ))
             and is_array( $blob_array_value ) )
             {
                 $elements_params = $params;
                 $elements_params['blob_array_index'] = 0;
+                $elements_params['blob_array_index_read'] = 0;
 
                 foreach( $blob_array_value as $element_key => $element_arr )
                 {
+                    $elements_params['blob_array_index_read'] = $element_key;
+
                     ?><div class="form_input_blob_array"><?php
                     foreach( $structure_definition['structure'] as $element_definition )
                     {
@@ -790,6 +809,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                     <?php
 
                     $elements_params['blob_array_index']++;
+                    $blob_array_count++;
                 }
             }
             ?>
@@ -810,6 +830,13 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                 $form_arr,
                 $params ) ) )
                 echo $element_buffer;
+        }
+
+        if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_BLOB_ARRAY )
+        {
+            ?>
+            <a href="javascript:void(0);" onclick="remove_methods_blob_array_element( $(this), '<?php echo $field_id?>' )"><?php echo self::s2p_t( 'Remove' )?></a>
+            <?php
         }
 
         ?></div><?php
@@ -864,6 +891,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             'warnings_arr' => array(),
             'success_arr' => array(),
             'post_arr' => array(),
+            'finalize_result' => array(),
             'api_obj' => null,
         );
     }
@@ -990,6 +1018,19 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             } else
             {
                 $return_arr['success_arr'][] = self::s2p_t( 'Successfull API call. (%ss)', $api->get_call_time() );
+
+                $finalize_arr = array();
+                $finalize_arr['redirect_now'] = false;
+
+                if( !($finalize_result = $api->do_finalize( $finalize_arr )) )
+                    $return_arr['warnings_arr'][] = self::s2p_t( 'Error calling finalize on result.' );
+
+                elseif( !empty( $finalize_result['should_redirect'] ) and !empty( $finalize_result['redirect_to'] ) )
+                {
+                    $return_arr['success_arr'][] = self::s2p_t( 'To finalize this transaction go to: <a href="%s" target="_blank">%s</a>', self::form_str( $finalize_result['redirect_to'] ), $finalize_result['redirect_to'] );
+                }
+
+                $return_arr['finalize_result'] = $finalize_result;
             }
 
             $return_arr['api_obj'] = $api;
@@ -1095,9 +1136,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                 }
                 ?></div><?php
             }
-        ?>
 
-        <?php
             if( !empty( $submit_result['success_arr'] ) and is_array( $submit_result['success_arr'] ) )
             {
                 ?><div class="success_container"><?php
@@ -1106,7 +1145,20 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                     if( !is_numeric( $key ) )
                         continue;
 
-                    ?><span class="success_text"><?php echo $error?></span><?php
+                    ?><div class="success_text"><?php echo $error?></div><?php
+                }
+                ?></div><?php
+            }
+
+            if( !empty( $submit_result['warnings_arr'] ) and is_array( $submit_result['warnings_arr'] ) )
+            {
+                ?><div class="warnings_container"><?php
+                foreach( $submit_result['warnings_arr'] as $key => $error )
+                {
+                    if( !is_numeric( $key ) )
+                        continue;
+
+                    ?><div class="warning_text"><?php echo $error?></div><?php
                 }
                 ?></div><?php
             }
@@ -1217,8 +1269,14 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         return $buf;
     }
 
-    public function display_header()
+    public function display_header( $params = false )
     {
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+
+        if( empty( $params['form_name'] ) )
+            $params['form_name'] = 's2p_demo_form';
+
         ?><html><head>
 <title><?php self::s2p_t( 'SDK demo page' )?></title>
 <style>
@@ -1247,6 +1305,8 @@ input, select { font-family: 'Droid Sans', sans-serif; font-size: 1em; }
 .s2p_form .errors_container .error_text { width: 100%; clear: both; }
 .s2p_form .success_container { border: 2px dotted green; width: 100%; padding: 10px; margin: 10px auto; }
 .s2p_form .success_container .success_text { width: 100%; clear: both; }
+.s2p_form .warnings_container { border: 2px dotted #ffff00; width: 100%; padding: 10px; margin: 10px auto; }
+.s2p_form .warnings_container .warning_text { width: 100%; clear: both; }
 .http_headers_code { padding: 5px; border: 2px solid slategray; font-family: 'Ubuntu Mono', "Courier New", Courier, monospace; width: 100%; clear: both; margin: 5px 0;  }
 .http_headers_code .http_headers_code_title { width: 100%; font-family: inherit !important; font-weight: bold; clear: both; }
 .datepicker { width: 120px !important; }
@@ -1266,16 +1326,6 @@ function toggle_container( id )
     {
         obj.toggle();
     }
-    /*
-    var obj = document.getElementById(id);
-    if( obj )
-    {
-        if( obj.style.display == 'none' )
-            obj.style.display = 'block';
-        else
-            obj.style.display = 'none';
-    }
-    */
 }
 
 function add_methods_array_element( template_id )
@@ -1298,6 +1348,7 @@ function add_methods_array_element( template_id )
     clone_obj.show();
 
     clone_obj.appendTo( container_obj );
+    //document.<?php echo $params['form_name']?>.submit();
 }
 
 function add_methods_blob_array_element( template_id )
@@ -1321,29 +1372,27 @@ function add_methods_blob_array_element( template_id )
 
     clone_obj.find( 'input').each(function() {
         var new_name = $(this).prop( 'name' ).replace( '{*BLOB_ARRAY_INDEX*}', container_index );
-        var new_id = $(this).prop( 'id' ) + '_' + container_index;
 
         $(this).attr( 'name', new_name );
-        $(this).attr( 'id', new_id );
+        $(this).attr( 'id', '' );
     });
     clone_obj.find( 'select').each(function() {
         var new_name = $(this).prop( 'name' ).replace( '{*BLOB_ARRAY_INDEX*}', container_index );
-        var new_id = $(this).prop( 'id' ) + '_' + container_index;
 
         $(this).attr( 'name', new_name );
-        $(this).attr( 'id', new_id );
+        $(this).attr( 'id', '' );
     });
     clone_obj.find( 'textarea').each(function() {
         var new_name = $(this).prop( 'name' ).replace( '{*BLOB_ARRAY_INDEX*}', container_index );
-        var new_id = $(this).prop( 'id' ) + '_' + container_index;
 
         $(this).attr( 'name', new_name );
-        $(this).attr( 'id', new_id );
+        $(this).attr( 'id', '' );
     });
 
     clone_obj.show();
 
     clone_obj.appendTo( container_obj );
+    document.<?php echo $params['form_name']?>.submit();
 }
 
 function remove_methods_array_element( a_element, template_id )
@@ -1352,6 +1401,7 @@ function remove_methods_array_element( a_element, template_id )
         return;
 
     a_element.parent().remove();
+    //document.<?php echo $params['form_name']?>.submit();
 }
 
 function remove_methods_blob_array_element( a_element, template_id )
@@ -1360,12 +1410,18 @@ function remove_methods_blob_array_element( a_element, template_id )
         return;
 
     a_element.parent().remove();
+    document.<?php echo $params['form_name']?>.submit();
 }
 
 $(function(){
     $('.datepicker').datepicker({
         firstDay: 1,
         dateFormat: 'yymmdd000000'
+    });
+
+    $("[id*='___template'] input, [id*='___template'] select, [id*='___template'] textarea").each(function(){
+        if( $(this).attr('id') != 'undefined' )
+            $(this).attr( 'id', '' );
     });
 
     var disabler_obj = $('.input_disabler_container');
@@ -1387,7 +1443,7 @@ $(function(){
 <?php
     }
 
-    public function display_footer()
+    public function display_footer( $params = false )
     {
         ?></body>
 </html><?php

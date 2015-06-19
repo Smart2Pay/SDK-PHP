@@ -118,14 +118,6 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                         return false;
                     }
 
-                    if( $response_data['func'] == self::FUNC_INIT_PAYMENT
-                    and isset( $response_data['response_array']['payment']['status']['id'] )
-                    and $response_data['response_array']['payment']['status']['id'] != self::STATUS_CANCELLED )
-                    {
-                        $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'Payment not cancelled.' ) );
-                        return false;
-                    }
-
                     if( $response_data['func'] == self::FUNC_CANCEL_PAYMENT
                     and isset( $response_data['response_array']['payment']['status']['id'] )
                     and $response_data['response_array']['payment']['status']['id'] != self::STATUS_CANCELLED )
