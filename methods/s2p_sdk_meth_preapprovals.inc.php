@@ -7,56 +7,91 @@ if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
 
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_preapproval_request.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_preapproval_response.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_preapproval_response_list.inc.php' );
 include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 
+if( !defined( 'S2P_SDK_METH_PREAPPROVALS_LIST_ALL' ) )
+    define( 'S2P_SDK_METH_PREAPPROVALS_LIST_ALL', 'list_all' );
 if( !defined( 'S2P_SDK_METH_PREAPPROVAL_INIT' ) )
     define( 'S2P_SDK_METH_PREAPPROVAL_INIT', 'preapproval_init' );
+if( !defined( 'S2P_SDK_METH_PREAPPROVAL_DETAILS' ) )
+    define( 'S2P_SDK_METH_PREAPPROVAL_DETAILS', 'preapproval_details' );
 
 class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
 {
     const ERR_REASON_CODE = 300, ERR_EMPTY_ID = 301;
 
-    const FUNC_INIT_PREAPPROVAL = S2P_SDK_METH_PREAPPROVAL_INIT;
+    const FUNC_INIT_PREAPPROVAL = S2P_SDK_METH_PREAPPROVAL_INIT, FUNC_LIST_ALL = S2P_SDK_METH_PREAPPROVALS_LIST_ALL, FUNC_DETAILS = S2P_SDK_METH_PREAPPROVAL_DETAILS;
 
     const STATUS_PENDING = 1, STATUS_OPEN = 2, STATUS_CLOSEDBYCUSTOMER = 4;
 
-    const METH_MERCADOPAGO = 46, METH_PAYWITHMYBANK = 58, METH_CARDS = 69, METH_KLARNAINVOICE = 75, METH_QIWIWALLET = 1003;
-
-    private static $RECURRING_METHODS = array(
-        self::METH_MERCADOPAGO => array(
-            'title' => 'MercadoPago',
-        ),
-        self::METH_PAYWITHMYBANK => array(
-            'title' => 'PayWithMyBank',
-        ),
-        self::METH_CARDS => array(
-            'title' => 'Cards',
-        ),
-        self::METH_KLARNAINVOICE => array(
-            'title' => 'Klarna Invoice',
-        ),
-        self::METH_QIWIWALLET => array(
-            'title' => 'QIWI Wallet',
-        ),
+    private static $STATUSES_ARR = array(
+        self::STATUS_PENDING => 'Pending',
+        self::STATUS_OPEN => 'Open',
+        self::STATUS_CLOSEDBYCUSTOMER => 'Closed By Customer',
     );
 
-    public static function get_recurring_methods()
+    public static function get_statuses()
     {
-        return self::$RECURRING_METHODS;
+        return self::$STATUSES_ARR;
     }
 
-    public static function valid_recurring_method( $meth )
+    public static function valid_status( $status )
     {
-        $meth = intval( $meth );
-        if( !($recurring_methods = self::get_recurring_methods()) or empty( $recurring_methods[$meth] ) )
+        if( empty( $status )
+         or !($statuses_arr = self::get_statuses()) or empty( $statuses_arr[$status] ) )
             return false;
 
-        return $recurring_methods[$meth];
+        return $statuses_arr[$status];
     }
 
     public function default_functionality()
     {
-        return self::FUNC_INIT_PREAPPROVAL;
+        return self::FUNC_LIST_ALL;
+    }
+
+    public function get_notification_types()
+    {
+        $preapproval_notification_obj = new S2P_SDK_Structure_Preapproval_Response();
+
+        return array(
+            'Preapproval' => array(
+
+                'request_structure' => $preapproval_notification_obj,
+
+            )
+        );
+    }
+
+    /**
+     * This method should be overridden by methods which have actions to be taken after we receive response from server
+     *
+     * @param array $call_result
+     * @param array $params
+     *
+     * @return array Returns array with finalize action details
+     */
+    public function finalize( $call_result, $params )
+    {
+        $return_arr = self::default_finalize_result();
+
+        if( !($call_result = S2P_SDK_Rest_API::validate_call_result( $call_result ))
+         or empty( $call_result['response']['func'] ) )
+            return $return_arr;
+
+        switch( $call_result['response']['func'] )
+        {
+            case self::FUNC_INIT_PREAPPROVAL:
+                if( !empty( $call_result['response']['response_array']['preapproval'] )
+                and !empty( $call_result['response']['response_array']['preapproval']['redirecturl'] ) )
+                {
+                    $return_arr['should_redirect'] = true;
+                    $return_arr['redirect_to'] = $call_result['response']['response_array']['preapproval']['redirecturl'];
+                }
+            break;
+        }
+
+        return $return_arr;
     }
 
     /**
@@ -88,7 +123,7 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
                                     $error_msg .= $error_reason;
                             }
 
-                            if( ! empty( $error_msg ) )
+                            if( !empty( $error_msg ) )
                             {
                                 $error_msg = self::s2p_t( 'Returned by server: %s', $error_msg );
                                 $this->set_error( self::ERR_REASON_CODE, $error_msg );
@@ -122,7 +157,7 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
     {
         return array(
             'method' => 'preapprovals',
-            'name' => self::s2p_t( 'Preapprovals' ),
+            'name' => self::s2p_t( 'Manage Preapprovals' ),
             'short_description' => self::s2p_t( 'This method manages preapprovals used in recurring payments' ),
         );
     }
@@ -131,8 +166,43 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
     {
         $preapproval_request_obj = new S2P_SDK_Structure_Preapproval_Request();
         $preapproval_response_obj = new S2P_SDK_Structure_Preapproval_Response();
+        $preapproval_response_list_obj = new S2P_SDK_Structure_Preapproval_Response_List();
 
         return array(
+
+            self::FUNC_LIST_ALL => array(
+                'name' => self::s2p_t( 'List Preapprovals' ),
+                'url_suffix' => '/v1/preapprovals/',
+                'http_method' => 'GET',
+
+                'mandatory_in_response' => array(
+                    'preapprovals' => array(),
+                ),
+
+                'response_structure' => $preapproval_response_list_obj,
+            ),
+
+            self::FUNC_DETAILS => array(
+                'name' => self::s2p_t( 'Preapproval Details' ),
+                'url_suffix' => '/v1/preapprovals/{*ID*}',
+                'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'preapproval' => array(),
+                ),
+
+                'response_structure' => $preapproval_response_obj,
+            ),
 
             self::FUNC_INIT_PREAPPROVAL => array(
                 'name' => self::s2p_t( 'Initialize a Preapproval' ),
@@ -145,6 +215,24 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
                         'Description' => '',
                         'ReturnURL' => '',
                         'MethodID' => 0,
+                        'Customer' => array(
+                            'Email' => '',
+                        ),
+                        'BillingAddress' => array(
+                            'Country' => '',
+                        ),
+                    ),
+                ),
+
+                'hide_in_request' => array(
+                    'Preapproval' => array(
+                        'Customer' => array(
+                            'InputDateTime' => '',
+                        ),
+                        'Created' => '',
+                        'Signature' => '',
+                        'ApiKey' => '',
+                        'Details' => '',
                     ),
                 ),
 
@@ -155,6 +243,12 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
                 ),
 
                 'response_structure' => $preapproval_response_obj,
+
+                'mandatory_in_error' => array(
+                    'preapproval' => array(),
+                ),
+
+                'error_structure' => $preapproval_response_obj,
             ),
        );
     }

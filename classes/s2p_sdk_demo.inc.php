@@ -2,10 +2,12 @@
 
 namespace S2P_SDK;
 
-if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_PATH' ) )
+if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_CLASSES' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) or !defined( 'S2P_SDK_DIR_PATH' ) )
     die( 'Something went bad' );
 
 include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_scope_variable.inc.php' );
 
 class S2P_SDK_Demo extends S2P_SDK_Module
 {
@@ -301,27 +303,42 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         $post_arr = self::validate_post_data( $post_arr );
         $submit_result_arr = self::validate_submit_result( $submit_result_arr );
 
+        $value_source_obj = new S2P_SDK_Values_Source();
+
         foreach( $func_details['get_variables'] as $get_var )
         {
-            if( empty( $get_var['type'] )
-             or !($field_type_arr = S2P_SDK_Scope_Variable::valid_type( $get_var['type'] )) )
+            if( !array_key_exists( $get_var['name'], $post_arr['gvars'] ) )
             {
-                $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Invalid variable type for variable %s.', $get_var['name'] );
+                if( !empty( $get_var['mandatory'] ) )
+                    $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Mandatory field %s not provided.', $get_var['name'] );
+
                 continue;
             }
 
-            if( isset( $post_arr['gvars'][ $get_var['name'] ] ) )
-                $field_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $post_arr['gvars'][ $get_var['name'] ], $get_var['array_type'] );
-            elseif( isset( $get_var['default'] ) )
-                $field_value = $get_var['default'];
-            else
-                $field_value = '';
-
-            if( !empty( $get_var['mandatory'] )
-            and empty( $field_value ) )
+            if( !empty( $get_var['regexp'] )
+            and !preg_match( '/'.$get_var['regexp'].'/', $post_arr['gvars'][$get_var['name']] ) )
             {
-                $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Mandatory field %s not provided.', $get_var['name'] );
+                $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Field %s failed regexp %s.', $get_var['name'], $get_var['regexp'] );
                 continue;
+            }
+
+            $var_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $post_arr['gvars'][$get_var['name']], $get_var['array_type'], $get_var['array_numeric_keys'] );
+            $default_var_value = null;
+            if( array_key_exists( 'default', $get_var ) )
+                $default_var_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $get_var['default'], $get_var['array_type'], $get_var['array_numeric_keys'] );
+
+            if( !empty( $get_var['skip_if_default'] )
+            and $var_value === $default_var_value )
+                continue;
+
+            if( !empty( $get_var['value_source'] ) and $value_source_obj::valid_type( $get_var['value_source'] ) )
+            {
+                $value_source_obj->source_type( $get_var['value_source'] );
+                if( !$value_source_obj->valid_value( $var_value ) )
+                {
+                    $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Variable %s contains invalid value [%s].', $get_var['name'], $var_value );
+                    continue;
+                }
             }
         }
 
@@ -353,6 +370,8 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
             if( isset( $post_arr['gvars'][$get_var['name']] ) )
                 $field_value = $post_arr['gvars'][$get_var['name']];
+            elseif( !empty( $get_var['check_constant'] ) and defined( $get_var['check_constant'] ) )
+                $field_value = constant( $get_var['check_constant'] );
             elseif( isset( $get_var['default'] ) )
                 $field_value = $get_var['default'];
             else
@@ -592,7 +611,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( empty( $hide_keys_arr ) or !is_array( $hide_keys_arr ) )
             $hide_keys_arr = array();
 
-        if( empty( $structure_definition ) or !is_array( $structure_definition ) )
+        if( empty( $structure_definition ) or !is_array( $structure_definition )
+         or (array_key_exists( $structure_definition['name'], $hide_keys_arr )
+                        and !is_array( $hide_keys_arr[$structure_definition['name']] )) )
             return '';
 
         $params['path'] .= (!empty( $params['path'] )?'.':'').($params['blob_array_index']!==false?$params['blob_array_index'].'.':'').$structure_definition['name'];
@@ -603,18 +624,17 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( empty( $structure_definition['structure'] ) or !is_array( $structure_definition['structure'] ) )
         {
             // display single element...
-            if( array_key_exists( $structure_definition['name'], $hide_keys_arr ) )
-                return '';
-
             $field_id = str_replace( array( '.', '[', ']' ), '_', $params['path'] );
             $field_name = 'mparams'.$params['name'];
             $field_value = self::extract_field_value( $post_arr['mparams'], $params['read_path'] );
 
-            if( $field_value === null
-            and !empty( $structure_definition['check_constant'] ) and defined( $structure_definition['check_constant'] ) )
-                $field_value = constant( $structure_definition['check_constant'] );
-            else
-                $field_value = '';
+            if( $field_value === null )
+            {
+                if( !empty( $structure_definition['check_constant'] ) and defined( $structure_definition['check_constant'] ) )
+                    $field_value = constant( $structure_definition['check_constant'] );
+                else
+                    $field_value = '';
+            }
 
             $field_mandatory = false;
             if( array_key_exists( $structure_definition['name'], $mandatory_arr ) )
@@ -753,6 +773,11 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                     if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_DATETIME )
                     {
                         echo ' - yyyymmddhhmmss';
+                    }
+
+                    if( !empty( $structure_definition['regexp'] ) )
+                    {
+                        echo ' <span class="form_input_regexp"><a href="javascript:void(0);" onclick="toggle_regexp( $(this) )">RExp</a><span class="form_input_regexp_exp">'.$structure_definition['regexp'].'</span></span>';
                     }
                 ?></div>
             </div>
@@ -957,6 +982,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( empty( $post_arr['environment'] ) or !in_array( $post_arr['environment'], array( 'live', 'test' ) ) )
             $return_arr['errors_arr'][] = self::s2p_t( 'Invalid API environment.' );
 
+        //
+        //  Transform form variables in object variables
+        //
         if( !empty( $post_arr['gvars_arrays'] ) and is_array( $post_arr['gvars_arrays'] ) )
         {
             if( ($gvars_post_arr = self::transform_post_arrays( $post_arr['gvars'], $post_arr['gvars_arrays'] )) )
@@ -972,6 +1000,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             else
                 $return_arr['errors_arr'][] = self::s2p_t( 'Couldn\'t extract method parameters.' );
         }
+        //
+        //  END Transform form variables in object variables
+        //
 
         $return_arr['post_arr'] = $post_arr;
 
@@ -1291,6 +1322,9 @@ input, select { font-family: 'Droid Sans', sans-serif; font-size: 1em; }
 .form_field label { width: 180px; float: left; line-height: 25px; }
 .form_field label.mandatory:after { color: red; content: '*'; }
 .form_field .form_input { float: left; min-height: 30px; vertical-align: middle; }
+.form_field .form_input .form_input_regexp { margin: 0 5px; font-size: small; }
+.form_input_regexp_exp { display: none; border: 1px solid gray; margin: 0 5px; border-radius: 5px; background-color: white; padding: 5px; position: absolute; }
+.form_input_regexp_exp { cursor: pointer; }
 .form_field .form_input input { padding: 3px; }
 .form_field .form_input select { padding: 2px; max-width: 300px; }
 .form_field .form_input input:not([type='checkbox']) { width: 300px; padding: 3px; border: 1px solid #a1a1a1; }
@@ -1325,6 +1359,16 @@ function toggle_container( id )
     if( obj )
     {
         obj.toggle();
+    }
+}
+
+function toggle_regexp( obj )
+{
+    if( obj )
+    {
+        obj.parent().find('.form_input_regexp_exp').toggle().on('click', function(){
+            $(this).hide();
+        });
     }
 }
 

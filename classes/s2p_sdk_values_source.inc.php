@@ -8,19 +8,21 @@ if( !defined( 'S2P_SDK_DIR_CLASSES' ) )
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_currencies.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_countries.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source_methods.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source_recurring_methods.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source_article_type.inc.php' );
 
 class S2P_SDK_Values_Source extends S2P_SDK_Language
 {
     const ERR_TYPE = 1;
 
-    const TYPE_COUNTRY = 1, TYPE_CURRENCY = 2, TYPE_AVAILABLE_METHODS = 3, TYPE_METHODS = 4, TYPE_ARTICLE_TYPE = 5;
+    const TYPE_COUNTRY = 1, TYPE_CURRENCY = 2, TYPE_AVAILABLE_METHODS = 3, TYPE_METHODS = 4, TYPE_RECURRING_METHODS = 5, TYPE_ARTICLE_TYPE = 6;
 
     private static $TYPES_ARR = array(
         self::TYPE_COUNTRY => 'Country',
         self::TYPE_CURRENCY => 'Currency',
         self::TYPE_AVAILABLE_METHODS => 'Available Methods',
         self::TYPE_METHODS => 'Methods',
+        self::TYPE_RECURRING_METHODS => 'Recurring Methods',
         self::TYPE_ARTICLE_TYPE => 'Article Type',
     );
 
@@ -120,6 +122,14 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
                 }
             break;
 
+            case self::TYPE_RECURRING_METHODS:
+                $return_arr = S2P_SDK_Values_Source_Recurring_Methods::get_methods();
+                foreach( $return_arr as $key => $method_arr )
+                {
+                    $return_arr[$key] = $key.' - '.$method_arr['title'];
+                }
+            break;
+
             case self::TYPE_METHODS:
                 if( !$this->remote_calls() )
                     $return_arr = array();
@@ -177,6 +187,10 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
                     $return_check = (is_numeric( $val )?true:false);
                 else
                     $return_check = S2P_SDK_Values_Source_Methods::valid_method_id( $val );
+            break;
+
+            case self::TYPE_RECURRING_METHODS:
+                $return_check = S2P_SDK_Values_Source_Recurring_Methods::valid_method_id( $val );
             break;
 
             case self::TYPE_ARTICLE_TYPE:

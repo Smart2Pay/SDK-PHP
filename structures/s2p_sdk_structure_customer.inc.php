@@ -46,6 +46,7 @@ class S2P_SDK_Structure_Customer extends S2P_SDK_Scope_Structure
                 'external_name' => 'Email',
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
+                'regexp' => '^[a-zA-Z0-9._%+-]{1,100}@[a-zA-Z0-9.-]{1,40}\.[a-zA-Z]{1,8}$',
             ),
             array(
                 'name' => 'firstname',

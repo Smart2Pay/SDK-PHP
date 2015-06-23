@@ -259,9 +259,15 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             // Variable exists in scope
             if( self::scalar_type( $definition['type'] ) )
             {
-                if( !empty( $params['skip_regexps'] )
+                if( $scope_arr[$definition[$scope_name_key]] === null )
+                    $var_val = null;
+                else
+                    $var_val = self::scalar_value( $definition['type'], $scope_arr[$definition[$scope_name_key]], $definition['array_type'], $definition['array_numeric_keys'] );
+
+                if( (string)$var_val !== ''
+                and empty( $params['skip_regexps'] )
                 and !empty( $definition['regexp'] )
-                and !preg_match( '/'.$definition['regexp'].'/', $scope_arr[$definition[$scope_name_key]] ) )
+                and !preg_match( '/'.$definition['regexp'].'/', $var_val ) )
                 {
                     $this->set_error( self::ERR_REGEXP,
                                         self::s2p_t( 'Variable [%s] is invalid.', (!empty( $params['parsing_path'] )?$params['parsing_path']:'???') ),
@@ -270,10 +276,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                     return false;
                 }
 
-                if( $scope_arr[$definition[$scope_name_key]] === null )
-                    $current_value[$definition[$output_name_key]] = null;
-                else
-                    $current_value[$definition[$output_name_key]] = self::scalar_value( $definition['type'], $scope_arr[$definition[$scope_name_key]], $definition['array_type'], $definition['array_numeric_keys'] );
+                $current_value[$definition[$output_name_key]] = $var_val;
+
             }
 
             else

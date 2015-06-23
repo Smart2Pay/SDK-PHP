@@ -26,6 +26,18 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
     const FUNC_LIST_ALL = S2P_SDK_METH_METHODS_LIST_ALL, FUNC_METHOD_DETAILS = S2P_SDK_METH_METHODS_DETAILS, FUNC_LIST_COUNTRY = S2P_SDK_METH_METHODS_FOR_COUNTRY,
           FUNC_ASSIGNED = S2P_SDK_METH_METHODS_ASSIGNED, FUNC_ASSIGNED_COUNTRY = S2P_SDK_METH_METHODS_ASSIGNED_COUNTRY;
 
+    /**
+     * This method defines keywords that can be found in notification body and what structure should be used to extract notification data
+     *
+     * @param array $notification_data
+     *
+     * @return array|bool Array with keys that can be found in notification body and data structure details or false if notification is not intended for current method
+     */
+    public function get_notification_types()
+    {
+        return false;
+    }
+
     public function default_functionality()
     {
         return self::FUNC_LIST_ALL;

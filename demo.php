@@ -4,7 +4,19 @@
 
     include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_demo.inc.php' );
 
-    $demo = new S2P_SDK\S2P_SDK_Demo();
+    if( !($demo = new S2P_SDK\S2P_SDK_Demo())
+     or $demo->has_error() )
+    {
+        if( $demo->has_error() )
+            $error_arr = $demo->get_error();
+        else
+            $error_arr = S2P_SDK\S2P_SDK_Module::st_get_error();
+
+        if( !empty( $error_arr['display_error'] ) )
+            die( 'Error initiating demo: '.$error_arr['display_error'] );
+
+        die( 'Error initiating demo.' );
+    }
 
     // Uncomment following line and provide full URL path to SDK root directory
     // $demo->base_url( '{FULL_URL_TO_SDK_ROOT_DIRECTORY}' ); // eg. http://www.example.com/path/sdk/

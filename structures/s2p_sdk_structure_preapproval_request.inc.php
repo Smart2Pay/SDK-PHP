@@ -42,11 +42,26 @@ class S2P_SDK_Structure_Preapproval_Request extends S2P_SDK_Scope_Structure
                 'default' => '',
             ),
             array(
+                'name' => 'methodid',
+                'external_name' => 'MethodID',
+                'type' => S2P_SDK_VTYPE_INT,
+                'regexp' => '^\d{1,12}$',
+                'default' => 0,
+                'value_source' => S2P_SDK_Values_Source::TYPE_RECURRING_METHODS,
+            ),
+            array(
                 'name' => 'recurringperiod',
                 'external_name' => 'RecurringPeriod',
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
+            ),
+            array(
+                'name' => 'description',
+                'external_name' => 'Description',
+                'type' => S2P_SDK_VTYPE_STRING,
+                'regexp' => '^.{1,255}$',
+                'default' => '',
             ),
             array(
                 'name' => 'preapprovedmaximumamount',
@@ -64,25 +79,12 @@ class S2P_SDK_Structure_Preapproval_Request extends S2P_SDK_Scope_Structure
                 'value_source' => S2P_SDK_Values_Source::TYPE_CURRENCY,
             ),
             array(
-                'name' => 'description',
-                'external_name' => 'Description',
-                'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^.{1,255}$',
-                'default' => '',
-            ),
-            array(
                 'name' => 'returnurl',
                 'external_name' => 'ReturnURL',
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^(http(s)?(:\/\/|%3A%2F%2F).+){1,512}$',
-            ),
-            array(
-                'name' => 'methodid',
-                'external_name' => 'MethodID',
-                'type' => S2P_SDK_VTYPE_INT,
-                'regexp' => '^\d{1,12}$',
-                'default' => 0,
+                'check_constant' => 'S2P_SDK_PAYMENT_RETURN_URL',
             ),
             array(
                 'name' => 'customer',

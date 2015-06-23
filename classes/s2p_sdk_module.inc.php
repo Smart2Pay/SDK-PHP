@@ -35,7 +35,9 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
     function __construct( $module_params = false )
     {
         parent::__construct();
-        $this->init( $module_params );
+
+        if( $module_params !== null )
+            $this->init( $module_params );
     }
 
     private function module_init( $module_params = false )
@@ -264,7 +266,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         and isset( self::$instances[ $module ] ) )
             $module_instance = self::$instances[ $module ];
         else
-            $module_instance = new $module_with_namespace();
+            $module_instance = new $module_with_namespace( null );
 
         if( !($module_instance instanceof \S2P_SDK\S2P_SDK_Module) )
         {

@@ -5,6 +5,7 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_CLASSES' ) or !defined( 'S2P_SDK_DIR_METHODS' ) )
     die( 'Something went bad' );
 
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_helper.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api.inc.php' );
 include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 
@@ -255,26 +256,13 @@ class S2P_SDK_API extends S2P_SDK_Module
         return $this->_finalize_result;
     }
 
-    public static function get_php_input()
-    {
-        static $input = false;
-
-        if( $input !== false )
-            return $input;
-
-        if( ($input = @file_get_contents( 'php://input' )) === false )
-            return false;
-
-        return $input;
-    }
-
     public function do_handle_notification( $params = false )
     {
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
 
         if( !isset( $params['force_input_buffer'] ) )
-            $params['force_input_buffer'] = self::get_php_input();
+            $params['force_input_buffer'] = S2P_SDK_Helper::get_php_input();
 
         if( !is_string( $params['force_input_buffer'] ) )
         {

@@ -77,7 +77,22 @@ class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'details',
                 'external_name' => 'Details',
-                'type' => S2P_SDK_VTYPE_STRING,
+                'type' => S2P_SDK_VTYPE_BLARRAY,
+                'default' => null,
+                'structure' => array(
+                    array(
+                        'name' => 'code',
+                        'external_name' => 'Code',
+                        'type' => S2P_SDK_VTYPE_INT,
+                        'default' => 0,
+                    ),
+                    array(
+                        'name' => 'info',
+                        'external_name' => 'Info',
+                        'type' => S2P_SDK_VTYPE_STRING,
+                        'default' => '',
+                    ),
+                )
             ),
        );
     }

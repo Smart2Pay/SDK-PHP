@@ -33,9 +33,46 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
 
     const STATUS_OPEN = 1, STATUS_SUCCESS = 2, STATUS_CANCELLED = 3, STATUS_FAILED = 4, STATUS_EXPIRED = 5, STATUS_PROCESSING = 7, STATUS_AUTHORIZED = 9;
 
+    private static $STATUSES_ARR = array(
+        self::STATUS_OPEN => 'Open',
+        self::STATUS_SUCCESS => 'Success',
+        self::STATUS_CANCELLED => 'Cancelled',
+        self::STATUS_FAILED => 'Failed',
+        self::STATUS_EXPIRED => 'Expired',
+        self::STATUS_PROCESSING => 'Processing',
+        self::STATUS_AUTHORIZED => 'Authorized',
+    );
+
+    public static function get_statuses()
+    {
+        return self::$STATUSES_ARR;
+    }
+
+    public static function valid_status( $status )
+    {
+        if( empty( $status )
+         or !($statuses_arr = self::get_statuses()) or empty( $statuses_arr[$status] ) )
+            return false;
+
+        return $statuses_arr[$status];
+    }
+
     public function default_functionality()
     {
         return self::FUNC_LIST_PAYMENTS;
+    }
+
+    public function get_notification_types()
+    {
+        $payment_notification_obj = new S2P_SDK_Structure_Payment_Response();
+
+        return array(
+            'Payment' => array(
+
+                'request_structure' => $payment_notification_obj,
+
+            )
+        );
     }
 
     /**
@@ -171,6 +208,12 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 ),
 
                 'response_structure' => $payment_response_obj,
+
+                'mandatory_in_error' => array(
+                    'payment' => array(),
+                ),
+
+                'error_structure' => $payment_response_obj,
             ),
 
             self::FUNC_PAYMENT_CAPTURE => array(
@@ -189,6 +232,12 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 ),
 
                 'response_structure' => $payment_response_obj,
+
+                'mandatory_in_error' => array(
+                    'payment' => array(),
+                ),
+
+                'error_structure' => $payment_response_obj,
             ),
 
             self::FUNC_CANCEL_PAYMENT => array(

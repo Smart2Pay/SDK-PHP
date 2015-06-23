@@ -458,6 +458,9 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
         if( !($response_data = $this->_method->parse_response( $request_result )) )
         {
+            if( $this->_method->has_error() )
+                $this->copy_error( $this->_method );
+
             if( $this->has_error() )
             {
                 if( $this->throw_errors() )
@@ -465,10 +468,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
                 return false;
             }
 
-            if( $this->_method->has_error() )
-                $this->copy_error( $this->_method );
-            else
-                $this->set_error( self::ERR_PARSE_RESPONSE, self::s2p_t( 'Error parsing server response.' ) );
+            $this->set_error( self::ERR_PARSE_RESPONSE, self::s2p_t( 'Error parsing server response.' ) );
 
             return false;
         }
