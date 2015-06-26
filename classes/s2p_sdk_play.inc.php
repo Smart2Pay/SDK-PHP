@@ -87,7 +87,7 @@ class S2P_SDK_Play extends S2P_SDK_Module
             {
                 ?>
                 <div id="details_<?php echo $method_name?>" class="method_container clearfix" style="display: none;">
-                    <h5><?php echo self::s2p_t( 'Found %s functionalities:', count( $method_functionalities ) );?></h5>
+                    <h5><?php echo self::s2p_t( 'Found %s functionalities', count( $method_functionalities ) );?>:</h5>
                     <ul>
                     <?php
                         foreach( $method_functionalities as $functionality_name => $functionality_arr )
@@ -135,9 +135,16 @@ class S2P_SDK_Play extends S2P_SDK_Module
 
 include( 'bootstrap.php' );
 
+// Tells SDK we work on debugging mode or not
+S2P_SDK\S2P_SDK_Module::st_debugging_mode( true );
+// Tells SDK errors should be thrown instead of retrieving them with $obj->get_error() or S2P_SDK\S2P_SDK_Module::st_get_error()
+S2P_SDK\S2P_SDK_Module::st_throw_errors( false );
+
 $api_parameters = array();
-$api_parameters['api_key'] = '{PROVIDED_APIKEY}';
-$api_parameters['environment'] = 'test'; // test or live
+// Uncomment line below if you want to override API Key set in config.inc.php
+// $api_parameters['api_key'] = '{PROVIDED_APIKEY}';
+// Uncomment line below if you want to override environment set in config.inc.php
+// $api_parameters['environment'] = 'test'; // test or live
 $api_parameters['method'] = '<?php echo $method_obj->get_method()?>';
 $api_parameters['func'] = '<?php echo $func?>';
 
@@ -150,8 +157,8 @@ $api_parameters['get_variables'] = array(<?php
             {
                 $var_str = "\t".'\''.$var_arr['name'].'\' => ';
 
-                if( !($type_str = S2P_SDK_Scope_Variable::valid_type( $var_arr['type'] )) )
-                    $type_str = '(Unknown_var_type)';
+                if( !($type_arr = S2P_SDK_Scope_Variable::valid_type( $var_arr['type'] )) )
+                    $type_arr = array( 'title' => '(Unknown_var_type)' );
 
                 if( $var_arr['type'] == S2P_SDK_Scope_Variable::TYPE_STRING
                  or is_string( $var_arr['default'] ) )
@@ -199,7 +206,7 @@ $api_parameters['method_params'] = array(<?php
 try
 {
     /** @var S2P_SDK\S2P_SDK_API $api */
-    if( !($api = S2P_SDK\S2P_SDK_Module::get_instance( 'S2P_SDK_API', $api_parameters )) )
+    if( !($api = S2P_SDK\S2P_SDK_Module::get_instance( 'S2P_SDK_API', $api_parameters, false )) )
         var_dump( S2P_SDK\S2P_SDK_Module::st_get_error() );
 
     else
@@ -210,9 +217,34 @@ try
             var_dump( $api->get_error() );
         } else
         {
-            echo 'API call time: '.$api->get_call_time().'ms<br/>';
-            echo 'Successful API call:<br/><hr/><br/>';
-            var_dump( $api->get_result() );
+            $finalize_arr = array();
+            $finalize_arr['redirect_now'] = false; // true if you want SDK to send redirect headers, if required, to complete transaction
+
+            if( !($finalize_result = $api->do_finalize( $finalize_arr )) )
+            {
+                $error_msg = 'Generic error...';
+                if( ($error_arr = $api->get_error()) and !empty( $error_arr['display_error'] ) )
+                    $error_msg = $error_arr['display_error'];
+
+                echo 'API call time: '.$api->get_call_time().'ms<br/>';
+                echo 'Couldn\'t finalize request: '.$error_msg.'<br/>';
+                echo 'API call result:<br/><hr/><br/>';
+                var_dump( $api->get_result() );
+            } elseif( !empty( $finalize_result['should_redirect'] ) and !empty( $finalize_result['redirect_to'] ) )
+            {
+                if( !empty( $finalize_arr['redirect_now'] ) )
+                    exit;
+
+                echo '<a href="'.str_replace( '"', '&quot;', $finalize_result['redirect_to'] ).'">Finalize transaction</a>';
+                echo 'API call time: '.$api->get_call_time().'ms<br/>';
+                echo 'Successful API call:<br/><hr/><br/>';
+                var_dump( $api->get_result() );
+            } else
+            {
+                echo 'API call time: '.$api->get_call_time().'ms<br/>';
+                echo 'Successful API call:<br/><hr/><br/>';
+                var_dump( $api->get_result() );
+            }
         }
     }
 } catch( Exception $ex )

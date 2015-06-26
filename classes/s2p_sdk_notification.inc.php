@@ -10,7 +10,7 @@ include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 
 class S2P_SDK_Notification extends S2P_SDK_Module
 {
-    const ERR_UNKNOWN_TYPE = 1, ERR_BODY = 2, ERR_JSON = 3, ERR_RESPONSE_OK = 4;
+    const ERR_UNKNOWN_TYPE = 1, ERR_BODY = 2, ERR_JSON = 3, ERR_RESPONSE_OK = 4, ERR_AUTHENTICATION = 5;
 
     const TYPE_PAYMENT = 1, TYPE_PREAPPROVAL = 2, TYPE_REFUND = 3;
     private static $TYPES_ARR = array(
@@ -135,6 +135,30 @@ class S2P_SDK_Notification extends S2P_SDK_Module
             $this->extract_parameters();
 
         return $this->_notification_array;
+    }
+
+    public function check_authentication()
+    {
+        if( empty( $_SERVER['PHP_AUTH_USER'] ) or !isset( $_SERVER['PHP_AUTH_PW'] ) )
+        {
+            $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'No authentication.' ) );
+            return false;
+        }
+
+        if( !defined( 'S2P_SDK_API_KEY' ) or !constant( 'S2P_SDK_API_KEY' ) )
+        {
+            $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'API Key not set in config file.' ) );
+            return false;
+        }
+
+        if( $_SERVER['PHP_AUTH_USER'] != constant( 'S2P_SDK_API_KEY' )
+         or $_SERVER['PHP_AUTH_PW'] != '' )
+        {
+            $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'Request doesn\'t match API Key set in config file.' ) );
+            return false;
+        }
+
+        return true;
     }
 
     public function extract_parameters()

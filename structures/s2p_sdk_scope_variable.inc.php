@@ -271,7 +271,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                 {
                     $this->set_error( self::ERR_REGEXP,
                                         self::s2p_t( 'Variable [%s] is invalid.', (!empty( $params['parsing_path'] )?$params['parsing_path']:'???') ),
-                                        self::s2p_t( 'Variable [%s] failed regexp [%s].', (!empty( $params['parsing_path'] )?$params['parsing_path']:'???'), $definition['regexp'] ) );
+                                        sprintf( 'Variable [%s] failed regular expression [%s].', (!empty( $params['parsing_path'] )?$params['parsing_path']:'???'), $definition['regexp'] ) );
 
                     return false;
                 }
@@ -643,7 +643,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         and (empty( $new_definition_arr['structure'] ) or !is_array( $new_definition_arr['structure'] )) )
         {
             self::st_set_error( self::ERR_DEF_STRUCTURE,
-                                    self::s2p_t( 'Blobs and arrays should have a defined structure [%s]', (!empty( $params['path'] )?$params['path']:'???') )
+                                    self::s2p_t( 'Blobs and blob arrays should have a defined structure [%s]', (!empty( $params['path'] )?$params['path']:'???') )
                             );
             return null;
         }

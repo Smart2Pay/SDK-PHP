@@ -16,6 +16,15 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
     const ERR_NAME = 200, ERR_GET_VARIABLES = 201, ERR_REQUEST_STRUCTURE = 202, ERR_RESPONSE_STRUCTURE = 203, ERR_MANDATORY = 204, ERR_FUNCTIONALITY = 205,
           ERR_REQUEST_DATA = 206, ERR_REQUEST_MANDATORY = 207, ERR_RESPONSE_DATA = 208, ERR_RESPONSE_MANDATORY = 209, ERR_HTTP_METHOD = 210,
           ERR_METHOD_FILES = 211, ERR_INSTANTIATE_METHOD = 212, ERR_VALUE_SOURCE = 213, ERR_ERROR_STRUCTURE = 214, ERR_DEFINITION = 215, ERR_REGEXP = 216;
+
+    const RESPONSE_STRUCT_UNKNOWN = 0, RESPONSE_STRUCT_GENERIC = 1, RESPONSE_STRUCT_ERROR = 2, RESPONSE_STRUCT_RESPONSE = 3;
+    private static $RESPONSE_STRUCT_ARR = array(
+        self::RESPONSE_STRUCT_UNKNOWN => 'Unknown',
+        self::RESPONSE_STRUCT_GENERIC => 'Generic',
+        self::RESPONSE_STRUCT_ERROR => 'Error',
+        self::RESPONSE_STRUCT_RESPONSE => 'Response',
+    );
+
     /**
      * Variable which holds all details regarding method
      * @var array $_definition
@@ -136,6 +145,20 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         }
 
         return false;
+    }
+
+    public static function get_response_structures()
+    {
+        return self::$RESPONSE_STRUCT_ARR;
+    }
+
+    public static function valid_response_structure( $struct )
+    {
+        if( empty( $struct )
+         or !($structs_arr = self::get_response_structures()) or empty( $structs_arr[$struct] ) )
+            return false;
+
+        return $structs_arr[$struct];
     }
 
     public static function default_notification_structure()
@@ -470,6 +493,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
     {
         return array(
             'func' => '',
+            'request_http_code' => 0,
+            'response_structure' => self::RESPONSE_STRUCT_UNKNOWN,
             'response_array' => array(),
         );
     }
@@ -486,7 +511,23 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 $response_data[$key] = $def_val;
         }
 
+        if( empty( $response_data['response_structure'] ) or !self::valid_response_structure( $response_data['response_structure'] ) )
+            $response_data['response_structure'] = self::RESPONSE_STRUCT_UNKNOWN;
+
         return $response_data;
+    }
+
+    public static function get_http_code_error( $http_code )
+    {
+        $http_code = intval( $http_code );
+        if( in_array( $http_code, S2P_SDK_Rest_API_Codes::success_codes() ) )
+            return false;
+
+        $error_str = 'Error '.$http_code;
+        if( ($code_details = S2P_SDK_Rest_API_Codes::valid_code( $http_code )) )
+            $error_str .= ' ('.$code_details.')';
+
+        return $error_str;
     }
 
     /**
@@ -505,20 +546,24 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         $return_arr = self::default_response_data();
         $return_arr['func'] = $this->_functionality;
         $return_arr['response_array'] = array();
+        $return_arr['response_structure'] = self::RESPONSE_STRUCT_UNKNOWN;
 
         if( !($request_result = S2P_SDK_Rest_API_Request::validate_request_array( $request_result ))
          or $request_result['response_buffer'] == '' )
             return $return_arr;
 
-        if( !in_array( $request_result['http_code'], S2P_SDK_Rest_API_Codes::success_codes() ) )
+        $return_arr['request_http_code'] = $request_result['http_code'];
+
+        if( ($http_code_error = self::get_http_code_error( $request_result['http_code'] )) )
         {
             if( ($generic_obj = new S2P_SDK_Structure_Generic_Error())
             and ($json_array = $generic_obj->extract_info_from_response_buffer( $request_result['response_buffer'], array( 'output_null_values' => true ) ))
             and !empty( $json_array['message'] ) )
             {
-                $error_str = 'Error '.$request_result['http_code'];
-                if( ($code_details = S2P_SDK_Rest_API_Codes::valid_code( $request_result['http_code'] )) )
-                    $error_str .= ' ('.$code_details.')';
+                // a bit useless, but we might change return value in the future...
+                $return_arr['response_structure'] = self::RESPONSE_STRUCT_UNKNOWN;
+
+                $error_str = $http_code_error;
 
                 if( !empty( $json_array['message'] ) )
                     $error_str .= ' '.$json_array['message'];
@@ -528,6 +573,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
             } elseif( !empty( $this->_definition['error_structure'] ) )
             {
+                $return_arr['response_structure'] = self::RESPONSE_STRUCT_ERROR;
+
                 /** @var S2P_SDK_Scope_Structure $error_structure */
                 $error_structure = $this->_definition['error_structure'];
 
@@ -566,6 +613,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
         elseif( !empty( $this->_definition['response_structure'] ) )
         {
+            $return_arr['response_structure'] = self::RESPONSE_STRUCT_RESPONSE;
+
             /** @var S2P_SDK_Scope_Structure $response_structure */
             $response_structure = $this->_definition['response_structure'];
 
@@ -684,7 +733,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 {
                     $this->set_error( self::ERR_REGEXP,
                         self::s2p_t( 'Get variable [%s] is invalid.', $get_var['name'] ),
-                        self::s2p_t( 'Get variable [%s] failed regexp [%s].', $get_var['name'], $get_var['regexp'] ) );
+                        sprintf( 'Get variable [%s] failed regular exp [%s].', $get_var['name'], $get_var['regexp'] ) );
 
                     return false;
                 }

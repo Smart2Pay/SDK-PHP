@@ -8,6 +8,8 @@ if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_preapproval_request.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_preapproval_response.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_preapproval_response_list.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_response_list.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_response.inc.php' );
 include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 
 if( !defined( 'S2P_SDK_METH_PREAPPROVALS_LIST_ALL' ) )
@@ -16,12 +18,15 @@ if( !defined( 'S2P_SDK_METH_PREAPPROVAL_INIT' ) )
     define( 'S2P_SDK_METH_PREAPPROVAL_INIT', 'preapproval_init' );
 if( !defined( 'S2P_SDK_METH_PREAPPROVAL_DETAILS' ) )
     define( 'S2P_SDK_METH_PREAPPROVAL_DETAILS', 'preapproval_details' );
+if( !defined( 'S2P_SDK_METH_PREAPPROVAL_PAYMENTS' ) )
+    define( 'S2P_SDK_METH_PREAPPROVAL_PAYMENTS', 'preapproval_payments' );
 
 class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
 {
     const ERR_REASON_CODE = 300, ERR_EMPTY_ID = 301;
 
-    const FUNC_INIT_PREAPPROVAL = S2P_SDK_METH_PREAPPROVAL_INIT, FUNC_LIST_ALL = S2P_SDK_METH_PREAPPROVALS_LIST_ALL, FUNC_DETAILS = S2P_SDK_METH_PREAPPROVAL_DETAILS;
+    const FUNC_INIT_PREAPPROVAL = S2P_SDK_METH_PREAPPROVAL_INIT, FUNC_LIST_ALL = S2P_SDK_METH_PREAPPROVALS_LIST_ALL, FUNC_DETAILS = S2P_SDK_METH_PREAPPROVAL_DETAILS,
+          FUNC_PAYMENTS = S2P_SDK_METH_PREAPPROVAL_PAYMENTS;
 
     const STATUS_PENDING = 1, STATUS_OPEN = 2, STATUS_CLOSEDBYCUSTOMER = 4;
 
@@ -148,6 +153,34 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
                     //}
                 }
             break;
+
+            case self::FUNC_PAYMENTS:
+                if( !empty( $response_data['response_array']['payment'] ) )
+                {
+                    if( !empty( $response_data['response_array']['payment']['status'] )
+                    and is_array( $response_data['response_array']['payment']['status'] ) )
+                    {
+                        if( !empty( $response_data['response_array']['payment']['status']['reasons'] )
+                        and is_array( $response_data['response_array']['payment']['status']['reasons'] ) )
+                        {
+                            $error_msg = '';
+                            foreach( $response_data['response_array']['payment']['status']['reasons'] as $reason_arr )
+                            {
+                                if( ( $error_reason = ( ! empty( $reason_arr['code'] ) ? $reason_arr['code'] . ' - ' : '' ) . ( ! empty( $reason_arr['info'] ) ? $reason_arr['info'] : '' ) ) != '' )
+                                    $error_msg .= $error_reason;
+                            }
+
+                            if( !empty( $error_msg ) )
+                            {
+                                $error_msg = self::s2p_t( 'Returned by server: %s', $error_msg );
+                                $this->set_error( self::ERR_REASON_CODE, $error_msg );
+
+                                return false;
+                            }
+                        }
+                    }
+                }
+            break;
         }
 
         return true;
@@ -167,6 +200,8 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
         $preapproval_request_obj = new S2P_SDK_Structure_Preapproval_Request();
         $preapproval_response_obj = new S2P_SDK_Structure_Preapproval_Response();
         $preapproval_response_list_obj = new S2P_SDK_Structure_Preapproval_Response_List();
+        $payment_response_obj = new S2P_SDK_Structure_Payment_Response();
+        $payment_response_list_obj = new S2P_SDK_Structure_Payment_Response_List();
 
         return array(
 
@@ -204,8 +239,36 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
                 'response_structure' => $preapproval_response_obj,
             ),
 
+            self::FUNC_PAYMENTS => array(
+                'name' => self::s2p_t( 'Preapproval Payments List' ),
+                'url_suffix' => '/v1/preapprovals/{*ID*}/payments',
+                'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'payments' => array(),
+                ),
+
+                'response_structure' => $payment_response_list_obj,
+
+                'mandatory_in_error' => array(
+                    'payment' => array(),
+                ),
+
+                'error_structure' => $payment_response_obj,
+            ),
+
             self::FUNC_INIT_PREAPPROVAL => array(
-                'name' => self::s2p_t( 'Initialize a Preapproval' ),
+                'name' => self::s2p_t( 'Initiate a Preapproval' ),
                 'url_suffix' => '/v1/preapprovals/',
                 'http_method' => 'POST',
 

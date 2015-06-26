@@ -172,7 +172,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
          or $module_lower == 's2p_sdk_module' )
         {
             self::st_set_error( self::ERR_STATIC_INSTANCE,
-                                    self::s2p_t( 'Autoloading unknown module' ),
+                                    self::s2p_t( 'Autoloading unknown module.' ),
                                     sprintf( 'Autoloading unknown module [%s]', (!empty( $module )?$module:'???') ) );
             return false;
         }
@@ -183,7 +183,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
             if( !@file_exists( S2P_SDK_DIR_METHODS.$module_lower.'.inc.php' ) )
             {
                 self::st_set_error( self::ERR_STATIC_INSTANCE,
-                                        self::s2p_t( 'Module file not found' ),
+                                        self::s2p_t( 'Module file not found.' ),
                                         sprintf( 'Module file not found [%s]', S2P_SDK_DIR_METHODS.$module_lower.'.inc.php' ) );
                 return false;
             }
@@ -193,7 +193,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
             if( !class_exists( 'S2P_SDK\\'.$module, false ) )
             {
                 self::st_set_error( self::ERR_STATIC_INSTANCE,
-                                        self::s2p_t( 'Class not found after autoloading' ),
+                                        self::s2p_t( 'Class not found after autoloading.' ),
                                         sprintf( 'Class not found after autoloading [%s]', $module ) );
                 return false;
             }
@@ -209,7 +209,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
             if( !class_exists( 'S2P_SDK\\'.$module, false ) )
             {
                 self::st_set_error( self::ERR_STATIC_INSTANCE,
-                                        self::s2p_t( 'Class not found after autoloading' ),
+                                        self::s2p_t( 'Class not found after autoloading.' ),
                                         sprintf( 'Class not found after autoloading [%s]', $module ) );
                 return false;
             }
@@ -288,7 +288,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
                 self::st_copy_error( $module_instance );
             else
                 self::st_set_error( self::ERR_STATIC_INSTANCE,
-                                        self::s2p_t( 'Module initialization failed' ),
+                                        self::s2p_t( 'Module initialization failed.' ),
                                         sprintf( 'Module initialization failed [%s]', ( ! empty( $module ) ? $module : '???' ) ) );
 
             return false;

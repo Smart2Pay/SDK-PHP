@@ -183,7 +183,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
         if( empty( $this->_var ) )
         {
             $this->_var = null;
-            $this->set_error( self::ERR_VARIABLE, self::s2p_t( 'Couldn\'t initialize parsing variable' ) );
+            $this->set_error( self::ERR_VARIABLE, self::s2p_t( 'Couldn\'t initialize parsing variable.' ) );
             return null;
         }
 

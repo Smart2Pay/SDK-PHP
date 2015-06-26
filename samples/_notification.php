@@ -39,11 +39,21 @@
         exit;
     }
 
+    if( !$notification_obj->check_authentication() )
+    {
+        if( $notification_obj->has_error()
+        and ($error_arr = $notification_obj->get_error()) )
+            S2P_SDK\S2P_SDK_Notification::logf( 'Error: '.$error_arr['display_error'] );
+        else
+            S2P_SDK\S2P_SDK_Notification::logf( 'Authentication failed.' );
+        exit;
+    }
+
     if( !($notification_type = $notification_obj->get_type())
      or !($notification_title = $notification_obj::get_type_title( $notification_type )) )
     {
         S2P_SDK\S2P_SDK_Notification::logf( 'Unknown notification type.' );
-        S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer() );
+        S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
         exit;
     }
 
@@ -56,7 +66,7 @@
              or empty( $result_arr['payment'] ) or !is_array( $result_arr['payment'] ) )
             {
                 S2P_SDK\S2P_SDK_Notification::logf( 'Couldn\'t extract payment object.' );
-                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer() );
+                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
                 exit;
             }
 
@@ -66,14 +76,14 @@
              or empty( $payment_arr['status'] ) or empty( $payment_arr['status']['id'] ) )
             {
                 S2P_SDK\S2P_SDK_Notification::logf( 'MerchantTransactioID or Status not provided.' );
-                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer() );
+                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
                 exit;
             }
 
             if( !isset( $payment_arr['amount'] ) or !isset( $payment_arr['currency'] ) )
             {
                 S2P_SDK\S2P_SDK_Notification::logf( 'Amount or Currency not provided.' );
-                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer() );
+                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
                 exit;
             }
 
@@ -85,31 +95,35 @@
             if( !($status_title = S2P_SDK\S2P_SDK_Meth_Payments::valid_status( $payment_arr['status']['id'] )) )
                 $status_title = '(unknown)';
 
-            S2P_SDK\S2P_SDK_Notification::logf( 'Received '.$status_title.' notification for transaction '.$payment_arr['merchanttransactionid'].'.' );
+            S2P_SDK\S2P_SDK_Notification::logf( 'Received '.$status_title.' notification for transaction '.$payment_arr['merchanttransactionid'].'.', false );
 
             // Update database according to payment status
             switch( $payment_arr['status']['id'] )
             {
                 case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_OPEN:
-                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction is open.' );
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction is open.', false );
+                break;
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_PENDING_CUSTOMER:
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_PENDING_PROVIDER:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction is pending.', false );
                 break;
                 case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_SUCCESS:
-                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction is successful.' );
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction is successful.', false );
                 break;
                 case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_CANCELLED:
-                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction is cancelled.' );
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction is cancelled.', false );
                 break;
                 case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_FAILED:
-                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction failed.' );
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction failed.', false );
                 break;
                 case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_EXPIRED:
-                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction expired.' );
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction expired.', false );
                 break;
                 case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_PROCESSING:
-                    S2P_SDK\S2P_SDK_Notification::logf( 'Processing transaction...' );
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Processing transaction...', false );
                 break;
                 case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_AUTHORIZED:
-                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction authorized.' );
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Transaction authorized.', false );
                 break;
             }
         break;
@@ -119,47 +133,51 @@
              or empty( $result_arr['preapproval'] ) or !is_array( $result_arr['preapproval'] ) )
             {
                 S2P_SDK\S2P_SDK_Notification::logf( 'Couldn\'t extract preapproval object.' );
-                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer() );
+                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
                 exit;
             }
 
             $preapproval_arr = $result_arr['preapproval'];
 
             if( empty( $preapproval_arr['merchantpreapprovalid'] )
-             or empty( $preapproval_arr['status'] ) or empty( $payment_arr['status']['id'] ) )
+             or empty( $preapproval_arr['status'] ) or empty( $preapproval_arr['status']['id'] ) )
             {
                 S2P_SDK\S2P_SDK_Notification::logf( 'MerchantPreapprovalID or Status not provided.' );
+                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
                 exit;
             }
 
             if( !($status_title = S2P_SDK\S2P_SDK_Meth_Preapprovals::valid_status( $preapproval_arr['status']['id'] )) )
                 $status_title = '(unknown)';
 
-            S2P_SDK\S2P_SDK_Notification::logf( 'Received '.$status_title.' notification for preapproval '.$preapproval_arr['merchantpreapprovalid'].'.' );
+            S2P_SDK\S2P_SDK_Notification::logf( 'Received '.$status_title.' notification for preapproval '.$preapproval_arr['merchantpreapprovalid'].'.', false );
 
             // Update database according to payment status
             switch( $preapproval_arr['status']['id'] )
             {
                 case S2P_SDK\S2P_SDK_Meth_Preapprovals::STATUS_PENDING:
-                    S2P_SDK\S2P_SDK_Notification::logf( 'Preapproval pending.' );
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Preapproval pending.', false );
                 break;
                 case S2P_SDK\S2P_SDK_Meth_Preapprovals::STATUS_OPEN:
-                    S2P_SDK\S2P_SDK_Notification::logf( 'Proapproval open. You can initiate transactions with preapproval ID '.$preapproval_arr['id'].'.' );
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Proapproval open. You can initiate transactions with preapproval ID '.$preapproval_arr['id'].'.', false );
                 break;
                 case S2P_SDK\S2P_SDK_Meth_Preapprovals::STATUS_CLOSEDBYCUSTOMER:
-                    S2P_SDK\S2P_SDK_Notification::logf( 'Preapproval is closed.' );
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Preapproval is closed.', false );
                 break;
             }
         break;
     }
 
-    if( !$notification_obj->respond_ok() )
+    if( $notification_obj->respond_ok() )
+        S2P_SDK\S2P_SDK_Notification::logf( '--- Sent OK -------------------------------', false );
+
+    else
     {
         if( $notification_obj->has_error()
         and ($error_arr = $notification_obj->get_error()) )
-            S2P_SDK\S2P_SDK_Notification::logf( 'Error: '.$error_arr['display_error'], false );
+            S2P_SDK\S2P_SDK_Notification::logf( 'Error: '.$error_arr['display_error'] );
         else
-            S2P_SDK\S2P_SDK_Notification::logf( 'Couldn\'t send ok response.', false );
+            S2P_SDK\S2P_SDK_Notification::logf( 'Couldn\'t send ok response.' );
     }
 
 

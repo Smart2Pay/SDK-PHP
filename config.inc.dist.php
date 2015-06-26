@@ -10,3 +10,5 @@
     // If return url parameter is not specified in payment method initialization parameters SDK will check this constant
     // regexp: ^(http(s)?(:\/\/|%3A%2F%2F).+){1,512}$
     define( 'S2P_SDK_PAYMENT_RETURN_URL', '' );
+
+    S2P_SDK\S2P_SDK_Language::language_container()->set_current_language( S2P_SDK\S2P_SDK_Language::LANG_EN );

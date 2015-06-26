@@ -10,7 +10,7 @@ namespace S2P_SDK;
 
 class S2P_SDK_Language extends S2P_SDK_Error
 {
-    const LANG_EN = 'en';
+    const LANG_EN = 'en', LANG_RO = 'ro';
 
     /** @var $lang_callable_obj S2P_SDK_Language_Container */
     private static $lang_callable_obj = false;

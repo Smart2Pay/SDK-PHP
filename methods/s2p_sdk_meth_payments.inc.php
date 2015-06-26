@@ -8,8 +8,12 @@ if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_CLASSES' ) or !d
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_request.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_response.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_response_list.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_refund_types_response_list.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_refund_request.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_refund_response.inc.php' );
 include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_api.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source.inc.php' );
 
 if( !defined( 'S2P_SDK_METH_PAYMENTS_INIT' ) )
@@ -22,6 +26,12 @@ if( !defined( 'S2P_SDK_METH_PAYMENTS_LIST' ) )
     define( 'S2P_SDK_METH_PAYMENTS_LIST', 'payments_list' );
 if( !defined( 'S2P_SDK_METH_PAYMENTS_CAPTURE' ) )
     define( 'S2P_SDK_METH_PAYMENTS_CAPTURE', 'payment_capture' );
+if( !defined( 'S2P_SDK_METH_PAYMENTS_RECURRENT' ) )
+    define( 'S2P_SDK_METH_PAYMENTS_RECURRENT', 'payment_recurrent' );
+if( !defined( 'S2P_SDK_METH_PAYMENTS_REFUND_TYPES' ) )
+    define( 'S2P_SDK_METH_PAYMENTS_REFUND_TYPES', 'refund_types' );
+if( !defined( 'S2P_SDK_METH_PAYMENTS_REFUND' ) )
+    define( 'S2P_SDK_METH_PAYMENTS_REFUND', 'refund' );
 
 class S2P_SDK_Meth_Payments extends S2P_SDK_Method
 {
@@ -29,9 +39,13 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
 
     const FUNC_INIT_PAYMENT = S2P_SDK_METH_PAYMENTS_INIT, FUNC_CANCEL_PAYMENT = S2P_SDK_METH_PAYMENTS_CANCEL,
           FUNC_PAYMENT_DETAILS = S2P_SDK_METH_PAYMENTS_DETAILS, FUNC_LIST_PAYMENTS = S2P_SDK_METH_PAYMENTS_LIST,
-          FUNC_PAYMENT_CAPTURE = S2P_SDK_METH_PAYMENTS_CAPTURE;
+          FUNC_PAYMENT_CAPTURE = S2P_SDK_METH_PAYMENTS_CAPTURE, FUNC_PAYMENT_RECURRENT = S2P_SDK_METH_PAYMENTS_RECURRENT,
+          FUNC_REFUND_TYPES = S2P_SDK_METH_PAYMENTS_REFUND_TYPES, FUNC_REFUND = S2P_SDK_METH_PAYMENTS_REFUND;
 
-    const STATUS_OPEN = 1, STATUS_SUCCESS = 2, STATUS_CANCELLED = 3, STATUS_FAILED = 4, STATUS_EXPIRED = 5, STATUS_PROCESSING = 7, STATUS_AUTHORIZED = 9;
+    const STATUS_OPEN = 1, STATUS_SUCCESS = 2, STATUS_CANCELLED = 3, STATUS_FAILED = 4, STATUS_EXPIRED = 5, STATUS_PENDING_CUSTOMER = 6,
+          STATUS_PENDING_PROVIDER = 7, STATUS_SUBMITTED = 8, STATUS_AUTHORIZED = 9, STATUS_APPROVED = 10, STATUS_CAPTURED = 11, STATUS_REJECTED = 12,
+          STATUS_PENDING_CAPTURE = 13, STATUS_EXCEPTION = 14, STATUS_PENDING_CANCEL = 15, STATUS_REVERSED = 16, STATUS_COMPLETED = 17, STATUS_PROCESSING = 18,
+          STATUS_DISPUTED = 19, STATUS_CHARGEBACK = 20;
 
     private static $STATUSES_ARR = array(
         self::STATUS_OPEN => 'Open',
@@ -39,8 +53,21 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
         self::STATUS_CANCELLED => 'Cancelled',
         self::STATUS_FAILED => 'Failed',
         self::STATUS_EXPIRED => 'Expired',
-        self::STATUS_PROCESSING => 'Processing',
+        self::STATUS_PENDING_CUSTOMER => 'Pending on Customer',
+        self::STATUS_PENDING_PROVIDER => 'Pending on Provider',
+        self::STATUS_SUBMITTED => 'Submitted',
         self::STATUS_AUTHORIZED => 'Authorized',
+        self::STATUS_APPROVED => 'Approved',
+        self::STATUS_CAPTURED => 'Captured',
+        self::STATUS_REJECTED => 'Rejected',
+        self::STATUS_PENDING_CAPTURE => 'Pending Capture',
+        self::STATUS_EXCEPTION => 'Exception',
+        self::STATUS_PENDING_CANCEL => 'Pending Cancel',
+        self::STATUS_REVERSED => 'Reversed',
+        self::STATUS_COMPLETED => 'Completed',
+        self::STATUS_PROCESSING => 'Processing',
+        self::STATUS_DISPUTED => 'Disputed',
+        self::STATUS_CHARGEBACK => 'Chargeback',
     );
 
     public static function get_statuses()
@@ -65,11 +92,17 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
     public function get_notification_types()
     {
         $payment_notification_obj = new S2P_SDK_Structure_Payment_Response();
+        $refund_notification_obj = new S2P_SDK_Structure_Refund_Response();
 
         return array(
             'Payment' => array(
 
                 'request_structure' => $payment_notification_obj,
+
+            ),
+            'Refund' => array(
+
+                'request_structure' => $refund_notification_obj,
 
             )
         );
@@ -149,6 +182,13 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                         }
                     }
 
+                    if( empty( $response_data['request_http_code'] )
+                     or !in_array( $response_data['request_http_code'], S2P_SDK_Rest_API_Codes::success_codes() ) )
+                    {
+                        $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'API call failed with error code %s.', $response_data['request_http_code'] ) );
+                        return false;
+                    }
+
                     if( empty( $response_data['response_array']['payment']['id'] ) )
                     {
                         $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'Payment ID is empty.' ) );
@@ -160,6 +200,40 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     and $response_data['response_array']['payment']['status']['id'] != self::STATUS_CANCELLED )
                     {
                         $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'Payment not cancelled.' ) );
+                        return false;
+                    }
+                }
+            break;
+
+            case self::FUNC_REFUND:
+                if( !empty( $response_data['response_array']['refund'] ) )
+                {
+                    if( !empty( $response_data['response_array']['refund']['status'] )
+                    and is_array( $response_data['response_array']['refund']['status'] ) )
+                    {
+                        if( !empty( $response_data['response_array']['refund']['status']['reasons'] )
+                        and is_array( $response_data['response_array']['refund']['status']['reasons'] ) )
+                        {
+                            $error_msg = '';
+                            foreach( $response_data['response_array']['refund']['status']['reasons'] as $reason_arr )
+                            {
+                                if( ( $error_reason = ( ! empty( $reason_arr['code'] ) ? $reason_arr['code'] . ' - ' : '' ) . ( ! empty( $reason_arr['info'] ) ? $reason_arr['info'] : '' ) ) != '' )
+                                    $error_msg .= $error_reason;
+                            }
+
+                            if( ! empty( $error_msg ) )
+                            {
+                                $error_msg = self::s2p_t( 'Returned by server: %s', $error_msg );
+                                $this->set_error( self::ERR_REASON_CODE, $error_msg );
+
+                                return false;
+                            }
+                        }
+                    }
+
+                    if( empty( $response_data['response_array']['refund']['id'] ) )
+                    {
+                        $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'Refund ID is empty.' ) );
                         return false;
                     }
                 }
@@ -184,11 +258,14 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
         $payment_request_obj = new S2P_SDK_Structure_Payment_Request();
         $payment_response_obj = new S2P_SDK_Structure_Payment_Response();
         $payment_response_list_obj = new S2P_SDK_Structure_Payment_Response_List();
+        $refund_types_list_obj = new S2P_SDK_Structure_Refund_Types_Response_List();
+        $refund_request_obj = new S2P_SDK_Structure_Refund_Request();
+        $refund_response_obj = new S2P_SDK_Structure_Refund_Response();
 
         return array(
 
             self::FUNC_INIT_PAYMENT => array(
-                'name' => self::s2p_t( 'Initialize a Payment' ),
+                'name' => self::s2p_t( 'Initiate a Payment' ),
                 'url_suffix' => '/v1/payments/',
                 'http_method' => 'POST',
 
@@ -214,6 +291,56 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 ),
 
                 'error_structure' => $payment_response_obj,
+            ),
+
+            self::FUNC_PAYMENT_RECURRENT => array(
+                'name' => self::s2p_t( 'Initiate a Recurring Payment' ),
+                'url_suffix' => '/v1/payments/recurrent',
+                'http_method' => 'POST',
+
+                'mandatory_in_request' => array(
+                    'Payment' => array(
+                        'PreapprovalID' => 0,
+                        'MerchantTransactionID' => '',
+                        'Amount' => '0',
+                        'Currency' => '',
+                        'Customer' => array(
+                            'Email' => '',
+                        ),
+                    ),
+                ),
+
+                'request_structure' => $payment_request_obj,
+
+                'mandatory_in_response' => array(
+                    'payment' => array(),
+                ),
+
+                'response_structure' => $payment_response_obj,
+
+                'mandatory_in_error' => array(
+                    'payment' => array(),
+                ),
+
+                'error_structure' => $payment_response_obj,
+            ),
+
+            self::FUNC_PAYMENT_DETAILS => array(
+                'name' => self::s2p_t( 'Payment Details' ),
+                'url_suffix' => '/v1/payments/{*ID*}/',
+                'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'response_structure' => $payment_response_obj,
             ),
 
             self::FUNC_PAYMENT_CAPTURE => array(
@@ -258,9 +385,9 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 'response_structure' => $payment_response_obj,
             ),
 
-            self::FUNC_PAYMENT_DETAILS => array(
-                'name' => self::s2p_t( 'Payment Details' ),
-                'url_suffix' => '/v1/payments/{*ID*}/',
+            self::FUNC_REFUND_TYPES => array(
+                'name' => self::s2p_t( 'Payment Refund Types' ),
+                'url_suffix' => '/v1/payments/{*ID*}/refunds/types',
                 'http_method' => 'GET',
 
                 'get_variables' => array(
@@ -273,7 +400,44 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     ),
                 ),
 
-                'response_structure' => $payment_response_obj,
+                'response_structure' => $refund_types_list_obj,
+            ),
+
+            self::FUNC_REFUND => array(
+                'name' => self::s2p_t( 'Initiate a Payment Refund' ),
+                'url_suffix' => '/v1/payments/{*ID*}/refunds',
+                'http_method' => 'POST',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_request' => array(
+                    'Refund' => array(
+                        'MerchantTransactionID' => '',
+                        'Amount' => '0',
+                    ),
+                ),
+
+                'request_structure' => $refund_request_obj,
+
+                'mandatory_in_response' => array(
+                    'refund' => array(),
+                ),
+
+                'response_structure' => $refund_response_obj,
+
+                'mandatory_in_error' => array(
+                    'refund' => array(),
+                ),
+
+                'error_structure' => $refund_response_obj,
             ),
 
             self::FUNC_LIST_PAYMENTS => array(

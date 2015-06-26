@@ -21,7 +21,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     const ERR_ENVIRONMENT = 100, ERR_METHOD = 101, ERR_METHOD_FUNC = 102, ERR_PREPARE_REQUEST = 103, ERR_URL = 104, ERR_HTTP_METHOD = 105,
           ERR_APIKEY = 106, ERR_CURL_CALL = 107, ERR_PARSE_RESPONSE = 108, ERR_VALIDATE_RESPONSE = 109, ERR_CALL_RESULT = 110;
 
-    const TEST_BASE_URL = 'https://paytest.smart2pay.com',
+    const TEST_BASE_URL = 'https://paytest.smart2pay.com', // 'http://85.186.26.139/HPP.REST',
           LIVE_BASE_URL = 'https://pay.smart2pay.com';
 
     const TEST_RESOURCE_URL = 'https://apitest.smart2pay.com',
@@ -501,13 +501,6 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             $this->throw_error();
             return false;
         }
-
-        //$return_arr = self::default_call_result();
-        //$return_arr['final_url'] = $final_url;
-        //$return_arr['request'] = $request_result;
-        //$return_arr['response'] = $response_data;
-        //
-        //$this->_call_result = $return_arr;
 
         return $return_arr;
     }

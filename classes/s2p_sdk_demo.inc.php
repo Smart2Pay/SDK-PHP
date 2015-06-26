@@ -227,12 +227,12 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         ?>
         <input type="hidden" name="foobar" value="1" />
         <div class="form_field">
-            <label for="api_key">API Key</label>
+            <label for="api_key"><?php echo self::s2p_t( 'API Key' )?></label>
             <div class="form_input"><input type="text" id="api_key" name="api_key" value="<?php echo self::form_str( $post_arr['api_key'] )?>" style="width: 350px;" /></div>
         </div>
 
         <div class="form_field">
-            <label for="environment">Environment</label>
+            <label for="environment"><?php echo self::s2p_t( 'Environment' )?></label>
             <div class="form_input"><select id="environment" name="environment">
                 <option value="test" <?php echo ($post_arr['environment']=='test'?'selected="selected"':'')?>>Test</option>
                 <option value="live" <?php echo ($post_arr['environment']=='live'?'selected="selected"':'')?>>Live</option>
@@ -240,7 +240,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         </div>
 
         <div class="form_field">
-            <label for="method">Method</label>
+            <label for="method"><?php echo self::s2p_t( 'Method' )?></label>
             <div class="form_input"><select id="method" name="method" onchange="document.<?php echo $form_arr['form_name']?>.submit()">
                 <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> - </option><?php
                 if( ($all_methods = S2P_SDK_Method::get_all_methods())
@@ -267,7 +267,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         {
             ?>
             <div class="form_field">
-            <label for="func">Functionality</label>
+            <label for="func"><?php echo self::s2p_t( 'Functionality' )?></label>
 
             <div class="form_input">
             <select id="func" name="func" onchange="document.<?php echo $form_arr['form_name']?>.submit()">
@@ -318,7 +318,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             if( !empty( $get_var['regexp'] )
             and !preg_match( '/'.$get_var['regexp'].'/', $post_arr['gvars'][$get_var['name']] ) )
             {
-                $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Field %s failed regexp %s.', $get_var['name'], $get_var['regexp'] );
+                $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Field %s failed regular expression %s.', $get_var['name'], $get_var['regexp'] );
                 continue;
             }
 
@@ -359,7 +359,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         ob_start();
         ?>
         <fieldset id="method_get_parameters">
-        <label for="method_get_parameters"><a href="javascript:void(0);" onclick="toggle_container( 'method_get_parameters_container' )"><strong>Get parameters</strong></a></label>
+        <label for="method_get_parameters"><a href="javascript:void(0);" onclick="toggle_container( 'method_get_parameters_container' )"><strong><?php echo self::s2p_t( 'Get parameters' )?></strong></a></label>
         <div id="method_get_parameters_container" style="display: block;">
 
         <?php
@@ -382,7 +382,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
             ?>
             <div class="form_field">
-                <label for="<?php echo $field_id?>"><?php echo $get_var['name'].(!empty( $get_var['mandatory'] )?'<span style="color:red;font-weight: bold;">*</span>':'')?></label>
+                <label for="<?php echo $field_id?>" class="<?php echo (!empty( $get_var['mandatory'] )?'mandatory':'')?>"><?php echo $get_var['name']?></label>
                 <div class="form_input"><?php
                 if( !empty( $get_var['value_source'] )
                 and S2P_SDK_Values_Source::valid_type( $get_var['value_source'] )
@@ -459,7 +459,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             ob_start();
             ?>
             <fieldset id="method_parameters">
-            <label for="method_parameters"><a href="javascript:void(0);" onclick="toggle_container( 'method_parameters_container' )"><strong>Method parameters</strong></a></label>
+            <label for="method_parameters"><a href="javascript:void(0);" onclick="toggle_container( 'method_parameters_container' )"><strong><?php echo self::s2p_t( 'Method parameters' )?></strong></a></label>
             <div id="method_parameters_container" style="display: block;">
 
             <?php echo $this->get_form_method_parameters_fields_detailed( $method_definition, $mandatory_arr, $hide_keys_arr, $post_arr, $form_arr );?>
@@ -777,7 +777,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
                     if( !empty( $structure_definition['regexp'] ) )
                     {
-                        echo ' <span class="form_input_regexp"><a href="javascript:void(0);" onclick="toggle_regexp( $(this) )">RExp</a><span class="form_input_regexp_exp">'.$structure_definition['regexp'].'</span></span>';
+                        echo ' <span class="form_input_regexp"><a href="javascript:void(0);" onclick="toggle_regexp( $(this) )" tabindex="10000">RExp</a><span class="form_input_regexp_exp">'.$structure_definition['regexp'].'</span></span>';
                     }
                 ?></div>
             </div>
@@ -1097,7 +1097,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
         if( empty( $params['base_url'] ) )
         {
-            $this->set_error( self::ERR_BASE_URL, self::s2p_t( 'Couldn\'t guess base URL. Please set it manually using '.__CLASS__.'::base_url( url ) method.' ) );
+            $this->set_error( self::ERR_BASE_URL, self::s2p_t( 'Couldn\'t guess base URL. Please set it manually using %s::base_url( url ) method.', __CLASS__ ) );
             return false;
         }
 
@@ -1142,8 +1142,8 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
         ob_start();
         ?>
-        <p>Form will be submitted to: <em><?php echo $params['base_url'].$params['form_action_suffix']?></em><br/>
-        If this URL doesn't look right you will have to edit the script and set right base URL using $demo->base_url(); call.</p>
+        <p><?php echo self::s2p_t( 'Form will be submitted to' )?>: <em><?php echo $params['base_url'].$params['form_action_suffix']?></em><br/>
+        <?php echo self::s2p_t( 'If this URL doesn\'t look right you will have to edit the script and set right base URL using $demo->base_url(); call.' )?></p>
         <form name="<?php echo $params['form_name']?>" action="<?php echo $params['base_url'].$params['form_action_suffix']?>" method="post" class="s2p_form">
 
         <?php
@@ -1481,9 +1481,9 @@ $(function(){
 
 </head>
 <body>
-<h1>Welcome to Smart2Pay SDK demo page!</h1>
-<p>Please note that this page contains technical information which is intended to help developers start using our SDK.</p>
-<small class="clearfix">SDK version <?php echo S2P_SDK_VERSION?></small>
+<h1><?php echo self::s2p_t( 'Welcome to Smart2Pay SDK demo page!' )?></h1>
+<p><?php echo self::s2p_t( 'Please note that this page contains technical information which is intended to help developers start using our SDK.' )?></p>
+<small class="clearfix"><?php echo self::s2p_t( 'SDK version' )?>: <?php echo S2P_SDK_VERSION?></small>
 <?php
     }
 

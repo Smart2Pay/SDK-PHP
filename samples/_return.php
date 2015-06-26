@@ -65,6 +65,11 @@
             S2P_SDK\S2P_SDK_Return::logf( 'Open (not finalized yet)' );
         break;
 
+        case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_PENDING_CUSTOMER:
+        case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_PENDING_PROVIDER:
+            S2P_SDK\S2P_SDK_Return::logf( 'Pending' );
+        break;
+
         case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_SUCCESS:
             S2P_SDK\S2P_SDK_Return::logf( 'Success' );
         break;

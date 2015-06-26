@@ -75,6 +75,7 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^[A-Z]{3}$',
+                'value_source' => S2P_SDK_Values_Source::TYPE_CURRENCY,
             ),
             array(
                 'name' => 'returnurl',
