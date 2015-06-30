@@ -19,7 +19,7 @@
     }
 
     // Uncomment following line and provide full URL path to SDK root directory
-    // $demo->base_url( '{FULL_URL_TO_SDK_ROOT_DIRECTORY}' ); // eg. http://www.example.com/path/sdk/
+    // $demo->base_url( '{FULL_URL_TO_SDK_ROOT_DIRECTORY}' ); // eg. - http://www.example.com/path/sdk/
 
     $post_arr = $demo::extract_post_data();
 
