@@ -216,11 +216,13 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
         if( empty( $post_arr['foobar'] ) )
         {
+            $api_config_arr = self::get_api_configuration();
+
             // form defaults
-            if( empty( $post_arr['api_key'] ) and defined( 'S2P_SDK_API_KEY' ) and constant( 'S2P_SDK_API_KEY' ) )
-                $post_arr['api_key'] = constant( 'S2P_SDK_API_KEY' );
-            if( empty( $post_arr['environment'] ) and defined( 'S2P_SDK_ENVIRONMENT' ) and constant( 'S2P_SDK_ENVIRONMENT' ) )
-                $post_arr['environment'] = constant( 'S2P_SDK_ENVIRONMENT' );
+            if( empty( $post_arr['api_key'] ) and !empty( $api_config_arr['api_key'] ) )
+                $post_arr['api_key'] = $api_config_arr['api_key'];
+            if( empty( $post_arr['environment'] ) and !empty( $api_config_arr['environment'] ) )
+                $post_arr['environment'] = $api_config_arr['environment'];
         }
 
         ob_start();

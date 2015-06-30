@@ -57,6 +57,25 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         }
     }
 
+    public static function get_api_configuration()
+    {
+        $return_arr = array();
+        $return_arr['api_key'] = '';
+        $return_arr['environment'] = '';
+
+        if( defined( 'S2P_SDK_FORCE_API_KEY' ) and constant( 'S2P_SDK_FORCE_API_KEY' ) )
+            $return_arr['api_key'] = constant( 'S2P_SDK_FORCE_API_KEY' );
+        elseif( defined( 'S2P_SDK_API_KEY' ) and constant( 'S2P_SDK_API_KEY' ) )
+            $return_arr['api_key'] = constant( 'S2P_SDK_API_KEY' );
+
+        if( defined( 'S2P_SDK_FORCE_ENVIRONMENT' ) and constant( 'S2P_SDK_FORCE_ENVIRONMENT' ) )
+            $return_arr['environment'] = constant( 'S2P_SDK_FORCE_ENVIRONMENT' );
+        elseif( defined( 'S2P_SDK_ENVIRONMENT' ) and constant( 'S2P_SDK_ENVIRONMENT' ) )
+            $return_arr['environment'] = constant( 'S2P_SDK_ENVIRONMENT' );
+
+        return $return_arr;
+    }
+
     /**
      * Validates a hook name and returns valid value or false if hook name is not valid.
      *

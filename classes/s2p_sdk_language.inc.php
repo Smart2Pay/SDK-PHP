@@ -28,6 +28,11 @@ class S2P_SDK_Language extends S2P_SDK_Error
         return self::$lang_callable_obj;
     }
 
+    public static function get_current_language()
+    {
+        return self::language_container()->get_current_language();
+    }
+
     public static function define_language( $lang, array $lang_params )
     {
         return self::language_container()->define_language( $lang, $lang_params );

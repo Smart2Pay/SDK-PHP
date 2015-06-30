@@ -47,10 +47,12 @@ class S2P_SDK_API extends S2P_SDK_Module
         if( !$this->api_type( $module_params['api_type'] ) )
             return false;
 
-        if( empty( $module_params['api_key'] ) and defined( 'S2P_SDK_API_KEY' ) and constant( 'S2P_SDK_API_KEY' ) )
-            $module_params['api_key'] = constant( 'S2P_SDK_API_KEY' );
-        if( empty( $module_params['environment'] ) and defined( 'S2P_SDK_ENVIRONMENT' ) and constant( 'S2P_SDK_ENVIRONMENT' ) )
-            $module_params['environment'] = constant( 'S2P_SDK_ENVIRONMENT' );
+        $api_config_arr = self::get_api_configuration();
+
+        if( empty( $module_params['api_key'] ) and !empty( $api_config_arr['api_key'] ) )
+            $module_params['api_key'] = $api_config_arr['api_key'];
+        if( empty( $module_params['environment'] ) and !empty( $api_config_arr['environment'] ) )
+            $module_params['environment'] = $api_config_arr['environment'];
 
         if( !empty( $module_params['api_key'] ) and !empty( $module_params['method'] )
         and !$this->create_api_object( $module_params ) )

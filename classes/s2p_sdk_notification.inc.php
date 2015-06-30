@@ -145,13 +145,15 @@ class S2P_SDK_Notification extends S2P_SDK_Module
             return false;
         }
 
-        if( !defined( 'S2P_SDK_API_KEY' ) or !constant( 'S2P_SDK_API_KEY' ) )
+        $api_config_arr = self::get_api_configuration();
+
+        if( empty( $api_config_arr['api_key'] ) )
         {
             $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'API Key not set in config file.' ) );
             return false;
         }
 
-        if( $_SERVER['PHP_AUTH_USER'] != constant( 'S2P_SDK_API_KEY' )
+        if( $_SERVER['PHP_AUTH_USER'] != $api_config_arr['api_key']
          or $_SERVER['PHP_AUTH_PW'] != '' )
         {
             $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'Request doesn\'t match API Key set in config file.' ) );
