@@ -13,8 +13,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 {
     const ALLOW_REMOTE_CALLS = true;
 
-    const ERR_BASE_URL = 1, ERR_INSTANTIATE_METHOD = 2, ERR_FUNCTIONALITY = 3,
-          ERR_APIKEY = 4, ERR_ENVIRONMENT = 5;
+    const ERR_BASE_URL = 1, ERR_INSTANTIATE_METHOD = 2, ERR_FUNCTIONALITY = 3, ERR_APIKEY = 4, ERR_ENVIRONMENT = 5, ERR_FORM_MANDATORY = 6;
 
     /** @var string $_base_url */
     private $_base_url = '';
@@ -214,6 +213,11 @@ class S2P_SDK_Demo extends S2P_SDK_Module
     {
         $post_arr = self::validate_post_data( $post_arr );
 
+        if( empty( $form_arr['hidden_form'] ) )
+            $form_arr['hidden_form'] = false;
+        else
+            $form_arr['hidden_form'] = (empty( $form_arr['hidden_form'] )?false:true);
+
         if( empty( $post_arr['foobar'] ) )
         {
             $api_config_arr = self::get_api_configuration();
@@ -226,68 +230,93 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         }
 
         ob_start();
-        ?>
-        <input type="hidden" name="foobar" value="1" />
-        <div class="form_field">
-            <label for="api_key"><?php echo self::s2p_t( 'API Key' )?></label>
-            <div class="form_input"><input type="text" id="api_key" name="api_key" value="<?php echo self::form_str( $post_arr['api_key'] )?>" style="width: 350px;" /></div>
-        </div>
 
-        <div class="form_field">
-            <label for="environment"><?php echo self::s2p_t( 'Environment' )?></label>
-            <div class="form_input"><select id="environment" name="environment">
-                <option value="test" <?php echo ($post_arr['environment']=='test'?'selected="selected"':'')?>>Test</option>
-                <option value="live" <?php echo ($post_arr['environment']=='live'?'selected="selected"':'')?>>Live</option>
-            </select></div>
-        </div>
+        if( !empty( $form_arr['hidden_form'] ) )
+        {
+            ?>
+            <input type="hidden" id="api_key" name="api_key" value="<?php echo self::form_str( $post_arr['api_key'] )?>" />
+            <input type="hidden" id="environment" name="environment" value="<?php echo self::form_str( $post_arr['environment'] )?>" />
+            <input type="hidden" id="method" name="method" value="<?php echo self::form_str( $post_arr['method'] )?>" />
+            <?php
+        } else
+        {
+            ?>
+            <div class="form_field">
+                <label for="api_key"><?php echo self::s2p_t( 'API Key' )?></label>
 
-        <div class="form_field">
-            <label for="method"><?php echo self::s2p_t( 'Method' )?></label>
-            <div class="form_input"><select id="method" name="method" onchange="document.<?php echo $form_arr['form_name']?>.submit()">
-                <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> - </option><?php
-                if( ($all_methods = S2P_SDK_Method::get_all_methods())
-                and is_array( $all_methods ) )
-                {
-                    foreach( $all_methods as $method_id => $method_details )
-                    {
-                        if( empty( $method_details['instance'] ) )
-                            continue;
+                <div class="form_input">
+                    <input type="text" id="api_key" name="api_key" value="<?php echo self::form_str( $post_arr['api_key'] )?>" style="width: 350px;"/>
+                </div>
+            </div>
 
-                        /** @var S2P_SDK_Method $instance */
-                        $instance = $method_details['instance'];
+            <div class="form_field">
+                <label for="environment"><?php echo self::s2p_t( 'Environment' )?></label>
 
-                        ?><option value="<?php echo $method_id?>" <?php echo ($post_arr['method'] == $method_id?'selected="selected"':'')?>><?php echo $method_id.' - '.$instance->get_name()?></option><?php
-                    }
-                }
-            ?></select></div>
-        </div>
+                <div class="form_input"><select id="environment" name="environment">
+                    <option value="test" <?php echo( $post_arr['environment'] == 'test' ? 'selected="selected"' : '' )?>>Test</option>
+                    <option value="live" <?php echo( $post_arr['environment'] == 'live' ? 'selected="selected"' : '' )?>>Live</option>
+                </select></div>
+            </div>
+
+            <div class="form_field">
+                <label for="method"><?php echo self::s2p_t( 'Method' )?></label>
+
+                <div class="form_input">
+                    <select id="method" name="method" onchange="document.<?php echo $form_arr['form_name']?>.submit()">
+                        <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> -</option><?php
+                        if( ( $all_methods = S2P_SDK_Method::get_all_methods() )
+                        and is_array( $all_methods ) )
+                        {
+                            foreach( $all_methods as $method_id => $method_details )
+                            {
+                                if( empty( $method_details['instance'] ) )
+                                    continue;
+
+                                /** @var S2P_SDK_Method $instance */
+                                $instance = $method_details['instance'];
+
+                                ?><option value="<?php echo $method_id?>" <?php echo( $post_arr['method'] == $method_id ? 'selected="selected"' : '' )?>><?php echo $method_id . ' - ' . $instance->get_name()?></option><?php
+                            }
+                        }
+                    ?></select></div>
+            </div>
 
         <?php
+        }
+
         if( !empty( $this->_method )
         and ($method_functionalities = $this->_method->get_functionalities())
         and is_array( $method_functionalities ) )
         {
-            ?>
-            <div class="form_field">
-            <label for="func"><?php echo self::s2p_t( 'Functionality' )?></label>
+            if( !empty( $form_arr['hidden_form'] ) )
+            {
+                ?>
+                <input type="hidden" id="func" name="func" value="<?php echo self::form_str( $post_arr['func'] )?>" />
+                <?php
+            } else
+            {
+                ?>
+                <div class="form_field">
+                    <label for="func"><?php echo self::s2p_t( 'Functionality' )?></label>
 
-            <div class="form_input">
-            <select id="func" name="func" onchange="document.<?php echo $form_arr['form_name']?>.submit()">
-            <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> -</option><?php
-                foreach( $method_functionalities as $functionality_name => $functionality_arr )
-                {
-                    if( empty( $method_details['instance'] ) )
-                        continue;
+                    <div class="form_input">
+                        <select id="func" name="func" onchange="document.<?php echo $form_arr['form_name']?>.submit()">
+                            <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> -</option><?php
+                            foreach( $method_functionalities as $functionality_name => $functionality_arr )
+                            {
+                                if( empty( $method_details['instance'] ) )
+                                    continue;
 
-                    /** @var S2P_SDK_Method $instance */
-                    $instance = $method_details['instance'];
+                                /** @var S2P_SDK_Method $instance */
+                                $instance = $method_details['instance'];
 
-                    ?>
-                    <option value="<?php echo $functionality_name?>" <?php echo( $post_arr['func'] == $functionality_name ? 'selected="selected"' : '' )?>><?php echo $functionality_name . ' - ' . $functionality_arr['name']?></option><?php
-                }
-            ?></select></div>
-            </div>
-        <?php
+                                ?>
+                                <option value="<?php echo $functionality_name?>" <?php echo( $post_arr['func'] == $functionality_name ? 'selected="selected"' : '' )?>><?php echo $functionality_name . ' - ' . $functionality_arr['name']?></option><?php
+                            }
+                        ?></select></div>
+                </div>
+                <?php
+            }
         }
         $buf = ob_get_clean();
 
@@ -1082,6 +1111,11 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
 
+        if( empty( $params['hidden_form'] ) )
+            $params['hidden_form'] = false;
+        else
+            $params['hidden_form'] = (empty( $params['hidden_form'] )?false:true);
+
         if( empty( $params['form_action_suffix'] ) )
             $params['form_action_suffix'] = '';
         if( empty( $params['post_params'] ) )
@@ -1096,6 +1130,13 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             $params['submit_text'] = self::s2p_t( 'Simulate API call' );
         if( empty( $params['form_name'] ) )
             $params['form_name'] = 's2p_demo_form';
+        if( empty( $params['form_id'] ) )
+        {
+            if( !empty( $params['form_name'] ) )
+                $params['form_id'] = $params['form_name'];
+            else
+                $params['form_id'] = 's2p_demo_form_'.microtime( true );
+        }
 
         if( empty( $params['base_url'] ) )
         {
@@ -1123,6 +1164,13 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         elseif( !empty( $post_params['func'] ) )
             $func = $post_params['func'];
 
+        if( !empty( $params['hidden_form'] )
+        and (empty( $method ) or empty( $func )) )
+        {
+            $this->set_error( self::ERR_FORM_MANDATORY, self::s2p_t( 'Please provide method and functionality for this form.' ) );
+            return false;
+        }
+
         $post_params['method'] = $method;
         $params['method'] = $method;
 
@@ -1141,73 +1189,106 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
         $form_arr = array();
         $form_arr['form_name'] = $params['form_name'];
+        $form_arr['hidden_form'] = $params['hidden_form'];
 
         ob_start();
+
+        if( empty( $params['hidden_form'] ) )
+        {
+            ?>
+            <p><?php echo self::s2p_t( 'Form will be submitted to' )?>:
+                <em><?php echo $params['base_url'] . $params['form_action_suffix']?></em><br/>
+                <?php echo self::s2p_t( 'If this URL doesn\'t look right you will have to edit the script and set right base URL using $demo->base_url(); call.' )?>
+            </p>
+            <?php
+        }
+
         ?>
-        <p><?php echo self::s2p_t( 'Form will be submitted to' )?>: <em><?php echo $params['base_url'].$params['form_action_suffix']?></em><br/>
-        <?php echo self::s2p_t( 'If this URL doesn\'t look right you will have to edit the script and set right base URL using $demo->base_url(); call.' )?></p>
-        <form name="<?php echo $params['form_name']?>" action="<?php echo $params['base_url'].$params['form_action_suffix']?>" method="post" class="s2p_form">
-
+        <form name="<?php echo $params['form_name']?>" id="<?php echo $params['form_id']?>" action="<?php echo $params['base_url'].$params['form_action_suffix']?>" method="post" class="s2p_form">
+        <input type="hidden" name="foobar" value="1"/>
         <?php
-            if( !empty( $submit_result['errors_arr'] ) and is_array( $submit_result['errors_arr'] ) )
+
+        ob_start();
+        $form_messages = array();
+        $form_messages['errors_arr'] = array();
+        $form_messages['success_arr'] = array();
+        $form_messages['warnings_arr'] = array();
+        if( !empty( $submit_result['errors_arr'] ) and is_array( $submit_result['errors_arr'] ) )
+        {
+            ?><div class="errors_container"><?php
+            foreach( $submit_result['errors_arr'] as $key => $error )
             {
-                ?><div class="errors_container"><?php
-                foreach( $submit_result['errors_arr'] as $key => $error )
-                {
-                    if( !is_numeric( $key ) )
-                        continue;
+                if( !is_numeric( $key ) )
+                    continue;
 
-                    ?><div class="error_text"><?php echo $error?></div><?php
-                }
-
-                if( !empty( $submit_result['errors_arr']['gvars'] ) and is_array( $submit_result['errors_arr']['gvars'] ) )
-                {
-                    foreach( $submit_result['errors_arr']['gvars'] as $key => $error )
-                    {
-                        ?><div class="error_text"><?php echo 'Error ['.$key.']: '.$error?></div><?php
-                    }
-                }
-                ?></div><?php
+                ?><div class="error_text"><?php echo $error?></div><?php
+                $form_messages['errors_arr'][] = $error;
             }
 
-            if( !empty( $submit_result['success_arr'] ) and is_array( $submit_result['success_arr'] ) )
+            if( !empty( $submit_result['errors_arr']['gvars'] ) and is_array( $submit_result['errors_arr']['gvars'] ) )
             {
-                ?><div class="success_container"><?php
-                foreach( $submit_result['success_arr'] as $key => $error )
+                foreach( $submit_result['errors_arr']['gvars'] as $key => $error )
                 {
-                    if( !is_numeric( $key ) )
-                        continue;
-
-                    ?><div class="success_text"><?php echo $error?></div><?php
+                    ?><div class="error_text"><?php echo 'Error [' . $key . ']: ' . $error?></div><?php
+                    $form_messages['errors_arr'][] = 'Error on '.$key.': '.$error;
                 }
-                ?></div><?php
             }
+            ?></div><?php
+        }
 
-            if( !empty( $submit_result['warnings_arr'] ) and is_array( $submit_result['warnings_arr'] ) )
+        if( !empty( $submit_result['success_arr'] ) and is_array( $submit_result['success_arr'] ) )
+        {
+            ?><div class="success_container"><?php
+            foreach( $submit_result['success_arr'] as $key => $error )
             {
-                ?><div class="warnings_container"><?php
-                foreach( $submit_result['warnings_arr'] as $key => $error )
-                {
-                    if( !is_numeric( $key ) )
-                        continue;
+                if( !is_numeric( $key ) )
+                    continue;
 
-                    ?><div class="warning_text"><?php echo $error?></div><?php
-                }
-                ?></div><?php
+                ?><div class="success_text"><?php echo $error?></div><?php
+                $form_messages['success_arr'][] = $error;
             }
+            ?></div><?php
+        }
+
+        if( !empty( $submit_result['warnings_arr'] ) and is_array( $submit_result['warnings_arr'] ) )
+        {
+            ?><div class="warnings_container"><?php
+            foreach( $submit_result['warnings_arr'] as $key => $error )
+            {
+                if( !is_numeric( $key ) )
+                    continue;
+
+                ?><div class="warning_text"><?php echo $error?></div><?php
+                $form_messages['warnings_arr'][] = $error;
+            }
+            ?></div><?php
+        }
+
+        if( !empty( $params['hidden_form'] ) )
+            ob_end_clean();
+        else
+        {
+            ob_end_flush();
+            $form_messages = false;
+        }
 
         /** @var S2P_SDK_API $api_obj */
-        $api_obj = $submit_result['api_obj']
-        ?>
+        $api_obj = $submit_result['api_obj'];
 
-        <div id="api_form" style="width: 100%;<?php echo (!empty( $api_obj )?'display:none;':'');?>">
 
-            <?php
+        if( empty( $params['hidden_form'] ) )
+        {
+            ?><div id="api_form" style="width: 100%;<?php echo( !empty( $api_obj ) ? 'display:none;' : '' );?>"><?php
+
             if( !empty( $api_obj ) )
             {
-                ?><div id="s2p_api_result_toggler"><a href="javascript:void(0);" onclick="toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API result' )?></a> &raquo;</div><?php
+                ?>
+                <div id="s2p_api_result_toggler">
+                <a href="javascript:void(0);" onclick="toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API result' )?></a> &raquo;
+                </div><?php
             }
-            ?>
+        }
+        ?>
 
             <?php echo $this->get_form_common_fields( $post_params, $form_arr ); ?>
 
@@ -1215,12 +1296,21 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
             <?php echo $this->get_form_method_parameters_fields( $post_params, $form_arr ); ?>
 
-            <div class="form_field" style="text-align: center;">
-                <input type="submit" id="do_submit" name="do_submit" value="<?php echo self::form_str( $params['submit_text'] );?>" />
-            </div>
-        </div>
-
         <?php
+        if( !empty( $params['hidden_form'] ) )
+        {
+            ?><input type="hidden" id="do_submit" name="do_submit" value="1" /><?php
+        } else
+        {
+            ?>
+            <div class="form_field" style="text-align: center;">
+                <input type="submit" id="do_submit" name="do_submit" value="<?php echo self::form_str( $params['submit_text'] );?>"/>
+            </div>
+            </div>
+            <?php
+        }
+
+        $call_result = false;
         if( !empty( $api_obj ) )
         {
             if( !($base_api_obj = $api_obj->get_api_obj())
@@ -1235,49 +1325,60 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             if( empty( $call_result['request']['response_buffer'] ) )
                 $call_result['request']['response_buffer'] = '';
 
-            ?>
-            <div id="api_result" style="width: 100%; display:block;">
 
-                <div id="s2p_api_form_toggler">&laquo; <a href="javascript:void(0);" onclick="toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API form' )?></a></div>
+            if( empty( $params['hidden_form'] ) )
+            {
+                ?>
+                <div id="api_result" style="width: 100%; display:block;">
 
-                <div class="http_headers_code">
-                    <div class="http_headers_code_title"><?php echo self::s2p_t( 'Request headers' );?></div>
-                    <?php echo nl2br( trim( $call_result['request']['request_details']['request_header'] ) );?>
-                </div>
-
-                <div class="http_headers_code">
-                    <div class="http_headers_code_title"><a href="javascript:void(0);" onclick="toggle_container( 's2p_api_request_body' )"><?php echo self::s2p_t( 'Request body' );?></a></div>
-                    <div id="s2p_api_request_body" style="display: none;">
-                        <div id="s2p_api_request_body_raw_toggler">&laquo; <a href="javascript:void(0)" onclick="toggle_container( 's2p_api_request_body_raw' );toggle_container( 's2p_api_request_body_formatted' );"><?php echo self::s2p_t( 'Raw / Formatted response' )?></a> &raquo; </div>
-                        <div id="s2p_api_request_body_raw" style="display: block;"><?php echo (empty( $call_result['request']['request_buffer'] )?'(empty)':nl2br( trim( $call_result['request']['request_buffer'] ) ));?></div>
-                        <div id="s2p_api_request_body_formatted" style="display: none;"><?php echo (empty( $call_result['request']['request_buffer'] )?'(empty)':nl2br( self::json_display( trim( $call_result['request']['request_buffer'] ) ) ));?></div>
+                    <div id="s2p_api_form_toggler">&laquo;
+                        <a href="javascript:void(0);" onclick="toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API form' )?></a>
                     </div>
-                </div>
 
-                <div class="http_headers_code">
-                    <div class="http_headers_code_title"><?php echo self::s2p_t( 'Response headers' );?></div>
-                    <?php
-                    if( !empty( $call_result['request']['response_headers'] ) and is_array( $call_result['request']['response_headers'] ) )
-                    {
-                        foreach( $call_result['request']['response_headers'] as $header_key => $header_val )
-                        {
-                            if( !is_numeric( $header_key ) )
-                                echo $header_key.': ';
+                    <div class="http_headers_code">
+                        <div class="http_headers_code_title"><?php echo self::s2p_t( 'Request headers' );?></div>
+                        <?php echo nl2br( trim( $call_result['request']['request_details']['request_header'] ) );?>
+                    </div>
 
-                            echo $header_val."\n<br/>";
-                        }
-                    }
-                    ?>
-                </div>
+                    <div class="http_headers_code">
+                        <div class="http_headers_code_title">
+                            <a href="javascript:void(0);" onclick="toggle_container( 's2p_api_request_body' )"><?php echo self::s2p_t( 'Request body' );?></a>
+                        </div>
+                        <div id="s2p_api_request_body" style="display: none;">
+                            <div id="s2p_api_request_body_raw_toggler">&laquo;
+                                <a href="javascript:void(0)" onclick="toggle_container( 's2p_api_request_body_raw' );toggle_container( 's2p_api_request_body_formatted' );"><?php echo self::s2p_t( 'Raw / Formatted response' )?></a> &raquo;
+                            </div>
+                            <div id="s2p_api_request_body_raw" style="display: block;"><?php echo( empty( $call_result['request']['request_buffer'] ) ? '(empty)' : nl2br( trim( $call_result['request']['request_buffer'] ) ) );?></div>
+                            <div id="s2p_api_request_body_formatted" style="display: none;"><?php echo( empty( $call_result['request']['request_buffer'] ) ? '(empty)' : nl2br( self::json_display( trim( $call_result['request']['request_buffer'] ) ) ) );?></div>
+                        </div>
+                    </div>
 
-                <div class="http_headers_code">
-                    <div class="http_headers_code_title"><a href="javascript:void(0);" onclick="toggle_container( 's2p_api_response_body' )"><?php echo self::s2p_t( 'Response body' );?></a></div>
-                    <div id="s2p_api_response_body" style="display: none;"><?php echo (empty( $call_result['request']['response_buffer'] )?'(empty)':nl2br( trim( $call_result['request']['response_buffer'] ) ));?></div>
-                </div>
+                    <div class="http_headers_code">
+                        <div class="http_headers_code_title"><?php echo self::s2p_t( 'Response headers' );?></div>
+                        <?php
+                            if( !empty( $call_result['request']['response_headers'] ) and is_array( $call_result['request']['response_headers'] ) )
+                            {
+                                foreach( $call_result['request']['response_headers'] as $header_key => $header_val )
+                                {
+                                    if( !is_numeric( $header_key ) )
+                                        echo $header_key . ': ';
 
-                <div class="http_headers_code">
-                    <div class="http_headers_code_title"><?php echo self::s2p_t( 'Processed response (array)' );?></div>
-                    <?php if( empty( $call_result['response']['response_array'] ) )
+                                    echo $header_val . "\n<br/>";
+                                }
+                            }
+                        ?>
+                    </div>
+
+                    <div class="http_headers_code">
+                        <div class="http_headers_code_title">
+                            <a href="javascript:void(0);" onclick="toggle_container( 's2p_api_response_body' )"><?php echo self::s2p_t( 'Response body' );?></a>
+                        </div>
+                        <div id="s2p_api_response_body" style="display: none;"><?php echo( empty( $call_result['request']['response_buffer'] ) ? '(empty)' : nl2br( trim( $call_result['request']['response_buffer'] ) ) );?></div>
+                    </div>
+
+                    <div class="http_headers_code">
+                        <div class="http_headers_code_title"><?php echo self::s2p_t( 'Processed response (array)' );?></div>
+                        <?php if( empty( $call_result['response']['response_array'] ) )
                             echo '(empty)';
                         else
                         {
@@ -1287,19 +1388,26 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
                             echo nl2br( str_replace( '  ', ' &nbsp;', $buf ) );
                         }
-                    ?>
+                        ?>
+                    </div>
+
                 </div>
-
-            </div>
             <?php
+            }
         }
-        ?>
 
-        </form>
-        <?php
+        ?></form><?php
+
         $buf = ob_get_clean();
 
-        return $buf;
+        $return_arr = array();
+        $return_arr['form_id'] = $params['form_id'];
+        $return_arr['form_name'] = $params['form_name'];
+        $return_arr['form_messages'] = $form_messages;
+        $return_arr['buffer'] = $buf;
+        $return_arr['call_result'] = $call_result;
+
+        return $return_arr;
     }
 
     public function display_header( $params = false )

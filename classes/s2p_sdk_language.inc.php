@@ -12,7 +12,7 @@ class S2P_SDK_Language extends S2P_SDK_Error
 {
     const LANG_EN = 'en', LANG_RO = 'ro';
 
-    /** @var $lang_callable_obj S2P_SDK_Language_Container */
+    /** @var S2P_SDK_Language_Container $lang_callable_obj */
     private static $lang_callable_obj = false;
 
     function __construct()
@@ -20,6 +20,11 @@ class S2P_SDK_Language extends S2P_SDK_Error
         parent::__construct();
     }
 
+    /**
+     * Returns language class that handles translation tasks
+     *
+     * @return S2P_SDK_Language_Container
+     */
     static function language_container()
     {
         if( empty( self::$lang_callable_obj ) )
@@ -28,16 +33,33 @@ class S2P_SDK_Language extends S2P_SDK_Error
         return self::$lang_callable_obj;
     }
 
+    /**
+     * @return string Returns currently selected language
+     */
     public static function get_current_language()
     {
         return self::language_container()->get_current_language();
     }
 
+    /**
+     * Define a language used by SDK
+     *
+     * @param string $lang ISO 2 chars (lowercase) language code
+     * @param array $lang_params Language details
+     *
+     * @return bool True if adding language was successful, false otherwise
+     */
     public static function define_language( $lang, array $lang_params )
     {
         return self::language_container()->define_language( $lang, $lang_params );
     }
 
+    /**
+     * Translate a specific text in currently selected language. This method receives a variable number of parameters in same way as sprintf works.
+     * @param string $index Language index to be translated
+     *
+     * @return string Translated string
+     */
     public static function s2p_t( $index )
     {
         $numargs = func_num_args();
@@ -51,6 +73,14 @@ class S2P_SDK_Language extends S2P_SDK_Error
         return self::language_container()->s2p_t( $index, $arg_list );
     }
 
+    /**
+     * Translate a text into a specific language. This method receives a variable number of parameters in same way as sprintf works.
+     *
+     * @param string $index Language index to be translated
+     * @param string $lang ISO 2 chars (lowercase) language code
+     *
+     * @return string Translated text
+     */
     public static function s2p_tl( $index, $lang )
     {
         $numargs = func_num_args();
@@ -164,6 +194,14 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
         return (isset( self::$LANGUAGE_INDEXES[$lang] )?$lang:false);
     }
 
+    /**
+     * Define a language used by SDK
+     *
+     * @param string $lang ISO 2 chars (lowercase) language code
+     * @param array $lang_params Language details
+     *
+     * @return bool True if adding language was successful, false otherwise
+     */
     public function define_language( $lang, array $lang_params )
     {
         $this->reset_error();
@@ -219,9 +257,9 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
     /**
      * Loads provided CSV files in 'files' index of language definition array for language $lang
      *
-     * @param string $lang
+     * @param string $lang ISO 2 chars (lowercase) language code
      *
-     * @return bool
+     * @return bool True if loading was with success, false otherwise
      */
     public function load_language( $lang )
     {
@@ -304,12 +342,27 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
        return true;
     }
 
+    /**
+     * Given an absolute file path, this method will return file name which should contain UTF-8 encoded content of original file
+     *
+     * @param string $file ablsolute path of file which should be converted to UTF-8 encoding
+     *
+     * @return string Resulting file name which will hold UTF-8 encoded content of original file
+     */
     static function get_utf8_file_name( $file )
     {
         $path_info = @pathinfo( $file );
         return $path_info['dirname'].'/'.$path_info['filename'].'-utf8.'.$path_info['extension'];
     }
 
+    /**
+     * Converts a given file to a UTF-8 encoded content.
+     *
+     * @param string $file ablsolute path of file which should be converted to UTF-8 encoding
+     * @param bool|array $params Method parameters allows to overwrite UTF-8 encoded file name
+     *
+     * @return bool|string Returns absolute path of UTF-8 encoded file
+     */
     static function convert_to_utf8( $file, $params = false )
     {
         if( empty( $file ) or !@file_exists( $file ) )
@@ -352,10 +405,10 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
     /**
      * Translate text $index. If $index contains %XX format (@see vsprintf), arguments will be passed in $args parameter.
      *
-     * @param $index
-     * @param array $args
+     * @param string $index Language index to be translated
+     * @param array $args Array of arguments to be used to populate $index (@see vsprintf)
      *
-     * @return string
+     * @return string Translated string
      */
     public function s2p_t( $index, array $args = array() )
     {
@@ -368,9 +421,9 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
     /**
      * Translate text $index for language $lang. If $index contains %XX format (@see vsprintf), arguments will be passed in $args parameter.
      *
-     * @param string $index
+     * @param string $index Language index to be translated
      * @param string $lang
-     * @param array $args
+     * @param array $args Array of arguments to be used to populate $index (@see vsprintf)
      *
      * @return string
      */

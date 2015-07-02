@@ -1,10 +1,12 @@
 <?php
 
     // Merchant API Key or API Key generated for a site
+    // You can overwite this value after including config.inc.php file by defining S2P_SDK_FORCE_API_KEY constant
     if( !defined( 'S2P_SDK_API_KEY' ) )
         define( 'S2P_SDK_API_KEY', '{PROVIDED_API_KEY}' );
 
     // Tells SDK where to send the request (test server or live server)
+    // You can overwite this value after including config.inc.php file by defining S2P_SDK_FORCE_ENVIRONMENT constant
     if( !defined( 'S2P_SDK_ENVIRONMENT' ) )
         define( 'S2P_SDK_ENVIRONMENT', '' ); // live or test
 

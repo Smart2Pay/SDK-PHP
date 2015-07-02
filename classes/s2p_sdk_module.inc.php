@@ -62,6 +62,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         $return_arr = array();
         $return_arr['api_key'] = '';
         $return_arr['environment'] = '';
+        $return_arr['return_url'] = '';
 
         if( defined( 'S2P_SDK_FORCE_API_KEY' ) and constant( 'S2P_SDK_FORCE_API_KEY' ) )
             $return_arr['api_key'] = constant( 'S2P_SDK_FORCE_API_KEY' );
@@ -72,6 +73,11 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
             $return_arr['environment'] = constant( 'S2P_SDK_FORCE_ENVIRONMENT' );
         elseif( defined( 'S2P_SDK_ENVIRONMENT' ) and constant( 'S2P_SDK_ENVIRONMENT' ) )
             $return_arr['environment'] = constant( 'S2P_SDK_ENVIRONMENT' );
+
+        if( defined( 'S2P_SDK_FORCE_PAYMENT_RETURN_URL' ) and constant( 'S2P_SDK_FORCE_PAYMENT_RETURN_URL' ) )
+            $return_arr['return_url'] = constant( 'S2P_SDK_FORCE_PAYMENT_RETURN_URL' );
+        elseif( defined( 'S2P_SDK_PAYMENT_RETURN_URL' ) and constant( 'S2P_SDK_PAYMENT_RETURN_URL' ) )
+            $return_arr['return_url'] = constant( 'S2P_SDK_PAYMENT_RETURN_URL' );
 
         return $return_arr;
     }
