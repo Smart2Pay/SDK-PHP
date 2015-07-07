@@ -42,6 +42,14 @@ class S2P_SDK_Language extends S2P_SDK_Error
     }
 
     /**
+     * @return string Returns currently selected language
+     */
+    public static function add_language_files( $lang, $files_arr )
+    {
+        return self::language_container()->add_language_files( $lang, $files_arr );
+    }
+
+    /**
      * Define a language used by SDK
      *
      * @param string $lang ISO 2 chars (lowercase) language code
@@ -209,22 +217,14 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
         $lang = self::prepare_lang_index( $lang );
         if( empty( $lang )
          or empty( $lang_params ) or !is_array( $lang_params )
-         or empty( $lang_params['title'] )
-         or empty( $lang_params['files'] ) or !is_array( $lang_params['files'] ) )
+         or empty( $lang_params['title'] ) )
         {
             $this->set_error( self::ERR_LANGUAGE_DEFINITION, 'Please provide valid parameters for language definition.' );
             return false;
         }
 
-        foreach( $lang_params['files'] as $lang_file )
-        {
-            if( empty( $lang_file )
-             or !@file_exists( $lang_file ) or !@is_readable( $lang_file ) )
-            {
-                $this->set_error( self::ERR_LANGUAGE_DEFINITION, 'Language file ['.@basename( $lang_file ).'] for language ['.$lang.'] not found or not readable.' );
-                return false;
-            }
-        }
+        if( empty( $lang_params['files'] ) or !is_array( $lang_params['files'] ) )
+            $lang_params['files'] = array();
 
         if( empty( self::$DEFINED_LANGUAGES[$lang] ) )
             self::$DEFINED_LANGUAGES[$lang] = array();
@@ -234,7 +234,48 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
         if( empty( self::$DEFINED_LANGUAGES[$lang]['files'] ) )
             self::$DEFINED_LANGUAGES[$lang]['files'] = array();
 
-        self::$DEFINED_LANGUAGES[$lang]['files'] = array_merge( self::$DEFINED_LANGUAGES[$lang]['files'], $lang_params['files'] );
+        if( !empty( $lang_params['files'] ) )
+        {
+            if( !$this->add_language_files( $lang, $lang_params['files'] ) )
+                return false;
+        }
+
+        return true;
+    }
+
+    public function add_language_files( $lang, array $files_arr )
+    {
+        $this->reset_error();
+
+        $lang = self::prepare_lang_index( $lang );
+        if( empty( $lang )
+         or !($lang = self::valid_language( $lang )) )
+        {
+            $this->set_error( self::ERR_LANGUAGE_LOAD, 'Language not defined.' );
+            return false;
+        }
+
+        if( !is_array( $files_arr ) )
+        {
+            $this->set_error( self::ERR_LANGUAGE_DEFINITION, 'You should provide an array of files to be added to language ['.$lang.'].' );
+            return false;
+        }
+
+        foreach( $files_arr as $lang_file )
+        {
+            if( empty( $lang_file )
+                or !@file_exists( $lang_file ) or !@is_readable( $lang_file ) )
+            {
+                $this->set_error( self::ERR_LANGUAGE_DEFINITION, 'Language file ['.@basename( $lang_file ).'] for language ['.$lang.'] not found or not readable.' );
+                return false;
+            }
+        }
+
+        self::$DEFINED_LANGUAGES[$lang]['files'] = array_merge( self::$DEFINED_LANGUAGES[$lang]['files'], $files_arr );
+
+        // if language was already loaded, reload all files to include newly added files
+        if( $this->language_loaded( $lang ) )
+            $this->load_language( $lang );
 
         return true;
     }
@@ -269,7 +310,7 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
          or !($lang_details = self::get_defined_language( $lang ))
          or empty( $lang_details['files'] ) or !is_array( $lang_details['files'] ) )
         {
-            $this->set_error( self::ERR_LANGUAGE_LOAD, 'Language ['.$lang.'] not defined.' );
+            $this->set_error( self::ERR_LANGUAGE_LOAD, 'Language ['.$lang.'] not defined or has no files to be loaded.' );
             return false;
         }
 

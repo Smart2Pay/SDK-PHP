@@ -275,6 +275,8 @@ class S2P_SDK_Notification extends S2P_SDK_Module
         if( !empty( $also_echo ) )
             echo $str;
 
+        @clearstatcache();
+
         if( !($log_size = @filesize( S2P_SDK_DIR_PATH.'log_demo.log' )) )
             $log_size = 0;
 
