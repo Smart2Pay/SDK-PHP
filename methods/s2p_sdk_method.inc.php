@@ -957,7 +957,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         return $scope_arr;
     }
 
-    protected static function default_get_variables_definition()
+    public static function default_get_variables_definition()
     {
         return array(
             // name of variable to be used internally
@@ -980,7 +980,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         );
     }
 
-    protected static function validate_get_variable_definition( $definition_arr )
+    public static function validate_get_variable_definition( $definition_arr )
     {
         self::st_reset_error();
 

@@ -376,50 +376,50 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         return $submit_result_arr;
     }
 
-    private function get_form_method_get_params_fields( $post_arr, $form_arr )
+    public function get_form_method_get_params_fields_input( $get_var, $params = false )
     {
-        if( empty( $this->_method )
-         or empty( $form_arr ) or !is_array( $form_arr ) or empty( $form_arr['form_name'] )
-         or empty( $this->_method_func )
-         or !($func_details = $this->_method_func_details)
-         or empty( $func_details['get_variables'] ) or !is_array( $func_details['get_variables'] ) )
+        if( !($get_var = S2P_SDK_Method::validate_get_variable_definition( $get_var )) )
+        {
+            self::st_reset_error();
             return '';
+        }
 
-        $post_arr = self::validate_post_data( $post_arr );
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+        if( empty( $params['post_arr'] ) or !is_array( $params['post_arr'] ) )
+            $params['post_arr'] = array();
+        if( !isset( $params['allow_remote_calls'] ) )
+            $params['allow_remote_calls'] = self::ALLOW_REMOTE_CALLS;
+        else
+            $params['allow_remote_calls'] = (!empty( $params['allow_remote_calls'] )?true:false);
+
+        $post_arr = $params['post_arr'];
 
         ob_start();
+        $field_name = 'gvars['.$get_var['name'].']';
+        $field_id = 'gvar_'.$get_var['name'];
+
+        if( isset( $post_arr['gvars'][$get_var['name']] ) )
+            $field_value = $post_arr['gvars'][$get_var['name']];
+        elseif( !empty( $get_var['check_constant'] ) and defined( $get_var['check_constant'] ) )
+            $field_value = constant( $get_var['check_constant'] );
+        elseif( isset( $get_var['default'] ) )
+            $field_value = $get_var['default'];
+        else
+            $field_value = '';
+
+        if( !($field_type_arr = S2P_SDK_Scope_Variable::valid_type( $get_var['type'] )) )
+            $field_type_arr = array( 'title' => '[undefined]' );
+
         ?>
-        <fieldset id="method_get_parameters">
-        <label for="method_get_parameters"><a href="javascript:void(0);" onclick="toggle_container( 'method_get_parameters_container' )"><strong><?php echo self::s2p_t( 'Get parameters' )?></strong></a></label>
-        <div id="method_get_parameters_container" style="display: block;">
-
-        <?php
-        foreach( $func_details['get_variables'] as $get_var )
-        {
-            $field_name = 'gvars['.$get_var['name'].']';
-            $field_id = 'gvar_'.$get_var['name'];
-
-            if( isset( $post_arr['gvars'][$get_var['name']] ) )
-                $field_value = $post_arr['gvars'][$get_var['name']];
-            elseif( !empty( $get_var['check_constant'] ) and defined( $get_var['check_constant'] ) )
-                $field_value = constant( $get_var['check_constant'] );
-            elseif( isset( $get_var['default'] ) )
-                $field_value = $get_var['default'];
-            else
-                $field_value = '';
-
-            if( !($field_type_arr = S2P_SDK_Scope_Variable::valid_type( $get_var['type'] )) )
-                $field_type_arr = array( 'title' => '[undefined]' );
-
-            ?>
-            <div class="form_field">
-                <label for="<?php echo $field_id?>" class="<?php echo (!empty( $get_var['mandatory'] )?'mandatory':'')?>"><?php echo $get_var['name']?></label>
-                <div class="form_input"><?php
+        <div class="form_field">
+            <label for="<?php echo $field_id?>" class="<?php echo (!empty( $get_var['mandatory'] )?'mandatory':'')?>"><?php echo $get_var['name']?></label>
+            <div class="form_input"><?php
                 if( !empty( $get_var['value_source'] )
                 and S2P_SDK_Values_Source::valid_type( $get_var['value_source'] )
                 and ($value_source_obj = new S2P_SDK_Values_Source( $get_var['value_source'] ))
                 // make sure we don't stop here...
-                and ($value_source_obj->remote_calls( self::ALLOW_REMOTE_CALLS ) or true)
+                and ($value_source_obj->remote_calls( $params['allow_remote_calls'] ) or true)
                 and ($options_value = $value_source_obj->get_option_values())
                 and is_array( $options_value ) )
                 {
@@ -450,9 +450,39 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                 {
                     echo ' - yyyymmddhhmmss';
                 }
-                ?></div>
-            </div>
-            <?php
+            ?></div>
+        </div>
+        <?php
+        $buf = ob_get_clean();
+
+        return $buf;
+    }
+
+    private function get_form_method_get_params_fields( $post_arr, $form_arr )
+    {
+        if( empty( $this->_method )
+         or empty( $form_arr ) or !is_array( $form_arr ) or empty( $form_arr['form_name'] )
+         or empty( $this->_method_func )
+         or !($func_details = $this->_method_func_details)
+         or empty( $func_details['get_variables'] ) or !is_array( $func_details['get_variables'] ) )
+            return '';
+
+        $post_arr = self::validate_post_data( $post_arr );
+
+        ob_start();
+        ?>
+        <fieldset id="method_get_parameters">
+        <label for="method_get_parameters"><a href="javascript:void(0);" onclick="toggle_container( 'method_get_parameters_container' )"><strong><?php echo self::s2p_t( 'Get parameters' )?></strong></a></label>
+        <div id="method_get_parameters_container" style="display: block;">
+
+        <?php
+        $input_params_arr = array();
+        $input_params_arr['post_arr'] = $post_arr;
+        $input_params_arr['allow_remote_calls'] = self::ALLOW_REMOTE_CALLS;
+
+        foreach( $func_details['get_variables'] as $get_var )
+        {
+            echo $this->get_form_method_get_params_fields_input( $get_var, $input_params_arr );
         }
         ?>
         </div>
@@ -616,7 +646,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         return null;
     }
 
-    private function get_form_method_parameters_fields_detailed( $structure_definition, $mandatory_arr, $hide_keys_arr, $post_arr, $form_arr, $params = false )
+    public function get_form_method_parameters_fields_detailed( $structure_definition, $mandatory_arr, $hide_keys_arr, $post_arr, $form_arr, $params = false )
     {
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
@@ -821,6 +851,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
         $field_id = str_replace( '.', '_', $params['path'] );
 
+        ob_start();
         ?>
         <fieldset id="mparam_<?php echo $field_id?>">
         <label for="mparam_<?php echo $field_id?>"><a href="javascript:void(0);" onclick="toggle_container( 'mparam_container_<?php echo $field_id?>' )"><strong><?php echo $params['path']?></strong></a></label>
