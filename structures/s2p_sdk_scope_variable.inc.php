@@ -264,7 +264,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                 else
                     $var_val = self::scalar_value( $definition['type'], $scope_arr[$definition[$scope_name_key]], $definition['array_type'], $definition['array_numeric_keys'] );
 
-                if( (string)$var_val !== ''
+                if( is_scalar( $var_val )
+                and (string)$var_val !== ''
                 and empty( $params['skip_regexps'] )
                 and !empty( $definition['regexp'] )
                 and !preg_match( '/'.$definition['regexp'].'/', $var_val ) )

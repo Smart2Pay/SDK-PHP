@@ -263,6 +263,25 @@ class S2P_SDK_Countries extends S2P_SDK_Language
         return self::$COUNTRIES_ARR;
     }
 
+    public static function valid_country_arr( $countries_arr )
+    {
+        if( empty( $countries_arr ) or !is_array( $countries_arr ) )
+            return false;
+
+        $all_countries = self::get_countries();
+        $return_arr = array();
+        foreach( $countries_arr as $country_iso )
+        {
+            $country_iso = strtoupper( trim( $country_iso ) );
+            if( empty( $all_countries[$country_iso] ) )
+                continue;
+
+            $return_arr[$country_iso] = $all_countries[$country_iso];
+        }
+
+        return (empty( $return_arr )?false:$return_arr);
+    }
+
     public static function valid_country( $country )
     {
         if( empty( $country )

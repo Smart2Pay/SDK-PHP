@@ -152,6 +152,29 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         return $new_result;
     }
 
+    public static function get_resources_base_url( $module_params = false )
+    {
+        if( empty( $module_params ) or ! is_array( $module_params ) )
+            $module_params = array();
+
+        $api_config_arr = self::get_api_configuration();
+
+        if( empty( $module_params['environment'] ) and !empty( $api_config_arr['environment'] ) )
+            $module_params['environment'] = $api_config_arr['environment'];
+
+        switch( $module_params['environment'] )
+        {
+            default:
+                return '';
+
+            case self::ENV_TEST:
+                return self::TEST_RESOURCE_URL;
+
+            case self::ENV_LIVE:
+                return self::LIVE_RESOURCE_URL;
+        }
+    }
+
     public function environment( $env = null )
     {
         if( $env === null )
@@ -336,6 +359,8 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             $params['allow_remote_calls'] = false;
         if( empty( $params['quick_return_request'] ) )
             $params['quick_return_request'] = false;
+        if( empty( $params['custom_validators'] ) or !is_array( $params['custom_validators'] ) )
+            $params['custom_validators'] = array();
 
         if( empty( $this->_method ) )
         {

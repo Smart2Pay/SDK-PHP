@@ -225,6 +225,25 @@ class S2P_SDK_Currencies extends S2P_SDK_Language
         return self::$CURRENCIES_ARR;
     }
 
+    public static function valid_currency_arr( $cur_arr )
+    {
+        if( empty( $cur_arr ) or !is_array( $cur_arr ) )
+            return false;
+
+        $all_currencies = self::get_currencies();
+        $return_arr = array();
+        foreach( $cur_arr as $currency_iso )
+        {
+            $currency_iso = strtoupper( trim( $currency_iso ) );
+            if( empty( $all_currencies[$currency_iso] ) )
+                continue;
+
+            $return_arr[$currency_iso] = $all_currencies[$currency_iso];
+        }
+
+        return (empty( $return_arr )?false:$return_arr);
+    }
+
     public static function valid_currency( $cur )
     {
         if( empty( $cur )

@@ -192,6 +192,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             'should_redirect' => false,
             'redirect_headers_set' => false,
             'redirect_to' => '',
+            'custom_validators' => false,
         );
     }
 
@@ -678,6 +679,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             $params['get_variables'] = array();
         if( empty( $params['method_params'] ) or !is_array( $params['method_params'] ) )
             $params['method_params'] = array();
+        if( empty( $params['custom_validators'] ) or !is_array( $params['custom_validators'] ) )
+            $params['custom_validators'] = array();
 
         if( ($internal_params = $this->request_parameters()) )
         {

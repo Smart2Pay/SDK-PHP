@@ -65,6 +65,34 @@ class S2P_SDK_Values_Source_Methods extends S2P_SDK_Language
         return self::$AVAILABLE_METHODS_ARR;
     }
 
+    public static function get_method_details( $method_id )
+    {
+        $method_id = intval( $method_id );
+        if( empty( $method_id ) )
+            return false;
+
+        $api_params = array();
+        $api_params['method'] = 'methods';
+        $api_params['func'] = 'method_details';
+        $api_params['get_variables'] = array( 'id' => $method_id );
+
+        /** @var S2P_SDK_API $api */
+        if( !($api = S2P_SDK_Module::get_instance( 'S2P_SDK_API', $api_params, false ))
+         or !$api->do_call( array( 'allow_remote_calls' => true ) )
+         or !($call_result = $api->get_result())
+         or !is_array( $call_result )
+         or !($finalize_arr = $api->do_finalize( array( 'redirect_now' => false ) ))
+         or empty( $call_result['method'] ) or !is_array( $call_result['method'] )
+         or empty( $finalize_arr ) or !is_array( $finalize_arr ) )
+            return false;
+
+        $return_arr = array();
+        $return_arr['method_arr'] = $call_result['method'];
+        $return_arr['custom_validators'] = $finalize_arr['custom_validators'];
+
+        return $return_arr;
+    }
+
     private static function do_methods_call( $api_params )
     {
         /** @var S2P_SDK_API $api */
