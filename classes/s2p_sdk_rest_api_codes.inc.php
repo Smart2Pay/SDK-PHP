@@ -16,8 +16,7 @@ class S2P_SDK_Rest_API_Codes extends S2P_SDK_Language
     public static function valid_code( $code )
     {
         $code = intval( $code );
-        if( empty( $code )
-         or !($all_codes = self::rest_codes()) or empty( $all_codes ) )
+        if( !($all_codes = self::rest_codes()) or empty( $all_codes[$code] ) )
             return false;
 
         return $all_codes[$code];
@@ -26,6 +25,8 @@ class S2P_SDK_Rest_API_Codes extends S2P_SDK_Language
     public static function rest_codes()
     {
         return array(
+
+            0 => self::s2p_t( 'Host not found.' ),
 
             100 => self::s2p_t( 'Continue' ),
             101 => self::s2p_t( 'Switching Protocols' ),

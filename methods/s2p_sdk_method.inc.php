@@ -94,7 +94,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
      * This method should be overridden by methods which have actions to be taken after we receive response from server
      *
      * @param array $call_result
-     * @param array $params
+     * @param array|false $params
      *
      * @return array Returns array with finalize action details
      */

@@ -6,7 +6,6 @@ class S2P_SDK_Currencies extends S2P_SDK_Language
 {
     private static $CURRENCIES_ARR = array(
         'AED' => 'UAE Dirham',
-        'AFA' => 'Afghani',
         'AFN' => 'Afghanistan Afghanis',
         'ALL' => 'Lek',
         'AMD' => 'Dram (Russian Ruble [RUR] was formerly in use)',

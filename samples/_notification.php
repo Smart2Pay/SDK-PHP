@@ -75,7 +75,7 @@
             if( empty( $payment_arr['merchanttransactionid'] )
              or empty( $payment_arr['status'] ) or empty( $payment_arr['status']['id'] ) )
             {
-                S2P_SDK\S2P_SDK_Notification::logf( 'MerchantTransactioID or Status not provided.' );
+                S2P_SDK\S2P_SDK_Notification::logf( 'MerchantTransactionID or Status not provided.' );
                 S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
                 exit;
             }

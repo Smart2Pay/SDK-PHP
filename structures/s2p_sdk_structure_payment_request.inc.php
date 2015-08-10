@@ -77,6 +77,11 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'value_source' => S2P_SDK_Values_Source::TYPE_AVAILABLE_METHODS,
             ),
             array(
+                'name' => 'redirectiniframe',
+                'external_name' => 'RedirectInIframe',
+                'type' => S2P_SDK_VTYPE_BOOL,
+            ),
+            array(
                 'name' => 'methodoptionid',
                 'external_name' => 'MethodOptionID',
                 'type' => S2P_SDK_VTYPE_INT,

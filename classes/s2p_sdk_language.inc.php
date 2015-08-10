@@ -415,18 +415,25 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
         if( empty( $params['utf8_file'] ) )
             $params['utf8_file'] = self::get_utf8_file_name( $file );
 
-        ob_start();
-        if( !($file_mime = @system( 'file --mime-encoding '.escapeshellarg( $file ) )) )
-            return false;
+        if( !($file_bin = @system( 'which file' ))
+         or !($iconv_bin = @system( 'which iconv' )) )
+        {
+            // we don't have required files to convert csv to utf8... check if we have a utf8 language file...
+            if( @file_exists( $params['utf8_file'] ) )
+                return $params['utf8_file'];
 
-        if( @file_exists( $params['utf8_file'] ) )
-            @unlink( $params['utf8_file'] );
+            return false;
+        }
+
+        ob_start();
+        if( !($file_mime = @system( $file_bin.' --mime-encoding '.escapeshellarg( $file ) )) )
+            return false;
 
         $file_mime = str_replace( $file.': ', '', $file_mime );
 
         if( !in_array( strtolower( $file_mime ), array( 'utf8', 'utf-8' ) ) )
         {
-            if( @system( 'iconv -f ' . escapeshellarg( $file_mime ) . ' -t utf-8 ' . escapeshellarg( $file ) . ' > ' . escapeshellarg( $params['utf8_file'] ) ) === false
+            if( @system( $iconv_bin.' -f ' . escapeshellarg( $file_mime ) . ' -t utf-8 ' . escapeshellarg( $file ) . ' > ' . escapeshellarg( $params['utf8_file'] ) ) === false
              or !@file_exists( $params['utf8_file'] ) )
             {
                 ob_end_clean();

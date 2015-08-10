@@ -258,19 +258,4 @@ class S2P_SDK_API extends S2P_SDK_Module
         return $this->_finalize_result;
     }
 
-    public function do_handle_notification( $params = false )
-    {
-        if( empty( $params ) or !is_array( $params ) )
-            $params = array();
-
-        if( !isset( $params['force_input_buffer'] ) )
-            $params['force_input_buffer'] = S2P_SDK_Helper::get_php_input();
-
-        if( !is_string( $params['force_input_buffer'] ) )
-        {
-            $this->set_error( self::ERR_INPUT, self::s2p_t( 'Couldn\'t read input buffer.' ) );
-            return false;
-        }
-    }
-
 }
