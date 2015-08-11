@@ -415,6 +415,7 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
         if( empty( $params['utf8_file'] ) )
             $params['utf8_file'] = self::get_utf8_file_name( $file );
 
+        ob_start();
         if( !($file_bin = @system( 'which file' ))
          or !($iconv_bin = @system( 'which iconv' )) )
         {
@@ -422,10 +423,11 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
             if( @file_exists( $params['utf8_file'] ) )
                 return $params['utf8_file'];
 
+            ob_end_clean();
+
             return false;
         }
 
-        ob_start();
         if( !($file_mime = @system( $file_bin.' --mime-encoding '.escapeshellarg( $file ) )) )
             return false;
 
