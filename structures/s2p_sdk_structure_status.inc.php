@@ -28,12 +28,14 @@ class S2P_SDK_Structure_Status extends S2P_SDK_Scope_Structure
                 array(
                     'name' => 'id',
                     'external_name' => 'ID',
+                    'display_name' => self::s2p_t( 'Status ID' ),
                     'type' => S2P_SDK_VTYPE_INT,
                     'default' => 0,
                 ),
                 array(
                     'name' => 'info',
                     'external_name' => 'Info',
+                    'display_name' => self::s2p_t( 'Status info' ),
                     'type' => S2P_SDK_VTYPE_STRING,
                     'default' => '',
                 ),
@@ -46,12 +48,14 @@ class S2P_SDK_Structure_Status extends S2P_SDK_Scope_Structure
                         array(
                             'name' => 'code',
                             'external_name' => 'Code',
+                            'display_name' => self::s2p_t( 'Status reason code' ),
                             'type' => S2P_SDK_VTYPE_INT,
                             'default' => 0,
                         ),
                         array(
                             'name' => 'info',
                             'external_name' => 'Info',
+                            'display_name' => self::s2p_t( 'Status reason info' ),
                             'type' => S2P_SDK_VTYPE_STRING,
                             'default' => '',
                         ),

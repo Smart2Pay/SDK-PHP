@@ -5,16 +5,16 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_CLASSES' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
     die( 'Something went wrong.' );
 
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_request.inc.php' );
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_response.inc.php' );
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_response_list.inc.php' );
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_refund_types_response_list.inc.php' );
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_refund_request.inc.php' );
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_refund_response.inc.php' );
-include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_api.inc.php' );
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api.inc.php' );
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_payment_request.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_payment_response.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_payment_response_list.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_refund_types_response_list.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_refund_request.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_refund_response.inc.php' );
+include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_method.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_api.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_rest_api.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_values_source.inc.php' );
 
 if( !defined( 'S2P_SDK_METH_PAYMENTS_INIT' ) )
     define( 'S2P_SDK_METH_PAYMENTS_INIT', 'payment_init' );

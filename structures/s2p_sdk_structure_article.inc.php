@@ -33,6 +33,7 @@ class S2P_SDK_Structure_Article extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'merchantarticleid',
                 'external_name' => 'MerchantArticleID',
+                'display_name' => self::s2p_t( 'Merchant assigned article ID' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '0',
                 'regexp' => '^\d{1,19}$',
@@ -40,6 +41,7 @@ class S2P_SDK_Structure_Article extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'name',
                 'external_name' => 'Name',
+                'display_name' => self::s2p_t( 'Article name' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^.{1,250}$',
@@ -47,6 +49,7 @@ class S2P_SDK_Structure_Article extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'quantity',
                 'external_name' => 'Quantity',
+                'display_name' => self::s2p_t( 'Article quantity' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,3}$',
@@ -54,6 +57,7 @@ class S2P_SDK_Structure_Article extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'price',
                 'external_name' => 'Price',
+                'display_name' => self::s2p_t( 'Article price' ),
                 'type' => S2P_SDK_VTYPE_FLOAT,
                 'default' => 0,
                 // 'regexp' => '^\d{1,12}$', ???
@@ -61,6 +65,7 @@ class S2P_SDK_Structure_Article extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'vat',
                 'external_name' => 'VAT',
+                'display_name' => self::s2p_t( 'VAT amount' ),
                 'type' => S2P_SDK_VTYPE_FLOAT,
                 'default' => 0,
                 'regexp' => '^\d{1,4}$',
@@ -68,6 +73,7 @@ class S2P_SDK_Structure_Article extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'discount',
                 'external_name' => 'Discount',
+                'display_name' => self::s2p_t( 'Discount amount' ),
                 'type' => S2P_SDK_VTYPE_FLOAT,
                 'default' => 0,
                 'regexp' => '^\d{1,4}$',
@@ -75,6 +81,7 @@ class S2P_SDK_Structure_Article extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'type',
                 'external_name' => 'Type',
+                'display_name' => self::s2p_t( 'Article type' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 // 1 - product, 2 - shipping, 3 - handling

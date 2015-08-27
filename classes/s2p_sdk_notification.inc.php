@@ -5,8 +5,8 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_PATH' ) or !defined( 'S2P_SDK_DIR_CLASSES' ) or !defined( 'S2P_SDK_DIR_METHODS' ) )
     die( 'Something went bad' );
 
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_helper.inc.php' );
-include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_helper.inc.php' );
+include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_method.inc.php' );
 
 class S2P_SDK_Notification extends S2P_SDK_Module
 {

@@ -5,11 +5,11 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_CLASSES' ) )
     die( 'Something went wrong.' );
 
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_currencies.inc.php' );
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_countries.inc.php' );
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source_methods.inc.php' );
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source_recurring_methods.inc.php' );
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source_article_type.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_currencies.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_countries.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_values_source_methods.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_values_source_recurring_methods.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_values_source_article_type.inc.php' );
 
 class S2P_SDK_Values_Source extends S2P_SDK_Language
 {

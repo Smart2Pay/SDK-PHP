@@ -5,11 +5,11 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) or !defined( 'S2P_SDK_DIR_CLASSES' ) )
     die( 'Something went wrong.' );
 
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_scope_variable.inc.php' );
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_scope_structure.inc.php' );
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_generic_error.inc.php' );
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_rest_api_request.inc.php' );
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_scope_variable.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_scope_structure.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_generic_error.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_rest_api_request.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_values_source.inc.php' );
 
 abstract class S2P_SDK_Method extends S2P_SDK_Module
 {
@@ -594,7 +594,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
                 if( !empty( $this->_definition['mandatory_in_error'] ) and is_array( $this->_definition['mandatory_in_error'] ) )
                 {
-                    if( !$this->check_mandatory_fields( $json_array, $this->_definition['mandatory_in_error'], array( 'scope_arr_type' => 'response error' ) ) )
+                    if( !$this->check_mandatory_fields( $json_array, $this->_definition['mandatory_in_error'], array( 'scope_arr_type' => 'response error', 'structure_obj' => $error_structure ) ) )
                     {
                         if( !$this->has_error() )
                             $this->set_error( self::ERR_RESPONSE_MANDATORY, self::s2p_t( 'Mandatory fields not found in response error.' ) );
@@ -633,7 +633,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
             if( !empty( $this->_definition['mandatory_in_response'] ) and is_array( $this->_definition['mandatory_in_response'] ) )
             {
-                if( !$this->check_mandatory_fields( $json_array, $this->_definition['mandatory_in_response'], array( 'scope_arr_type' => 'response' ) ) )
+                if( !$this->check_mandatory_fields( $json_array, $this->_definition['mandatory_in_response'], array( 'scope_arr_type' => 'response', 'structure_obj' => $response_structure ) ) )
                 {
                     if( !$this->has_error() )
                         $this->set_error( self::ERR_RESPONSE_MANDATORY, self::s2p_t( 'Mandatory fields not found in response.' ) );
@@ -801,7 +801,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
             if( !empty( $this->_definition['mandatory_in_request'] ) and is_array( $this->_definition['mandatory_in_request'] ) )
             {
-                if( !$this->check_mandatory_fields( $json_array, $this->_definition['mandatory_in_request'], array( 'scope_arr_type' => 'request' ) ) )
+                if( !$this->check_mandatory_fields( $json_array, $this->_definition['mandatory_in_request'], array( 'scope_arr_type' => 'request', 'structure_obj' => $request_structure ) ) )
                 {
                     if( !$this->has_error() )
                         $this->set_error( self::ERR_REQUEST_MANDATORY, self::s2p_t( 'Mandatory fields not found in request.' ) );
@@ -886,6 +886,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
 
+        if( empty( $params['structure_obj'] ) )
+            $params['structure_obj'] = null;
         if( empty( $params['path'] ) )
             $params['path'] = '';
         if( empty( $params['scope_arr_type'] ) )
@@ -898,7 +900,17 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             if( !array_key_exists( $key, $scope_arr )
              or (is_scalar( $fields ) and $scope_arr[$key] === $fields) )
             {
-                $this->set_error( self::ERR_REQUEST_MANDATORY, self::s2p_t( 'Mandatory field [%s] not found in %s.', $current_path, $params['scope_arr_type'] ) );
+                $display_name = $current_path;
+                /** @var S2P_SDK_Scope_Structure $structure_obj */
+                $structure_obj = $params['structure_obj'];
+                if( !empty( $structure_obj )
+                and $structure_obj instanceof S2P_SDK_Scope_Structure
+                and ($new_display_name = $structure_obj->path_to_display_name( $current_path, array( 'check_external_names' => ($params['scope_arr_type']=='request'?true:false) ) )) )
+                {
+                    $display_name = $new_display_name;
+                }
+
+                $this->set_error( self::ERR_REQUEST_MANDATORY, self::s2p_t( 'Mandatory field %s not found in %s.', $display_name, $params['scope_arr_type'] ) );
                 return false;
             }
 

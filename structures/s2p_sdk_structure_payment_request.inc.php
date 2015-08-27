@@ -42,6 +42,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'merchanttransactionid',
                 'external_name' => 'MerchantTransactionID',
+                'display_name' => self::s2p_t( 'Payment merchant assigned transaction ID' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
@@ -49,6 +50,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'amount',
                 'external_name' => 'Amount',
+                'display_name' => self::s2p_t( 'Payment amount' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
@@ -56,6 +58,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'currency',
                 'external_name' => 'Currency',
+                'display_name' => self::s2p_t( 'Payment currency' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^[A-Z]{3}$',
@@ -64,6 +67,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'returnurl',
                 'external_name' => 'ReturnURL',
+                'display_name' => self::s2p_t( 'Payment return URL' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^(http(s)?(:\/\/|%3A%2F%2F).+){1,512}$',
@@ -72,6 +76,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'methodid',
                 'external_name' => 'MethodID',
+                'display_name' => self::s2p_t( 'Payment method ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'regexp' => '^([0-9]{1,10})$',
                 'value_source' => S2P_SDK_Values_Source::TYPE_AVAILABLE_METHODS,
@@ -79,23 +84,27 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'redirectiniframe',
                 'external_name' => 'RedirectInIframe',
+                'display_name' => self::s2p_t( 'Payment redirect in IFrame' ),
                 'type' => S2P_SDK_VTYPE_BOOL,
             ),
             array(
                 'name' => 'methodoptionid',
                 'external_name' => 'MethodOptionID',
+                'display_name' => self::s2p_t( 'Payment method option ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'regexp' => '^([0-9]{1,10})$',
             ),
             array(
                 'name' => 'siteid',
                 'external_name' => 'SiteID',
+                'display_name' => self::s2p_t( 'Payment site ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'regexp' => '^([0-9]{1,10})$',
             ),
             array(
                 'name' => 'description',
                 'external_name' => 'Description',
+                'display_name' => self::s2p_t( 'Payment description' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'regexp' => '^.{1,255}$',
             ),
@@ -145,12 +154,14 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'preapprovalid',
                 'external_name' => 'PreapprovalID',
+                'display_name' => self::s2p_t( 'Payment preapproval ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'regexp' => '^\d{1,12}$',
             ),
             array(
                 'name' => 'tokenlifetime',
                 'external_name' => 'TokenLifetime',
+                'display_name' => self::s2p_t( 'Payment token lifetime' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'regexp' => '^\d{1,12}$',
             ),

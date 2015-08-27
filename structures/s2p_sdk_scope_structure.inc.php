@@ -5,7 +5,7 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
     die( 'Something went wrong.' );
 
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_scope_variable.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_scope_variable.inc.php' );
 
 abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
 {
@@ -402,6 +402,74 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
             return false;
 
         return @json_encode( $parsed_arr );
+    }
+
+    public function path_to_display_name( $path, $params = false )
+    {
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+
+        if( empty( $params['check_external_names'] ) )
+            $params['check_external_names'] = false;
+        if( empty( $params['definition_arr'] ) )
+            $params['definition_arr'] = array( $this->get_validated_definition() );
+        if( empty( $params['original_path'] ) )
+        {
+            $params['original_path'] = preg_replace( '@\.[0-9]+\.@', '.', $path );
+            $path = $params['original_path'];
+        }
+        if( empty( $params['current_path'] ) )
+            $params['current_path'] = '';
+
+        if( empty( $path )
+         or empty( $params['definition_arr'] ) or !is_array( $params['definition_arr'] ) )
+            return '';
+
+        $definition_arr = $params['definition_arr'];
+
+        if( empty( $params['check_external_names'] ) )
+            $check_key = 'name';
+        else
+            $check_key = 'external_name';
+
+        if( !is_array( $path ) )
+            $path = explode( '.', $path );
+
+        if( empty( $path ) or !isset( $path[0] ) )
+            return '';
+
+        foreach( $definition_arr as $node_arr )
+        {
+            $current_path = $params['current_path'].($params['current_path']!=''?'.':'').$node_arr[$check_key];
+
+            if( !isset( $path[1] ) and !empty( $node_arr[$check_key] )
+            // current node key is same as current path element
+            and $node_arr[$check_key] == $path[0]
+            // full paths match
+            and $current_path == $params['original_path'] )
+            {
+                if( !empty( $node_arr['display_name'] ) )
+                    return $node_arr['display_name'];
+                else
+                    return '';
+            }
+
+            if( !empty( $node_arr['structure'] ) )
+            {
+                if( !isset( $path[1] )
+                or !($new_path = array_slice( $path, 1 )) )
+                    continue;
+
+                $new_params = $params;
+                $new_params['definition_arr'] = $node_arr['structure'];
+                $new_params['current_path'] = $current_path;
+
+                if( ($recursive_result = $this->path_to_display_name( $new_path, $new_params )) !== false )
+                    return $recursive_result;
+            }
+        }
+
+        return false;
     }
 
     /**

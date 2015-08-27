@@ -5,9 +5,9 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_METHODS' ) )
     die( 'Something went wrong.' );
 
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_merchantsite.inc.php' );
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_merchantsite_list.inc.php' );
-include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_merchantsite.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_merchantsite_list.inc.php' );
+include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_method.inc.php' );
 
 if( !defined( 'S2P_SDK_METH_MSITES_LIST_ALL' ) )
     define( 'S2P_SDK_METH_MSITES_LIST_ALL', 'list_all' );
@@ -190,13 +190,6 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                         'default' => 0,
                         'mandatory' => true,
                         'move_in_url' => true,
-                    ),
-                ),
-
-                'mandatory_in_request' => array(
-                    'MerchantSite' => array(
-                        'URL' => '',
-                        'NotificationURL' => '',
                     ),
                 ),
 

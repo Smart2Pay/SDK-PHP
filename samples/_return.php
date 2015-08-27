@@ -17,7 +17,7 @@
     //
 
 
-    include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_return.inc.php' );
+    include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_return.inc.php' );
 
     define( 'S2P_SDK_RETURN_IDENTIFIER', microtime( true ) );
 

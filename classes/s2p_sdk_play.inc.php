@@ -169,7 +169,7 @@ $api_parameters['get_variables'] = array(<?php
                 $var_str .= ',';
 
                 if( !empty( $var_arr['mandatory'] ) )
-                    $var_str .= ' // Mandatory';
+                    $var_str .= ' // '.strtoupper( self::s2p_t( 'mandatory' ) );
 
                 echo $var_str."\n";
             }
@@ -198,7 +198,7 @@ $api_parameters['method_params'] = array(<?php
                  or !($hide_keys_arr = $structure_obj->transfrom_keys_to_internal_names( $func_details['hide_in_request'] )) )
                     $hide_keys_arr = array();
 
-                echo "\n".$this->display_method_params( $method_input_arr, $mandatory_arr, $hide_keys_arr );
+                echo "\n".$this->display_method_params( $method_input_arr, $mandatory_arr, $hide_keys_arr, array( 'structure_obj' => $structure_obj ) );
             }
         }
 ?>);
@@ -269,6 +269,17 @@ try
             $params['indent_chars'] = "\t";
         if( empty( $params['level'] ) )
             $params['level'] = 0;
+        if( empty( $params['path'] ) )
+            $params['path'] = '';
+        if( empty( $params['structure_obj'] )
+         or !is_object( $params['structure_obj'] )
+         or !($params['structure_obj'] instanceof S2P_SDK_Scope_Structure) )
+            $params['structure_obj'] = false;
+
+        /** @var S2P_SDK_Scope_Structure $structure_obj */
+        $structure_obj = false;
+        if( !empty( $params['structure_obj'] ) )
+            $structure_obj = $params['structure_obj'];
 
         if( empty( $mandatory_arr ) or !is_array( $mandatory_arr ) )
             $mandatory_arr = array();
@@ -284,6 +295,8 @@ try
             if( !is_array( $param_value )
             and array_key_exists( $param_name, $hide_keys_arr ) )
                 continue;
+
+            $current_path = $params['path'].(!empty( $params['path'])?'.':'').$param_name;
 
             $var_str = $params['indent_chars'].'\''.$param_name.'\' => ';
 
@@ -307,20 +320,38 @@ try
 
                 $var_str .= ', ';
 
+                if( empty( $structure_obj )
+                 or !($path_name = $structure_obj->path_to_display_name( $current_path, array( 'check_external_names' => false ) )) )
+                    $path_name = '';
+
+                $mandatory_str = '';
                 if( !empty( $param_mandatory ) )
-                    $var_str .= ' // Mandatory';
+                    $mandatory_str = strtoupper( self::s2p_t( 'mandatory' ) );
+
+                if( !empty( $mandatory_str ) or !empty( $path_name ) )
+                    $var_str .= '// '.$mandatory_str.((!empty( $mandatory_str ) and !empty( $path_name ))?' - ':'').$path_name;
+
             } else
             {
-                $var_str .= 'array(';
+                $var_str .= 'array( ';
 
+                if( empty( $structure_obj )
+                 or !($path_name = $structure_obj->path_to_display_name( $current_path, array( 'check_external_names' => false ) )) )
+                    $path_name = '';
+
+                $mandatory_str = '';
                 if( !empty( $mandatory_arr[$param_name] ) )
-                    $var_str .= ' // Mandatory';
+                    $mandatory_str = strtoupper( self::s2p_t( 'mandatory' ) );
+
+                if( !empty( $mandatory_str ) or !empty( $path_name ) )
+                    $var_str .= '// '.$mandatory_str.((!empty( $mandatory_str ) and !empty( $path_name ))?' - ':'').$path_name;
 
                 $var_str .= "\n";
 
                 $new_params = $params;
                 $new_params['indent_chars'] .= "\t";
                 $new_params['level']++;
+                $new_params['path'] = $current_path;
 
                 if( ($array_str = $this->display_method_params( $param_value,
                                             (array_key_exists( $param_name, $mandatory_arr )?$mandatory_arr[$param_name]:array()),

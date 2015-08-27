@@ -44,6 +44,7 @@ class S2P_SDK_Structure_Refund_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'id',
                 'external_name' => 'ID',
+                'display_name' => self::s2p_t( 'Refund ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
@@ -51,18 +52,21 @@ class S2P_SDK_Structure_Refund_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'created',
                 'external_name' => 'Created',
+                'display_name' => self::s2p_t( 'Refund creation date and time' ),
                 'type' => S2P_SDK_VTYPE_DATETIME,
                 'default' => '',
             ),
             array(
                 'name' => 'merchanttransactionid',
                 'external_name' => 'MerchantTransactionID',
+                'display_name' => self::s2p_t( 'Refund merchant assigned transaction ID' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
             ),
             array(
                 'name' => 'initialpaymentid',
                 'external_name' => 'InitialPaymentID',
+                'display_name' => self::s2p_t( 'Refund initial payment ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
@@ -70,6 +74,7 @@ class S2P_SDK_Structure_Refund_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'amount',
                 'external_name' => 'Amount',
+                'display_name' => self::s2p_t( 'Refund amount' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
@@ -77,6 +82,7 @@ class S2P_SDK_Structure_Refund_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'currency',
                 'external_name' => 'Currency',
+                'display_name' => self::s2p_t( 'Refund currency' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^[A-Z]{3}$',
@@ -85,18 +91,21 @@ class S2P_SDK_Structure_Refund_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'description',
                 'external_name' => 'Description',
+                'display_name' => self::s2p_t( 'Refund description' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'regexp' => '^.{1,255}$',
             ),
             array(
                 'name' => 'typeid',
                 'external_name' => 'TypeID',
+                'display_name' => self::s2p_t( 'Refund type ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'regexp' => '^\d{1,12}$',
             ),
             array(
                 'name' => 'siteid',
                 'external_name' => 'SiteID',
+                'display_name' => self::s2p_t( 'Refund site ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'regexp' => '^\d{1,12}$',
             ),

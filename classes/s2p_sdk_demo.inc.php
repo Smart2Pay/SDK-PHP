@@ -5,9 +5,9 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_CLASSES' ) or !defined( 'S2P_SDK_DIR_STRUCTURES' ) or !defined( 'S2P_SDK_DIR_PATH' ) )
     die( 'Something went bad' );
 
-include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.inc.php' );
-include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source.inc.php' );
-include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_scope_variable.inc.php' );
+include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_method.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_values_source.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_scope_variable.inc.php' );
 
 class S2P_SDK_Demo extends S2P_SDK_Module
 {

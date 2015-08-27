@@ -33,6 +33,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'id',
                 'external_name' => 'ID',
+                'display_name' => self::s2p_t( 'Address ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
@@ -40,6 +41,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'country',
                 'external_name' => 'Country',
+                'display_name' => self::s2p_t( 'Address country' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^[a-zA-Z]{2}$',
@@ -48,6 +50,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'city',
                 'external_name' => 'City',
+                'display_name' => self::s2p_t( 'Address city' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^.{1,40}$',
@@ -55,6 +58,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'zipcode',
                 'external_name' => 'ZipCode',
+                'display_name' => self::s2p_t( 'Address zipcode' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^.{1,50}$',
@@ -62,6 +66,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'state',
                 'external_name' => 'State',
+                'display_name' => self::s2p_t( 'Address state' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^.{1,50}$',
@@ -69,6 +74,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'street',
                 'external_name' => 'Street',
+                'display_name' => self::s2p_t( 'Address street name' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^.{1,100}$',
@@ -76,12 +82,14 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'streetnumber',
                 'external_name' => 'StreetNumber',
+                'display_name' => self::s2p_t( 'Address street number' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^.{1,255}$',
             ),
             array(
                 'name' => 'housenumber',
+                'display_name' => self::s2p_t( 'Address house number' ),
                 'external_name' => 'HouseNumber',
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
@@ -90,6 +98,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'houseextension',
                 'external_name' => 'HouseExtension',
+                'display_name' => self::s2p_t( 'Address house extension' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^.{1,255}$',

@@ -204,7 +204,7 @@ class S2P_SDK_Error
                            'Backtrace:'."\n".
                            $backtrace;
 
-        if( empty( empty( $params['prevent_throwing_errors'] ) )
+        if( empty( $params['prevent_throwing_errors'] )
         and $this->throw_errors() )
             $this->throw_error();
     }

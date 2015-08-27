@@ -37,12 +37,14 @@ class S2P_SDK_Structure_Refund_Types_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'name',
                 'external_name' => 'Name',
+                'display_name' => self::s2p_t( 'Refund type name' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
             ),
             array(
                 'name' => 'id',
                 'external_name' => 'ID',
+                'display_name' => self::s2p_t( 'Refund type ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
@@ -50,6 +52,7 @@ class S2P_SDK_Structure_Refund_Types_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'allowpartialrefund',
                 'external_name' => 'AllowPartialRefund',
+                'display_name' => self::s2p_t( 'Refund allows partial refund' ),
                 'type' => S2P_SDK_VTYPE_BOOL,
                 'default' => false,
             ),

@@ -31,16 +31,19 @@ class S2P_SDK_Structure_Method_Validator extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'source',
                 'external_name' => 'Source',
+                'display_name' => self::s2p_t( 'Validator source' ),
                 'type' => S2P_SDK_VTYPE_STRING,
             ),
             array(
                 'name' => 'regex',
                 'external_name' => 'Regex',
+                'display_name' => self::s2p_t( 'Validator regular expression' ),
                 'type' => S2P_SDK_VTYPE_STRING,
             ),
             array(
                 'name' => 'required',
                 'external_name' => 'Required',
+                'display_name' => self::s2p_t( 'Validator is mandatory' ),
                 'type' => S2P_SDK_VTYPE_BOOL,
             ),
       );

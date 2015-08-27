@@ -5,7 +5,7 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_CLASSES' ) or !defined( 'S2P_SDK_DIR_METHODS' ) )
     die( 'Something went bad' );
 
-include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_meth_payments.inc.php' );
+include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_meth_payments.inc.php' );
 
 class S2P_SDK_Return extends S2P_SDK_Module
 {

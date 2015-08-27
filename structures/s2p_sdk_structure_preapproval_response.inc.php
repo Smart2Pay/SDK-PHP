@@ -39,6 +39,7 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'id',
                 'external_name' => 'ID',
+                'display_name' => self::s2p_t( 'Preapproval ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
@@ -46,12 +47,14 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'created',
                 'external_name' => 'Created',
+                'display_name' => self::s2p_t( 'Preapproval creation date and time' ),
                 'type' => S2P_SDK_VTYPE_DATETIME,
                 'default' => '',
             ),
             array(
                 'name' => 'methodid',
                 'external_name' => 'MethodID',
+                'display_name' => self::s2p_t( 'Preapproval method ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'regexp' => '^\d{1,12}$',
                 'default' => 0,
@@ -59,6 +62,7 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'siteid',
                 'external_name' => 'SiteID',
+                'display_name' => self::s2p_t( 'Preapproval site ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'regexp' => '^\d{1,12}$',
                 'default' => 0,
@@ -66,12 +70,14 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'merchantpreapprovalid',
                 'external_name' => 'MerchantPreapprovalID',
+                'display_name' => self::s2p_t( 'Preapproval merchant assigned ID' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
             ),
             array(
                 'name' => 'recurringperiod',
                 'external_name' => 'RecurringPeriod',
+                'display_name' => self::s2p_t( 'Preapproval recurring period' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
@@ -79,6 +85,7 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'preapprovedmaximumamount',
                 'external_name' => 'PreapprovedMaximumAmount',
+                'display_name' => self::s2p_t( 'Preapproval maximum amount' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
@@ -86,6 +93,7 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'currency',
                 'external_name' => 'Currency',
+                'display_name' => self::s2p_t( 'Preapproval currency' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^[A-Z]{3}$',
@@ -93,6 +101,7 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'returnurl',
                 'external_name' => 'ReturnURL',
+                'display_name' => self::s2p_t( 'Preapproval return URL' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^(http(s)?(:\/\/|%3A%2F%2F).+){1,512}$',
@@ -100,6 +109,7 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'description',
                 'external_name' => 'Description',
+                'display_name' => self::s2p_t( 'Preapproval description' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'regexp' => '^.{1,255}$',
                 'default' => '',
@@ -121,6 +131,7 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'status',
                 'external_name' => 'Status',
+                'display_name' => self::s2p_t( 'Preapproval ID' ),
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'structure' => $status_obj->get_structure_definition(),
@@ -128,6 +139,7 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'redirecturl',
                 'external_name' => 'RedirectURL',
+                'display_name' => self::s2p_t( 'Preapproval redirect URL' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^(http(s)?(:\/\/|%3A%2F%2F).+){1,512}$',

@@ -572,6 +572,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         return array(
             'name' => '',
             'external_name' => '',
+            'display_name' => '', // a nice name to display to end user
             'type' => 0,
             'array_type' => 0,
             'array_numeric_keys' => true,
