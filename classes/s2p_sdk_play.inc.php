@@ -67,7 +67,7 @@ class S2P_SDK_Play extends S2P_SDK_Module
 
     public function play()
     {
-        if( !$this->get_method_details( array( 'get_instances' => true ) ) )
+        if( !$this->get_method_details() )
             return false;
 
         $this->display_header();

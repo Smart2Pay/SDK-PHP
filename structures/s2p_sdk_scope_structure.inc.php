@@ -404,7 +404,85 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
         return @json_encode( $parsed_arr );
     }
 
+    public function scope_to_path_objects( $scope_arr = false, $params = false )
+    {
+        if( empty( $params ) or !is_array( $params ) )
+            $params = array();
+
+        if( empty( $params['path'] ) )
+            $params['path'] = '';
+        if( empty( $params['scope_external_names'] ) )
+            $params['scope_external_names'] = false;
+
+        if( $scope_arr === false )
+        {
+            if( empty( $params['scope_external_names'] ) )
+            {
+                $extraction_arr = array();
+                $extraction_arr['nullify_full_object'] = true;
+                $extraction_arr['skip_regexps'] = true;
+
+                $scope_arr = $this->extract_info_from_response_array( array( 'foobar' => 1 ), $extraction_arr );
+            } else
+            {
+                $extraction_arr = array();
+                $extraction_arr['nullify_full_object'] = true;
+                $extraction_arr['skip_regexps'] = true;
+
+                $scope_arr = $this->prepare_info_for_request_to_array( array( 'foobar' => 1 ), $extraction_arr );
+            }
+        }
+
+        if( empty( $scope_arr ) or !is_array( $scope_arr ) )
+            return false;
+
+        $display_name_params = array();
+        $display_name_params['check_external_names'] = $params['scope_external_names'];
+
+        $return_arr = array();
+        foreach( $scope_arr as $current_node => $node_arr )
+        {
+            $current_path = $params['path'].($params['path']!=''?'.':'').$current_node;
+            $current_path = preg_replace( '@\.[0-9]+\.@', '.', $current_path );
+
+            if( !is_array( $node_arr ) )
+            {
+                $return_arr[$current_path] = $this->path_to_node_details( $current_path, $display_name_params );
+                continue;
+            } else
+            {
+                $new_params = $params;
+                $new_params['path'] = $current_path;
+
+                if( ($node_paths = $this->scope_to_path_objects( $node_arr, $new_params ))
+                and is_array( $node_paths ) )
+                    $return_arr = array_merge( $return_arr, $node_paths );
+            }
+        }
+
+        return $return_arr;
+    }
+
     public function path_to_display_name( $path, $params = false )
+    {
+        if( !($node_arr = $this->path_to_node_details( $path, $params )) )
+            return false;
+
+        if( !empty( $node_arr['display_name'] ) )
+            return $node_arr['display_name'];
+
+        return '';
+    }
+
+    /**
+     * Searches in current structure a node by it's path (eg. Method.ID). If path is found by walking structure definition, node details found at that position is returned
+     *
+     * @param string $path Path to search node (eg. Method.ID)
+     * @param bool|false $params Method parameters
+     *
+     * @return bool|array
+     */
+    public function path_to_node_details( $path, $params = false )
     {
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
@@ -423,7 +501,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
 
         if( empty( $path )
          or empty( $params['definition_arr'] ) or !is_array( $params['definition_arr'] ) )
-            return '';
+            return false;
 
         $definition_arr = $params['definition_arr'];
 
@@ -436,7 +514,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
             $path = explode( '.', $path );
 
         if( empty( $path ) or !isset( $path[0] ) )
-            return '';
+            return false;
 
         foreach( $definition_arr as $node_arr )
         {
@@ -447,12 +525,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
             and $node_arr[$check_key] == $path[0]
             // full paths match
             and $current_path == $params['original_path'] )
-            {
-                if( !empty( $node_arr['display_name'] ) )
-                    return $node_arr['display_name'];
-                else
-                    return '';
-            }
+                return $node_arr;
 
             if( !empty( $node_arr['structure'] ) )
             {
@@ -464,7 +537,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
                 $new_params['definition_arr'] = $node_arr['structure'];
                 $new_params['current_path'] = $current_path;
 
-                if( ($recursive_result = $this->path_to_display_name( $new_path, $new_params )) !== false )
+                if( ($recursive_result = $this->path_to_node_details( $new_path, $new_params )) !== false )
                     return $recursive_result;
             }
         }
