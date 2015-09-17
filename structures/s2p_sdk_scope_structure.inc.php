@@ -48,7 +48,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
             return false;
         }
 
-        if( !S2P_SDK_Scope_Variable::validate_definition( $definition_arr ) )
+        if( !($definition_arr = S2P_SDK_Scope_Variable::validate_definition( $definition_arr )) )
         {
             $this->copy_static_error();
             return false;
@@ -178,7 +178,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
     private function _init_variable()
     {
         if( $this->_var === null )
-            $this->_var = new S2P_SDK_Scope_Variable( $this->get_definition() );
+            $this->_var = new S2P_SDK_Scope_Variable( $this->get_validated_definition() );
 
         if( empty( $this->_var ) )
         {

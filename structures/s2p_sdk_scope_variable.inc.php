@@ -581,6 +581,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             'structure' => null,
             'value_source' => 0,
             'check_constant' => '',
+            'hint_path' => '',
         );
     }
 
@@ -632,6 +633,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             $new_definition_arr['name'] = $new_definition_arr['external_name'];
 
         $params['path'] .= (!empty( $params['path'] )?'.':'').$new_definition_arr['name'];
+
+        $new_definition_arr['hint_path'] = $params['path'];
 
         if( !self::valid_definition( $new_definition_arr ) )
         {
