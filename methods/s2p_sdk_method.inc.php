@@ -278,7 +278,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         $method_details = array();
         foreach( $method_files_arr as $method_file )
         {
-            if( !preg_match( '@'.S2P_SDK_DIR_METHODS.'s2p_sdk_meth_([a-zA-Z0-9_-]+).inc.php@', $method_file, $matches )
+            if( !preg_match( '@'.preg_quote( S2P_SDK_DIR_METHODS ).'s2p_sdk_meth_([a-zA-Z0-9_-]+).inc.php@', $method_file, $matches )
              or !is_array( $matches ) or empty( $matches[1] ) )
                 continue;
 
