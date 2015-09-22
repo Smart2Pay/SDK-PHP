@@ -58,6 +58,13 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'default' => '',
             ),
             array(
+                'name' => 'notificationdatetime',
+                'external_name' => 'NotificationDateTime',
+                'display_name' => self::s2p_t( 'Date and time of payment notification' ),
+                'type' => S2P_SDK_VTYPE_DATETIME,
+                'default' => '',
+            ),
+            array(
                 'name' => 'merchanttransactionid',
                 'external_name' => 'MerchantTransactionID',
                 'display_name' => self::s2p_t( 'Payment merchant assigned transaction ID' ),
