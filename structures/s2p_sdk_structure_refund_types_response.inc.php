@@ -50,8 +50,8 @@ class S2P_SDK_Structure_Refund_Types_Response extends S2P_SDK_Scope_Structure
                 'regexp' => '^\d{1,12}$',
             ),
             array(
-                'name' => 'allowpartialrefund',
-                'external_name' => 'AllowPartialRefund',
+                'name' => 'allowspartialrefund',
+                'external_name' => 'AllowsPartialRefund',
                 'display_name' => self::s2p_t( 'Refund allows partial refund' ),
                 'type' => S2P_SDK_VTYPE_BOOL,
                 'default' => false,
