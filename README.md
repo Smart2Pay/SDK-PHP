@@ -1,12 +1,12 @@
 # Smart2Pay SDK
 
-Smart2Pay SDK v1.0.9
+Smart2Pay SDK v1.0.10
 
 For quick information about available SDK methods and functionalities, please open play.php script in a browser (requires a web server).
 
 For demo of methods and functionalities available in current version of SDK, please open demo.php script in a browser (requires a web server).
 
-Please note that in order to test a full end-to-end transaction you will require a valid Smart2Pay test account which you can obtain at [https://dashboardtest.smart2pay.com/Account/Register] and also you should configure your SDK.
+Please note that in order to test a full end-to-end transaction you will require a valid Smart2Pay test account which you can obtain at https://dashboardtest.smart2pay.com/Account/Register and also you should configure your SDK.
 
 #### Creating your test merchant account
 1. Go to [https://dashboardtest.smart2pay.com/Account/Register] and complete the form.

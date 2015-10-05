@@ -108,7 +108,7 @@ class S2P_SDK_Language extends S2P_SDK_Error
 class S2P_SDK_Language_Container extends S2P_SDK_Error
 {
     // We take error codes from 100000+ to let 1-99999 for custom defined constant errors
-    const ERR_LANGUAGE_DEFINITION = 100000, ERR_LANGUAGE_LOAD = 100001;
+    const ERR_LANGUAGE_DEFINITION = 100000, ERR_LANGUAGE_LOAD = 100001, ERR_NOT_STRING = 100002;
 
     //! Fallback language in case we try to translate a text which is not defined in current language
     private static $DEFAULT_LANGUAGE = '';
@@ -479,6 +479,9 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
      */
     public function s2p_tl( $index, $lang, array $args = array() )
     {
+        if( !is_string( $index ) )
+            return 'Language index is not a string ('.gettype( $index ).' provided)';
+
         if( !($lang = self::valid_language( $lang )) )
             return $index;
 
