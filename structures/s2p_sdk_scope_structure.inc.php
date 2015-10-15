@@ -445,16 +445,19 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
             $current_path = $params['path'].($params['path']!=''?'.':'').$current_node;
             $current_path = preg_replace( '@\.[0-9]+\.@', '.', $current_path );
 
-            if( !is_array( $node_arr ) )
+            if( !is_array( $node_arr )
+             or (is_array( $node_arr ) and empty( $node_arr )) )
             {
+                // For empty arrays or leafs
                 $return_arr[$current_path] = $this->path_to_node_details( $current_path, $display_name_params );
                 continue;
             } else
             {
+                // Complex structures...
                 $new_params = $params;
                 $new_params['path'] = $current_path;
 
-                if( ($node_paths = $this->scope_to_path_objects( $node_arr, $new_params ))
+                if( ( $node_paths = $this->scope_to_path_objects( $node_arr, $new_params ) )
                 and is_array( $node_paths ) )
                     $return_arr = array_merge( $return_arr, $node_paths );
             }

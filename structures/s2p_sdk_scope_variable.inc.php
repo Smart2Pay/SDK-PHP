@@ -61,10 +61,10 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             'title' => 'array',
         ),
         self::TYPE_BLOB_ARRAY => array(
-            'title' => 'blob_array',
+            'title' => 'array of objects',
         ),
         self::TYPE_BLOB => array(
-            'title' => 'blob',
+            'title' => 'object',
         ),
     );
 
