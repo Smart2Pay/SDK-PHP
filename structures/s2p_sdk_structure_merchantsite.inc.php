@@ -5,6 +5,8 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
     die( 'Something went wrong.' );
 
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_merchantsite_details.inc.php' );
+
 class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
 {
     /**
@@ -27,6 +29,8 @@ class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
      */
     public function get_structure_definition()
     {
+        $site_details_obj = new S2P_SDK_Structure_Merchantsite_Details();
+
         return array(
             array(
                 'name' => 'id',
@@ -87,20 +91,7 @@ class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
                 'external_name' => 'Details',
                 'type' => S2P_SDK_VTYPE_BLARRAY,
                 'default' => null,
-                'structure' => array(
-                    array(
-                        'name' => 'code',
-                        'external_name' => 'Code',
-                        'type' => S2P_SDK_VTYPE_INT,
-                        'default' => 0,
-                    ),
-                    array(
-                        'name' => 'info',
-                        'external_name' => 'Info',
-                        'type' => S2P_SDK_VTYPE_STRING,
-                        'default' => '',
-                    ),
-                )
+                'structure' => $site_details_obj->get_structure_definition()
             ),
        );
     }
