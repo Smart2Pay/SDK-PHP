@@ -163,7 +163,14 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                         'Created' => '',
                         'Signature' => '',
                         'ApiKey' => '',
-                        'Details' => '',
+                        'Details' => array(
+                            'Reasons' => array(
+                                array(
+                                    'Code' => '',
+                                    'Info' => '',
+                                ),
+                            ),
+                        ),
                     ),
                 ),
 

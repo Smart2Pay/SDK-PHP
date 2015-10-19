@@ -353,14 +353,14 @@ try
                 $new_params['level']++;
                 $new_params['path'] = $current_path;
 
-                if( ($array_str = $this->display_method_params( $param_value,
+                if( !($array_str = $this->display_method_params( $param_value,
                                             (array_key_exists( $param_name, $mandatory_arr )?$mandatory_arr[$param_name]:array()),
                                             (array_key_exists( $param_name, $hide_keys_arr )?$hide_keys_arr[$param_name]:array()),
                                             $new_params ))
                   )
-                    $var_str .= $array_str;
+                    continue;
 
-                $var_str .= $params['indent_chars'].'),';
+                $var_str .= $array_str.$params['indent_chars'].'),';
             }
 
             $full_value_str .= $var_str."\n";

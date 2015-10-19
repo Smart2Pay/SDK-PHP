@@ -89,7 +89,7 @@ class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'details',
                 'external_name' => 'Details',
-                'type' => S2P_SDK_VTYPE_BLARRAY,
+                'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'structure' => $site_details_obj->get_structure_definition()
             ),

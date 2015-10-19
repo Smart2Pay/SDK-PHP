@@ -7,6 +7,7 @@ if( !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
 
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_customer.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_refund_details.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_address.inc.php' );
 
 class S2P_SDK_Structure_Refund_Types_Response extends S2P_SDK_Scope_Structure
 {
@@ -32,6 +33,7 @@ class S2P_SDK_Structure_Refund_Types_Response extends S2P_SDK_Scope_Structure
     {
         $customer_obj = new S2P_SDK_Structure_Customer();
         $refund_details_obj = new S2P_SDK_Structure_Refund_Details();
+        $address_obj = new S2P_SDK_Structure_Address();
 
         return array(
             array(
@@ -62,6 +64,20 @@ class S2P_SDK_Structure_Refund_Types_Response extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'structure' => $customer_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'billingaddress',
+                'external_name' => 'BillingAddress',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'structure' => $address_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'bankaddress',
+                'external_name' => 'BankAddress',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'structure' => $address_obj->get_structure_definition(),
             ),
             array(
                 'name' => 'details',
