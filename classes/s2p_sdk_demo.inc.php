@@ -347,7 +347,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             }
 
             if( !empty( $get_var['regexp'] )
-            and !preg_match( '/'.$get_var['regexp'].'/', $post_arr['gvars'][$get_var['name']] ) )
+            and !@preg_match( '/'.$get_var['regexp'].'/', $post_arr['gvars'][$get_var['name']] ) )
             {
                 $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Field %s failed regular expression %s.', $get_var['name'], $get_var['regexp'] );
                 continue;

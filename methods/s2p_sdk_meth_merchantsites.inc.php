@@ -65,12 +65,13 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                 if( !empty( $response_data['response_array']['merchantsite'] ) )
                 {
                     if( !empty( $response_data['response_array']['merchantsite']['details'] )
-                        and is_array( $response_data['response_array']['merchantsite']['details'] ) )
+                    and !empty( $response_data['response_array']['merchantsite']['details']['reasons'] )
+                    and is_array( $response_data['response_array']['merchantsite']['details']['reasons'] ) )
                     {
                         $error_msg = '';
-                        foreach( $response_data['response_array']['merchantsite']['details'] as $detail_arr )
+                        foreach( $response_data['response_array']['merchantsite']['details']['reasons'] as $reason_arr )
                         {
-                            if( ( $error_reason = ( ! empty( $detail_arr['code'] ) ? $detail_arr['code'] . ' - ' : '' ) . ( ! empty( $detail_arr['info'] ) ? $detail_arr['info'] : '' ) ) != '' )
+                            if( ( $error_reason = ( ! empty( $reason_arr['code'] ) ? $reason_arr['code'] . ' - ' : '' ) . ( ! empty( $reason_arr['info'] ) ? $reason_arr['info'] : '' ) ) != '' )
                                 $error_msg .= $error_reason;
                         }
 
@@ -183,6 +184,8 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                 ),
 
                 'response_structure' => $merchantsite_obj,
+
+                'error_structure' => $merchantsite_obj,
             ),
 
             self::FUNC_SITE_EDIT => array(
@@ -206,7 +209,9 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                         'Created' => '',
                         'Signature' => '',
                         'ApiKey' => '',
-                        'Details' => '',
+                        'Details' => array(
+                            'Reasons' => '',
+                        ),
                     ),
                 ),
 
@@ -225,6 +230,8 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                 ),
 
                 'response_structure' => $merchantsite_obj,
+
+                'error_structure' => $merchantsite_obj,
             ),
 
             self::FUNC_REGEN_APIKEY => array(
@@ -249,6 +256,8 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                 ),
 
                 'response_structure' => $merchantsite_obj,
+
+                'error_structure' => $merchantsite_obj,
             ),
 
             self::FUNC_REGEN_SIGNATURE => array(
@@ -273,6 +282,8 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                 ),
 
                 'response_structure' => $merchantsite_obj,
+
+                'error_structure' => $merchantsite_obj,
             ),
        );
     }

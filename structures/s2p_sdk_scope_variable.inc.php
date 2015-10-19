@@ -272,7 +272,10 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                 {
                     $this->set_error( self::ERR_REGEXP,
                                         self::s2p_t( 'Variable [%s] is invalid.', (!empty( $params['parsing_path'] )?$params['parsing_path']:'???') ),
-                                        sprintf( 'Variable [%s] failed regular expression [%s].', (!empty( $params['parsing_path'] )?$params['parsing_path']:'???'), $definition['regexp'] ) );
+                                        sprintf( 'Variable [%s] failed regular expression [%s].',
+                                            (!empty( $definition['display_name'] )?$definition['display_name']:'').
+                                            (!empty( $params['parsing_path'] )?' - '.$params['parsing_path']:'???'),
+                                            $definition['regexp'] ) );
 
                     return false;
                 }

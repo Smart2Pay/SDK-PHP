@@ -59,6 +59,7 @@ class S2P_SDK_Structure_Merchantsite_Details extends S2P_SDK_Scope_Structure
                 'external_name' => 'Country',
                 'display_name' => self::s2p_t( 'Site country' ),
                 'type' => S2P_SDK_VTYPE_STRING,
+                'regexp' => '^[a-zA-Z]{2}$',
             ),
             array(
                 'name' => 'address',
@@ -83,6 +84,7 @@ class S2P_SDK_Structure_Merchantsite_Details extends S2P_SDK_Scope_Structure
                 'external_name' => 'AccountIBAN',
                 'display_name' => self::s2p_t( 'Site account IBAN' ),
                 'type' => S2P_SDK_VTYPE_STRING,
+                'regexp' => '^[a-zA-Z]{2}[0-9]{2}[a-zA-Z0-9]{4}[0-9]{7}([a-zA-Z0-9]?){0,16}$',
             ),
             array(
                 'name' => 'accountswift',
@@ -95,6 +97,7 @@ class S2P_SDK_Structure_Merchantsite_Details extends S2P_SDK_Scope_Structure
                 'external_name' => 'BankSWIFTID',
                 'display_name' => self::s2p_t( 'Site bank SWIFT' ),
                 'type' => S2P_SDK_VTYPE_STRING,
+                'regexp' => '^[a-zA-Z]{6}[a-zA-Z0-9]{2}([a-zA-Z0-9]{3})?$',
             ),
             array(
                 'name' => 'bankcode',

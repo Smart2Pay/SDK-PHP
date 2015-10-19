@@ -15,7 +15,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 {
     const ERR_NAME = 200, ERR_GET_VARIABLES = 201, ERR_REQUEST_STRUCTURE = 202, ERR_RESPONSE_STRUCTURE = 203, ERR_MANDATORY = 204, ERR_FUNCTIONALITY = 205,
           ERR_REQUEST_DATA = 206, ERR_REQUEST_MANDATORY = 207, ERR_RESPONSE_DATA = 208, ERR_RESPONSE_MANDATORY = 209, ERR_HTTP_METHOD = 210,
-          ERR_METHOD_FILES = 211, ERR_INSTANTIATE_METHOD = 212, ERR_VALUE_SOURCE = 213, ERR_ERROR_STRUCTURE = 214, ERR_DEFINITION = 215, ERR_REGEXP = 216;
+          ERR_METHOD_FILES = 211, ERR_INSTANTIATE_METHOD = 212, ERR_VALUE_SOURCE = 213, ERR_ERROR_STRUCTURE = 214, ERR_DEFINITION = 215, ERR_REGEXP = 216, ERR_HTTP_ERROR = 217;
 
     const RESPONSE_STRUCT_UNKNOWN = 0, RESPONSE_STRUCT_GENERIC = 1, RESPONSE_STRUCT_ERROR = 2, RESPONSE_STRUCT_RESPONSE = 3;
     private static $RESPONSE_STRUCT_ARR = array(
@@ -524,9 +524,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         if( in_array( $http_code, S2P_SDK_Rest_API_Codes::success_codes() ) )
             return false;
 
-        $error_str = 'Error '.$http_code;
-        if( ($code_details = S2P_SDK_Rest_API_Codes::valid_code( $http_code )) )
-            $error_str .= ' ('.$code_details.')';
+        if( !($error_str = S2P_SDK_Rest_API_Codes::valid_code( $http_code )) )
+            $error_str = self::s2p_t( 'Unknown error code' );
 
         return $error_str;
     }
@@ -609,6 +608,10 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 }
 
                 $return_arr['response_array'] = $json_array;
+            } else
+            {
+                $this->set_error( self::ERR_HTTP_ERROR, self::s2p_t( 'Server returned error code %s (%s).', $request_result['http_code'], $http_code_error ) );
+                return false;
             }
         }
 
