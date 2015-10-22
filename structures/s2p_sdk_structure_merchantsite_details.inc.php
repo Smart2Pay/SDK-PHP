@@ -53,6 +53,7 @@ class S2P_SDK_Structure_Merchantsite_Details extends S2P_SDK_Scope_Structure
                 'external_name' => 'Name',
                 'display_name' => self::s2p_t( 'Site Name' ),
                 'type' => S2P_SDK_VTYPE_STRING,
+                'regexp' => '^.{1,50}$',
             ),
             array(
                 'name' => 'country',
@@ -66,19 +67,22 @@ class S2P_SDK_Structure_Merchantsite_Details extends S2P_SDK_Scope_Structure
                 'external_name' => 'Address',
                 'display_name' => self::s2p_t( 'Site contact address' ),
                 'type' => S2P_SDK_VTYPE_STRING,
+                'regexp' => '^[0-9a-zA-Z; .\']{1,512}$',
             ),
             array(
                 'name' => 'bankname',
                 'external_name' => 'BankName',
                 'display_name' => self::s2p_t( 'Site bank name' ),
                 'type' => S2P_SDK_VTYPE_STRING,
+                'regexp' => '^.{1,50}$',
             ),
             array(
                 'name' => 'bankaddress',
                 'external_name' => 'BankAddress',
                 'display_name' => self::s2p_t( 'Site bank address' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-            ),
+                'regexp' => '^[0-9a-zA-Z; .\']{1,512}$',
+      ),
             array(
                 'name' => 'accountiban',
                 'external_name' => 'AccountIBAN',
@@ -91,6 +95,7 @@ class S2P_SDK_Structure_Merchantsite_Details extends S2P_SDK_Scope_Structure
                 'external_name' => 'AccountSWIFT',
                 'display_name' => self::s2p_t( 'Site account SWIFT' ),
                 'type' => S2P_SDK_VTYPE_STRING,
+                'regexp' => '^\w{1,30}$',
             ),
             array(
                 'name' => 'bankswiftid',
@@ -104,6 +109,7 @@ class S2P_SDK_Structure_Merchantsite_Details extends S2P_SDK_Scope_Structure
                 'external_name' => 'BankCode',
                 'display_name' => self::s2p_t( 'Site bank code' ),
                 'type' => S2P_SDK_VTYPE_STRING,
+                'regexp' => '^[a-zA-Z]{4}[a-zA-Z]{2}[a-zA-Z0-9]{2}[XXX0-9]{0,3}',
             ),
        );
     }
