@@ -704,7 +704,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             ob_start();
             ?>
             <div class="form_field">
-                <label for="<?php echo $field_id?>" title="<?php echo self::form_str( $params['path'] )?>" class="<?php echo (!empty( $field_mandatory )?'mandatory':'')?>"><?php echo $structure_definition['name']?></label>
+                <label for="<?php echo $field_id?>" title="<?php echo (!empty( $structure_definition['display_name'] )?$structure_definition['display_name'].' - ':'').self::form_str( $params['path'] )?>" class="<?php echo (!empty( $field_mandatory )?'mandatory':'')?>"><?php echo $structure_definition['name']?></label>
                 <div class="form_input"><?php
 
                     if( empty( $structure_definition['value_source'] )

@@ -51,16 +51,17 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'regexp' => '^\d{1,12}$',
             ),
             array(
+                'name' => 'skinid',
+                'external_name' => 'SkinID',
+                'display_name' => self::s2p_t( 'Skin ID to be used' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'default' => 0,
+                'regexp' => '^\d{1,12}$',
+            ),
+            array(
                 'name' => 'created',
                 'external_name' => 'Created',
                 'display_name' => self::s2p_t( 'Payment creation time' ),
-                'type' => S2P_SDK_VTYPE_DATETIME,
-                'default' => '',
-            ),
-            array(
-                'name' => 'notificationdatetime',
-                'external_name' => 'NotificationDateTime',
-                'display_name' => self::s2p_t( 'Date and time of payment notification' ),
                 'type' => S2P_SDK_VTYPE_DATETIME,
                 'default' => '',
             ),
@@ -130,6 +131,13 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'regexp' => '^([0-9]{1,10})$',
             ),
             array(
+                'name' => 'notificationdatetime',
+                'external_name' => 'NotificationDateTime',
+                'display_name' => self::s2p_t( 'Date and time of payment notification' ),
+                'type' => S2P_SDK_VTYPE_DATETIME,
+                'default' => '',
+            ),
+            array(
                 'name' => 'customer',
                 'external_name' => 'Customer',
                 'type' => S2P_SDK_VTYPE_BLOB,
@@ -158,18 +166,18 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'structure' => $article_obj->get_structure_definition(),
             ),
             array(
-                'name' => 'referencedetails',
-                'external_name' => 'ReferenceDetails',
-                'type' => S2P_SDK_VTYPE_BLOB,
-                'default' => null,
-                'structure' => $reference_details_obj->get_structure_definition(),
-            ),
-            array(
                 'name' => 'details',
                 'external_name' => 'Details',
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'structure' => $payment_details_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'referencedetails',
+                'external_name' => 'ReferenceDetails',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'structure' => $reference_details_obj->get_structure_definition(),
             ),
             array(
                 'name' => 'customparameters',
@@ -196,9 +204,8 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'methodtransactionid',
                 'external_name' => 'MethodTransactionID',
-                'type' => S2P_SDK_VTYPE_INT,
-                'default' => 0,
-                'regexp' => '^\d{1,12}$',
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
             ),
             array(
                 'name' => 'tokenlifetime',
