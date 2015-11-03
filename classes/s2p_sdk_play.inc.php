@@ -93,11 +93,12 @@ class S2P_SDK_Play extends S2P_SDK_Module
                         foreach( $method_functionalities as $functionality_name => $functionality_arr )
                         {
                             ?>
-                            <li><a href="javascript:void(0);" onclick="toggle_container( 'details_<?php echo $method_name.'_'.$functionality_name?>' )" class="functionality_name"><?php echo $functionality_name.' - '.$functionality_arr['name'];?></a></li>
+                            <li><a href="javascript:void(0);" onclick="toggle_container( 'details_<?php echo $method_name.'_'.$functionality_name?>' )" class="functionality_name"><?php echo $functionality_name.' - '.$functionality_arr['name'];?></a>
                             <div id="details_<?php echo $method_name.'_'.$functionality_name?>" class="functionality_container clearfix" style="display: none;">
                             <p><?php echo self::s2p_t( 'Quick example on how to use method <em>%s</em> with functionality <em>%s</em>.', $method_name, $functionality_name );?></p>
                             <pre class="sdk_sample_code"><code><?php echo $this->display_method_function_example( $method_arr['instance'], $functionality_name ); ?></code></pre>
                             </div>
+							</li>
                             <?php
                         }
                     ?>
@@ -372,40 +373,178 @@ try
 
     private function display_header()
     {
-        ?><html><head>
-<title><?php self::s2p_t( 'SDK demo page' )?></title>
-<style>
-.clearfix { clear: both; }
-a.method_name { font-weight: bold; }
-a.functionality_name { font-weight: bold; }
-.method_container { margin: 0 0 20px 0; }
-.functionality_container { margin: 10px 0; }
-.sdk_sample_code { background-color: #cdcdcd; color: black; padding: 3px; }
-</style>
-<script type="text/javascript">
-function toggle_container( id )
-{
-    var obj = document.getElementById( id );
-    if( obj )
-    {
-        if( obj.style.display == 'none' )
-            obj.style.display = 'block';
-        else
-            obj.style.display = 'none';
-    }
-}
-</script>
+        ?><html>
+<head>
+	<meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+	<title><?php self::s2p_t( 'SDK demo page' )?></title>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.4/jquery.min.js"></script>
+	<link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic|Droid+Sans:400,700&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/default.min.css">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/github.min.css">
+
+	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
+	<script>hljs.initHighlightingOnLoad();</script>	
+	<style>
+		a.method_name,
+		a.functionality_name { font-weight: bold; }	
+		a {
+			padding: 0.1em 0.3em;
+			position: relative; left: -0.3em;
+			}
+		a:hover {
+			background-color: #337ab7;
+			color: #FFF;
+			text-decoration: none;
+			}
+		a:focus {
+			text-decoration: none;
+			}
+		.clearfix { clear: both; }
+		body { font-family: "Droid Sans", sans-serif; font-size: 1.6em; }
+			.container { padding: 0em 5%; }
+				.header_container {
+					/*border-bottom: 1px solid #DDD;*/
+					margin-bottom: 2em;
+					margin-top: 5%;
+					}
+				.header_container > h1 {
+					margin-bottom: 0.6em;
+					}
+					.header_container > p {
+						position: relative;
+						padding: 0.5em 0.5em 0.5em 3em;
+						border-left: 1px solid #337ab7;
+						border: 1px solid #DDD;
+						background-color: #f0f0f0;
+						}
+					.header_container > p:before {
+						position: absolute;
+						top: 0em;
+						left: 0em;
+						display: inline-block;
+						font-family: "Glyphicons Halflings";
+						font-style: normal;
+						font-weight: 400;
+						line-height: 1;
+						transition: all 100ms ease-in-out;
+						background-color: #337ab7;
+						background-color: #DDD;
+						color: #FFF;
+						font-size: 1.75em;					
+						content:"\e086";
+						padding: 0.2em;
+						}
+					.version {
+						color: #AAA;
+						}
+				.container > ul {}
+					.container > ul > li {
+						margin-bottom: 1em;
+						margin-top: 1em;
+						}
+						.container > ul > li.expanded > small {
+							/*border-bottom: 1px solid #CCC;*/
+							padding-bottom: 0.5em;
+							}
+
+			.method_container { 
+				margin: 0.4em 0 1em 0;
+				padding: 1em;
+				transition: all 200ms ease-in-out;
+				overflow: hidden;
+				border-bottom: 1px solid #CCC;
+				border-left: 1px solid #CCC;
+				}
+				.method_container h5 {
+					font-style: italic;
+					color: #A0A0A0;
+					margin-top: 0em;
+					}
+				.method_container > ul {
+					}
+					.method_container > ul > li {
+						margin: 0.3em 0em 0.3em 0em;
+						}
+			.functionality_container { padding: 1em 0; }
+			
+				/* list arrows - START */
+				.container > ul,
+				.method_container > ul {
+					list-style: none;
+					}
+					.container > ul > li,
+					.method_container > ul > li { position: relative;	}
+					.container > ul > li > a:before,
+					.method_container > ul > li > a:before {	
+						position: absolute;
+						top: 0.5em;
+						left: -1.5em;
+						display: inline-block;
+						font-family: "Glyphicons Halflings";
+						font-style: normal;
+						font-weight: 400;
+						line-height: 1;
+						transition: all 100ms ease-in-out;
+						color: #AAA;
+						font-size: 0.7em;
+						}
+					.method_container > ul > li > a:before {
+						color: #DDD;
+						}
+					.container > ul > li > a:hover:before,
+					.method_container > ul > li > a:hover:before {
+						color: #333;
+						left: -2em;
+						}
+					.container > ul > li.expanded > a:hover:before,
+					.method_container > ul > li.expanded > a:hover:before  {
+						left: -1.5em;
+						}
+					.container > ul > li > a:before,
+					.method_container > ul > li > a:before { content:"\e080"; }
+					.container > ul > li.expanded > a:before,
+					.method_container > ul > li.expanded > a:before { content:"\e114"; }
+					/* list arrows - STOP */			
+			
+			pre.sdk_sample_code {
+				border-radius: 0.55em;
+				}
+				code.hljs {
+					padding: 1.3em;
+					}
+	</style>
+	<script type="text/javascript">
+		function toggle_container( id )
+		{
+			var obj = $( '#'+id );
+			obj.slideToggle(150);
+			obj.parent().toggleClass('expanded');
+		}
+	</script>
 </head>
 <body>
-<h1>Welcome to Smart2Pay SDK info page!</h1>
-<p>Please note that this page contains technical information which is intended to help developers start using our SDK.</p>
-<small class="clearfix">SDK version <?php echo S2P_SDK_VERSION?></small>
-<?php
-    }
 
-    private function display_footer()
-    {
-        ?></body>
+        
+      
+	<div class="container">
+		<div class="header_container">
+			
+			<h1>Welcome to Smart2Pay SDK info page!</h1>
+			<div class="version"><small>SDK version <?php echo S2P_SDK_VERSION?></small></div>
+			<p>Please note that this page contains technical information which is intended to help developers start using our SDK.</p>
+			
+		</div>
+		<?php
+			}
+
+			private function display_footer()
+			{
+				?>
+	</div>
+</body>
 </html><?php
     }
 

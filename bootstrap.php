@@ -4,7 +4,7 @@
     if( !($_current_directory_path = __DIR__) )
         $_current_directory_path = getcwd();
 
-    define( 'S2P_SDK_VERSION', '1.0.16' );
+    define( 'S2P_SDK_VERSION', '1.0.17' );
 
     define( 'S2P_SDK_DIR_PATH', $_current_directory_path.'/' );
     define( 'S2P_SDK_DIR_CLASSES', $_current_directory_path.'/classes/' );
@@ -41,7 +41,7 @@
         S2P_SDK\S2P_SDK_Language::language_container()->set_current_language( S2P_SDK\S2P_SDK_Language::LANG_EN );
     }
 
-    S2P_SDK\S2P_SDK_Module::st_debugging_mode( true );
+    S2P_SDK\S2P_SDK_Module::st_debugging_mode( false );
     S2P_SDK\S2P_SDK_Module::st_throw_errors( false );
 
     if( !@file_exists( S2P_SDK_DIR_PATH.'config.inc.php' ) )
