@@ -96,7 +96,7 @@ class S2P_SDK_Play extends S2P_SDK_Module
                             <li><a href="javascript:void(0);" onclick="toggle_container( 'details_<?php echo $method_name.'_'.$functionality_name?>' )" class="functionality_name"><?php echo $functionality_name.' - '.$functionality_arr['name'];?></a>
                             <div id="details_<?php echo $method_name.'_'.$functionality_name?>" class="functionality_container clearfix" style="display: none;">
                             <p><?php echo self::s2p_t( 'Quick example on how to use method <em>%s</em> with functionality <em>%s</em>.', $method_name, $functionality_name );?></p>
-                            <pre class="sdk_sample_code"><code><?php echo $this->display_method_function_example( $method_arr['instance'], $functionality_name ); ?></code></pre>
+                            <pre><code class="php sdk_sample_code"><?php echo $this->display_method_function_example( $method_arr['instance'], $functionality_name ); ?></code></pre>
                             </div>
 							</li>
                             <?php
@@ -383,7 +383,7 @@ try
 	<link href='http://fonts.googleapis.com/css?family=Ubuntu+Mono:400,400italic,700,700italic|Droid+Sans:400,700&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" integrity="sha512-dTfge/zgoMYpP7QbHy4gWMEGsbsdZeCXz7irItjcC3sPUFtf0kuFbDz/ixG7ArTxmDjLXDmezHubeNikyKGVyQ==" crossorigin="anonymous">
 	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/styles/default.min.css">
-	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/github.min.css">
+	<link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.7/styles/color-brewer.min.css">
 
 	<script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.9.1/highlight.min.js"></script>
 	<script>hljs.initHighlightingOnLoad();</script>	
@@ -401,6 +401,7 @@ try
 			}
 		a:focus {
 			text-decoration: none;
+			outline: none !important;
 			}
 		.clearfix { clear: both; }
 		body { font-family: "Droid Sans", sans-serif; font-size: 1.6em; }
@@ -509,11 +510,12 @@ try
 					.method_container > ul > li.expanded > a:before { content:"\e114"; }
 					/* list arrows - STOP */			
 			
-			pre.sdk_sample_code {
+			pre {
 				border-radius: 0.55em;
 				}
-				code.hljs {
-					padding: 1.3em;
+				code.hljs.sdk_sample_code {
+					padding: 0.2em 0.6em;
+					background-color: transparent;
 					}
 	</style>
 	<script type="text/javascript">
@@ -531,11 +533,9 @@ try
       
 	<div class="container">
 		<div class="header_container">
-			
-			<h1>Welcome to Smart2Pay SDK info page!</h1>
+			<h1><?php echo self::s2p_t( 'Welcome to Smart2Pay SDK demo page!' )?></h1>
 			<div class="version"><small>SDK version <?php echo S2P_SDK_VERSION?></small></div>
-			<p>Please note that this page contains technical information which is intended to help developers start using our SDK.</p>
-			
+			<p><?php echo self::s2p_t( 'Please note that this page contains technical information which is intended to help developers start using our SDK.' )?></p>
 		</div>
 		<?php
 			}
