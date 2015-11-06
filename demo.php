@@ -35,11 +35,6 @@
             $submit_result['errors_arr'] = array( $demo::s2p_t( 'Error handling form submit.' ) );
     }
 
-    //$post_arr['api_key'] = 't1dFrzRI9RWsecPSrQ+tDlbV+aNyxNghdqHkfTgXDv/+fJFbz6';
-    //$post_arr['environment'] = 'test';
-    //$post_arr['method'] = 'merchantsites';
-    //$post_arr['func'] = 'site_details';
-
     $form_params = array();
     $form_params['post_params'] = $post_arr;
     $form_params['form_action_suffix'] = 'demo.php';
