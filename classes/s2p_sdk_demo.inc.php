@@ -1311,11 +1311,11 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 		{
 			?>
 			<ul class="nav nav-tabs" id="s2p_api_result_toggler">
-				<li class="active">
-					<a href="javascript:void(0);" onclick="$(this).parent().parent().children('li').removeClass('active');$(this).parent().toggleClass('active'); toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API result' )?></a>
-				</li>
 				<li>
-					<a href="javascript:void(0);" onclick="$(this).parent().parent().children('li').removeClass('active');$(this).parent().toggleClass('active'); toggle_container( 'api_form' );toggle_container( 'api_result' );"><?php echo self::s2p_t( 'View API form' )?></a>
+					<a href="javascript:void(0);" onclick="if (!$(this).parent().hasClass('active')) { $(this).parent().parent().children('li').removeClass('active');$(this).parent().toggleClass('active'); toggle_container( 'api_form' );toggle_container( 'api_result' ); }"><?php echo self::s2p_t( 'View API form' )?></a>
+				</li>
+				<li class="active">
+					<a href="javascript:void(0);" onclick="if (!$(this).parent().hasClass('active')) { $(this).parent().parent().children('li').removeClass('active');$(this).parent().toggleClass('active'); toggle_container( 'api_form' );toggle_container( 'api_result' ); }"><?php echo self::s2p_t( 'View API result' )?></a>
 				</li>
 			</ul>
 			<?php
@@ -1375,8 +1375,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
 					<div class="request">
 						<div class="http_headers_code request_headers">
-							<div class="http_headers_code_title"><?php echo self::s2p_t( 'Request headers' );?></div>
-							<pre><code class="http"><?php echo trim( $call_result['request']['request_details']['request_header'] );?></code></pre>
+							<div class="http_headers_code_title expanded">
+								<a href="javascript:void(0);" onclick="toggle_container( 's2p_api_request_header', $(this) )"><?php echo self::s2p_t( 'Request headers' );?></a>
+							</div>
+							<pre id="s2p_api_request_header"><code class="http"><?php echo nl2br( trim( $call_result['request']['request_details']['request_header'] ) );?></code></pre>
 						</div>
 
 						<div class="http_headers_code request_body">
@@ -1388,10 +1390,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 									<a href="javascript:void(0)" onclick="toggleResponseFormat($(this)); toggle_container( 's2p_api_request_body_raw' );toggle_container( 's2p_api_request_body_formatted' );"><?php echo self::s2p_t( '<span class="active">Raw</span> / <span>Formatted response<span>' )?></a> &raquo;
 								</div>
 								<div id="s2p_api_request_body_raw" style="display: block;">
-									<pre><code class=""><?php echo( empty( $call_result['request']['request_buffer'] ) ? '(empty)' : trim( $call_result['request']['request_buffer'] ) );?></pre></code>
+									<pre><code class=""><?php echo( empty( $call_result['request']['request_buffer'] ) ? '(empty)' : nl2br( trim( $call_result['request']['request_buffer'] ) ) );?></pre></code>
 								</div>
 								<div id="s2p_api_request_body_formatted" style="display: none;">
-									<pre><code class="json"><?php echo( empty( $call_result['request']['request_buffer'] ) ? '(empty)' : self::json_display( trim( $call_result['request']['request_buffer'] ) ) );?></pre></code>
+									<pre><code class="json"><?php echo( empty( $call_result['request']['request_buffer'] ) ? '(empty)' : nl2br( self::json_display( trim( $call_result['request']['request_buffer'] ) ) ) );?></pre></code>
 								</div>
 							</div>
 						</div>
@@ -1399,9 +1401,11 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
 					<div class="response">
 						<div class="http_headers_code response_headers">
-							<div class="http_headers_code_title"><?php echo self::s2p_t( 'Response headers' );?></div>
+							<div class="http_headers_code_title expanded">
+								<a href="javascript:void(0);" onclick="toggle_container( 's2p_api_response_header', $(this) )"><?php echo self::s2p_t( 'Response headers' );?></a>
+							</div>
 							
-							<pre><code class="http"><?php
+							<pre id="s2p_api_response_header"><code class="http"><?php
 								if( !empty( $call_result['request']['response_headers'] ) and is_array( $call_result['request']['response_headers'] ) )
 								{
 									foreach( $call_result['request']['response_headers'] as $header_key => $header_val )
@@ -1421,13 +1425,15 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 								<a href="javascript:void(0);" onclick="toggle_container( 's2p_api_response_body', $(this) )"><?php echo self::s2p_t( 'Response body' );?></a>
 							</div>
 							<div id="s2p_api_response_body" style="display: none;">
-								<pre><code class="json"><?php echo( empty( $call_result['request']['response_buffer'] ) ? '(empty)' : trim( $call_result['request']['response_buffer'] ) );?></pre></code>
+								<pre><code class="json"><?php echo( empty( $call_result['request']['response_buffer'] ) ? '(empty)' : nl2br( trim( $call_result['request']['response_buffer'] ) ) );?></pre></code>
 							</div>
 						</div>
 
 						<div class="http_headers_code processed_response">
-							<div class="http_headers_code_title"><?php echo self::s2p_t( 'Processed response (array)' );?></div>
-							<pre><code class="json"><?php if( empty( $call_result['response']['response_array'] ) )
+							<div class="http_headers_code_title expanded">
+								<a href="javascript:void(0);" onclick="toggle_container( 's2p_api_processed_response', $(this) )"><?php echo self::s2p_t( 'Processed response (array)' );?></a>
+							</div>
+							<pre id="s2p_api_processed_response"><code class="json"><?php if( empty( $call_result['response']['response_array'] ) )
 								echo '(empty)';
 							else
 							{
@@ -1435,9 +1441,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 								var_dump( $call_result['response']['response_array'] );
 								$buf = ob_get_clean();
 
-								echo str_replace( '  ', ' &nbsp;', $buf );
+								echo nl2br( str_replace( '  ', ' &nbsp;', $buf ) );
 							}
-							?></code></pre>
+							?>></code></pre>
 						</div>
 					
 					</div>
@@ -1500,7 +1506,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 		body { font-family: "Droid Sans", sans-serif; font-size: 1.6em; padding-bottom: 8em;}
 		a:focus {outline: none !important; text-decoration: none;}
 		a:hover {text-decoration: underline;}
-			.container { padding: 0em 5%; }
+			.container { 
+				padding: 0em 5%; 
+				min-width: 54em;
+				}
 				.header_container {
 					/*border-bottom: 1px solid #DDD;*/
 					margin-bottom: 2em;
@@ -1530,35 +1539,26 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 					.s2p-success:after,
 					.s2p-warn:after {
 						position: absolute; left: 0px; top: 0px;
-						height: 100%;
-						font-family: "Genericons";
-						font-size: 4.2rem;
+						font-family: "Glyphicons Halflings"; 
+						font-style: normal;
+						font-weight: 400;
+						line-height: 1;						
+						font-size: 2em;
 						color: #FFF;
-						padding: 0.2rem;
+						padding: 0.18em 0.22em;
 						background-color: #ff813d;
+						height: 100%;
 						}
 						
-					.s2p-alert:after { content: "\f456"; }
+					.s2p-alert:after { content: "\e101"; }
 					
 			/* error */
 				.s2p-error { background-color: #F2DEDE; border-color: #A94442; color: #A94442;}
-					.s2p-error:after { 
-						font-family: "Glyphicons Halflings"; 
-						content:"\e014"; 
-						background-color: #A94442;
-						font-size: 2em;
-						padding: 0em 0.22em;
-						}
+					.s2p-error:after { background-color: #A94442; content:"\e014"; }
 						
 			/* success */
 				.s2p-success { background-color: #DFF0D8; border-color: #3C763D; color: #3C763D;}
-					.s2p-success:after { 
-						font-family: "Glyphicons Halflings"; 
-						content:"\e013"; 
-						background-color: #3C763D;
-						font-size: 2em;
-						padding: 0em 0.22em;
-						}			
+					.s2p-success:after { background-color: #3C763D; content:"\e013"; }			
 					
 			/* warn */
 				.s2p-warn { background-color: #D9EDF7; border-color: #31708F; color: #31708F; }
@@ -1566,15 +1566,8 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 						
 			
 			/* grey info */
-				.s2p-info-grey {background-color: #f0f0f0; border-color: #DDD; }
-
-					.s2p-info-grey:after { 
-						background-color: #DDD;
-						font-family: "Glyphicons Halflings"; 
-						content: "\e086"; 
-						font-size: 2em;
-						padding: 0em 0.22em;
-						}
+				.s2p-info-grey { background-color: #f0f0f0; border-color: #DDD; }
+					.s2p-info-grey:after { background-color: #DDD; content: "\e086"; }
 					
 					.post_url {
 						font-size: 1.2em;
@@ -1681,14 +1674,8 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 								font-size: 0.6em;
 								color: #FFF;
 								}								
-							.response_body .http_headers_code_title:after,
-							.request_body .http_headers_code_title:after {
-								content:"\e114";
-								}
-							.response_body .http_headers_code_title.expanded:after,
-							.request_body .http_headers_code_title.expanded:after {
-								content: "\e113";
-								}								
+							.http_headers_code_title:after { content:"\e114"; }
+							.http_headers_code_title.expanded:after { content: "\e113"; }
 						.http_headers_code > pre {}	
 						#s2p_api_request_body,
 						#s2p_api_response_body {}
@@ -1802,11 +1789,11 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 		.form_input_regexp_exp { cursor: pointer; }
 		.form_field .form_input input { padding: 3px; }
 		.form_field .form_input select { padding: 2px; max-width: 300px; }
-		.form_field .form_input input:not([type='checkbox']) { width: 300px; padding: 3px; border: 1px solid #a1a1a1; }
-		.form_field .form_input_array { width: 100%; clear: both; margin: 5px; }
+		.form_field .form_input input:not([type='checkbox']) { padding: 3px; border: 1px solid #a1a1a1; }
+		.form_field .form_input_array { width: 100%; clear: both; margin: 5px; 0; }
 		.form_field .form_input_array input:not([type='checkbox']) { width: 150px; padding: 3px; border: 1px solid #a1a1a1; }
 		.form_field .form_input_array select { max-width: 200px; }
-		.s2p_form .form_input_blob_array { width: 100%; clear: both; margin: 5px; border-bottom: 1px solid #808080; }
+		.s2p_form .form_input_blob_array { width: 100%; clear: both; margin: 5px; 0; border-bottom: 1px solid #808080; }
 		.s2p_form .form_input_blob_array input:not([type='checkbox']) { width: 150px; padding: 3px; border: 1px solid #a1a1a1; }
 		.s2p_form .form_input_blob_array select { max-width: 200px; }
 		.field_adder_container { clear:both; width:100%; margin-bottom: 5px; }
@@ -1842,9 +1829,8 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 			{
 				obj.slideToggle(200);
 			}
-
-            if( typeof elem != 'undefined' && elem && elem.parent().hasClass( 'http_headers_code_title' ) )
-                elem.parent().toggleClass('expanded');
+			if (elem && elem.parent().hasClass('http_headers_code_title'))
+				elem.parent().toggleClass('expanded');
 		}
 
 		function toggle_regexp( obj )

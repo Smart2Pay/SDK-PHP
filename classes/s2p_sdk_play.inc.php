@@ -419,7 +419,8 @@ if( !($call_result = S2P_SDK\S2P_SDK_Module::quick_call( $api_parameters, $call_
 						color: #FFF;
 						font-size: 1.75em;					
 						content:"\e086";
-						padding: 0.2em;
+						padding: 0.19em;
+						height: 100%;
 						}
 					.version {
 						color: #AAA;
