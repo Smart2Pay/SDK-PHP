@@ -204,53 +204,36 @@ $api_parameters['method_params'] = array(<?php
         }
 ?>);
 
-try
-{
-    /** @var S2P_SDK\S2P_SDK_API $api */
-    if( !($api = S2P_SDK\S2P_SDK_Module::get_instance( 'S2P_SDK_API', $api_parameters, false )) )
-        var_dump( S2P_SDK\S2P_SDK_Module::st_get_error() );
+$call_params = array();
 
+$finalize_params = array();
+$finalize_params['redirect_now'] = false;
+
+if( !($call_result = S2P_SDK\S2P_SDK_Module::quick_call( $api_parameters, $call_params, $finalize_params )) )
+{
+    echo 'API call error: ';
+
+    if( ($error_arr = S2P_SDK\S2P_SDK_Module::st_get_error())
+    and !empty( $error_arr['display_error'] ) )
+        echo $error_arr['display_error'];
     else
-    {
-        if( !$api->do_call() )
-        {
-            echo 'API call time: '.$api->get_call_time().'ms<br/>';
-            var_dump( $api->get_error() );
-        } else
-        {
-            $finalize_arr = array();
-            $finalize_arr['redirect_now'] = false; // true if you want SDK to send redirect headers, if required, to complete transaction
-
-            if( !($finalize_result = $api->do_finalize( $finalize_arr )) )
-            {
-                $error_msg = 'Generic error...';
-                if( ($error_arr = $api->get_error()) and !empty( $error_arr['display_error'] ) )
-                    $error_msg = $error_arr['display_error'];
-
-                echo 'API call time: '.$api->get_call_time().'ms<br/>';
-                echo 'Couldn\'t finalize request: '.$error_msg.'<br/>';
-                echo 'API call result:<br/><hr/><br/>';
-                var_dump( $api->get_result() );
-            } elseif( !empty( $finalize_result['should_redirect'] ) and !empty( $finalize_result['redirect_to'] ) )
-            {
-                if( !empty( $finalize_arr['redirect_now'] ) )
-                    exit;
-
-                echo '<a href="'.str_replace( '"', '&quot;', $finalize_result['redirect_to'] ).'">Finalize transaction</a>';
-                echo 'API call time: '.$api->get_call_time().'ms<br/>';
-                echo 'Successful API call:<br/><hr/><br/>';
-                var_dump( $api->get_result() );
-            } else
-            {
-                echo 'API call time: '.$api->get_call_time().'ms<br/>';
-                echo 'Successful API call:<br/><hr/><br/>';
-                var_dump( $api->get_result() );
-            }
-        }
-    }
-} catch( Exception $ex )
+        echo 'Unknown error.';
+} else
 {
-    var_dump( $ex );
+    echo 'API call time: '.$call_result['call_microseconds'].'ms<br/>'."\n";
+
+    if( !empty( $call_result['finalize_result']['should_redirect'] )
+    and !empty( $call_result['finalize_result']['redirect_to'] ) )
+        echo '<br/>'."\n".
+             'Go to <a href="'.$call_result['finalize_result']['redirect_to'].'">'.$call_result['finalize_result']['redirect_to'].'</a> to complete transaction<br/>'."\n".
+             '<br/>'."\n";
+
+    echo 'Call result:<br>'."\n".
+    '<pre>';
+
+    var_dump( $call_result['call_result'] );
+
+    echo '</pre>';
 }
 
 <?php

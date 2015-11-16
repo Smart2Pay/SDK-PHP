@@ -199,7 +199,7 @@ class S2P_SDK_Error
             $this->error_debug_msg = $error_debug_msg;
         else
             $this->error_debug_msg = $error_msg;
-        $this->error_msg = 'Error: ('.$error_msg.')'."\n".
+        $this->error_msg = 'Error: ('.$this->error_debug_msg.')'."\n".
                            'Code: ('.$error_no.')'."\n".
                            'Backtrace:'."\n".
                            $backtrace;
@@ -326,7 +326,7 @@ class S2P_SDK_Error
         );
 
         if( $this->debugging_mode() )
-            $return_arr['display_error'] = $this->error_debug_msg;
+            $return_arr['display_error'] = $this->error_msg;
         else
             $return_arr['display_error'] = $this->error_simple_msg;
 

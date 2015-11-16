@@ -5,9 +5,11 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_CLASSES' ) )
     die( 'Something went wrong.' );
 
+include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_method.inc.php' );
+
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001;
+    const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001, ERR_API_QUICK_CALL = 1002;
 
     const VERSION = '1.0.0';
 
@@ -78,6 +80,97 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
             $return_arr['return_url'] = constant( 'S2P_SDK_FORCE_PAYMENT_RETURN_URL' );
         elseif( defined( 'S2P_SDK_PAYMENT_RETURN_URL' ) and constant( 'S2P_SDK_PAYMENT_RETURN_URL' ) )
             $return_arr['return_url'] = constant( 'S2P_SDK_PAYMENT_RETURN_URL' );
+
+        return $return_arr;
+    }
+
+    /**
+     * Entry point when making Smart2Pay API calls
+     *
+     * @param array $api_parameters Parameters passed to API object which contains request details
+     * @param array|false $call_params Additional parameters sent to S2P_SDK\S2P_SDK_API::do_call()
+     * @param array|false $finalize_params Array with parameters sent to
+     *
+     * @return array|false Returns false on error (error available with S2P_SDK\S2P_SDK_Module::st_get_error())
+     *
+     * @see S2P_SDK\S2P_SDK_Module::st_get_error()
+     * @see S2P_SDK\S2P_SDK_API::do_call()
+     */
+    public static function quick_call( $api_parameters, $call_params = false, $finalize_params = false )
+    {
+        self::st_reset_error();
+
+        if( empty( $api_parameters ) or !is_array( $api_parameters ) )
+        {
+            self::st_set_error( self::ERR_API_QUICK_CALL, self::s2p_t( 'Invalid API parameters.' ) );
+            return false;
+        }
+
+        if( empty( $finalize_params ) or !is_array( $finalize_params ) )
+            $finalize_params = array();
+
+        if( !isset( $finalize_params['redirect_now'] ) )
+            $finalize_params['redirect_now'] = true;
+        else
+            $finalize_params['redirect_now'] = (!empty( $finalize_params['redirect_now'] )?true:false);
+
+        $return_arr = array();
+        // Time of call (in microseconds)
+        $return_arr['call_microseconds'] = 0;
+        // Result of API call
+        $return_arr['call_result'] = false;
+        // In case we want to finish transaction in same call we pass $finalize_params['redirect_now'] to true and SDK
+        // will try to also make the redirect automatically (if headers not sent already)
+        $return_arr['finalize_result'] = S2P_SDK_Method::default_finalize_result();
+
+        try
+        {
+            /** @var S2P_SDK_API $api */
+            if( !($api = self::get_instance( 'S2P_SDK_API', $api_parameters )) )
+            {
+                if( !self::st_has_error() )
+                    self::st_set_error( self::ERR_API_QUICK_CALL, self::s2p_t( 'Failed initializing API object.' ) );
+
+                return false;
+            }
+
+            if( !$api->do_call( $call_params ) )
+            {
+                if( !$api->has_error() )
+                    self::st_set_error( self::ERR_API_QUICK_CALL, self::s2p_t( 'Failed initializing API object.' ) );
+                else
+                    self::st_copy_error( $api );
+
+                return false;
+            }
+
+            if( !($return_arr['call_result'] = $api->get_result()) )
+            {
+                if( !$api->has_error() )
+                    self::st_set_error( self::ERR_API_QUICK_CALL, self::s2p_t( 'Failed obtaining API call result.' ) );
+                else
+                    self::st_copy_error( $api );
+
+                return false;
+            }
+
+            // You should call $api->do_finalize() before sending headers if you want to be redirected to payment page...
+            if( !($return_arr['finalize_result'] = $api->do_finalize( $finalize_params )) )
+            {
+                if( !$api->has_error() )
+                    self::st_set_error( self::ERR_API_QUICK_CALL, self::s2p_t( 'Failed finalizing transaction after API call.' ) );
+                else
+                    self::st_copy_error( $api );
+
+                return false;
+            }
+
+            $return_arr['call_microseconds'] = $api->get_call_time();
+        } catch( \Exception $ex )
+        {
+            self::st_set_error( self::ERR_API_QUICK_CALL, self::s2p_t( 'Call error: [%s].', $ex->getMessage() ) );
+            return false;
+        }
 
         return $return_arr;
     }
@@ -300,6 +393,8 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
                                     sprintf( 'Module doesn\'t appear to be a Smart2Pay module. [%s]', ( ! empty( $module ) ? $module : '???' ) ) );
             return false;
         }
+
+        $module_instance->debugging_mode( self::st_debugging_mode() );
 
         /** @var \S2P_SDK\S2P_SDK_Module $module_instance */
         if( ! is_null( $module_params ) )

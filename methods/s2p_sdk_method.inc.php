@@ -910,7 +910,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 and $structure_obj instanceof S2P_SDK_Scope_Structure
                 and ($new_display_name = $structure_obj->path_to_display_name( $current_path, array( 'check_external_names' => ($params['scope_arr_type']=='request'?true:false) ) )) )
                 {
-                    $display_name = $new_display_name;
+                    $display_name = $current_path.' ('.$new_display_name.')';
                 }
 
                 $this->set_error( self::ERR_REQUEST_MANDATORY, self::s2p_t( 'Mandatory field %s not found in %s.', $display_name, $params['scope_arr_type'] ) );
