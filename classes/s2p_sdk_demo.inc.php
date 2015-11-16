@@ -1803,7 +1803,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 		.form_field .form_input input { padding: 3px; }
 		.form_field .form_input select { padding: 2px; max-width: 300px; }
 		.form_field .form_input input:not([type='checkbox']) { width: 300px; padding: 3px; border: 1px solid #a1a1a1; }
-		.form_field .form_input_array { width: 100%; clear: both; margin: 5px; 0; }
+		.form_field .form_input_array { width: 100%; clear: both; margin: 5px; }
 		.form_field .form_input_array input:not([type='checkbox']) { width: 150px; padding: 3px; border: 1px solid #a1a1a1; }
 		.form_field .form_input_array select { max-width: 200px; }
 		.s2p_form .form_input_blob_array { width: 100%; clear: both; margin: 5px; border-bottom: 1px solid #808080; }
@@ -1843,8 +1843,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 				obj.slideToggle(200);
 			}
 
-            if( typeof elem != 'undefined'
-             && elem && elem.parent().hasClass( 'http_headers_code_title' ) )
+            if( typeof elem != 'undefined' && elem && elem.parent().hasClass( 'http_headers_code_title' ) )
                 elem.parent().toggleClass('expanded');
 		}
 
