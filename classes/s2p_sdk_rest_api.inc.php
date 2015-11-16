@@ -355,6 +355,8 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
 
+        if( empty( $params['user_agent'] ) or !is_string( $params['user_agent'] ) )
+            $params['user_agent'] = '';
         if( empty( $params['allow_remote_calls'] ) )
             $params['allow_remote_calls'] = false;
         if( empty( $params['quick_return_request'] ) )
@@ -434,7 +436,10 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         $this->_request->add_header( 'Content-Type', 'application/json; charset=utf-8' );
 
         $call_params = array();
-        $call_params['user_agent'] = 'APISDK_'.S2P_SDK_VERSION.'/PHP_'.phpversion().'/'.php_uname('s').'_'.php_uname('r');
+        if( empty( $params['user_agent'] ) )
+            $call_params['user_agent'] = 'APISDK_'.S2P_SDK_VERSION.'/PHP_'.phpversion().'/'.php_uname('s').'_'.php_uname('r');
+        else
+            $call_params['user_agent'] = trim( $params['user_agent'] );
         $call_params['userpass'] = array( 'user' => $api_key, 'pass' => '' );
 
         $this->trigger_hooks( 'rest_api_call_before', array( 'api_obj' => $this ) );
