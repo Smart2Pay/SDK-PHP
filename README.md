@@ -1,6 +1,6 @@
 # Smart2Pay SDK
 
-Smart2Pay SDK v1.0.20
+Smart2Pay SDK v1.0.21
 
 For quick information about available SDK methods and functionalities, please open play.php script in a browser (requires a web server).
 

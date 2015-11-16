@@ -1376,7 +1376,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 					<div class="request">
 						<div class="http_headers_code request_headers">
 							<div class="http_headers_code_title"><?php echo self::s2p_t( 'Request headers' );?></div>
-							<pre><code class="http"><?php echo nl2br( trim( $call_result['request']['request_details']['request_header'] ) );?></code></pre>
+							<pre><code class="http"><?php echo trim( $call_result['request']['request_details']['request_header'] );?></code></pre>
 						</div>
 
 						<div class="http_headers_code request_body">
@@ -1388,10 +1388,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 									<a href="javascript:void(0)" onclick="toggleResponseFormat($(this)); toggle_container( 's2p_api_request_body_raw' );toggle_container( 's2p_api_request_body_formatted' );"><?php echo self::s2p_t( '<span class="active">Raw</span> / <span>Formatted response<span>' )?></a> &raquo;
 								</div>
 								<div id="s2p_api_request_body_raw" style="display: block;">
-									<pre><code class=""><?php echo( empty( $call_result['request']['request_buffer'] ) ? '(empty)' : nl2br( trim( $call_result['request']['request_buffer'] ) ) );?></pre></code>
+									<pre><code class=""><?php echo( empty( $call_result['request']['request_buffer'] ) ? '(empty)' : trim( $call_result['request']['request_buffer'] ) );?></pre></code>
 								</div>
 								<div id="s2p_api_request_body_formatted" style="display: none;">
-									<pre><code class="json"><?php echo( empty( $call_result['request']['request_buffer'] ) ? '(empty)' : nl2br( self::json_display( trim( $call_result['request']['request_buffer'] ) ) ) );?></pre></code>
+									<pre><code class="json"><?php echo( empty( $call_result['request']['request_buffer'] ) ? '(empty)' : self::json_display( trim( $call_result['request']['request_buffer'] ) ) );?></pre></code>
 								</div>
 							</div>
 						</div>
@@ -1421,7 +1421,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 								<a href="javascript:void(0);" onclick="toggle_container( 's2p_api_response_body', $(this) )"><?php echo self::s2p_t( 'Response body' );?></a>
 							</div>
 							<div id="s2p_api_response_body" style="display: none;">
-								<pre><code class="json"><?php echo( empty( $call_result['request']['response_buffer'] ) ? '(empty)' : nl2br( trim( $call_result['request']['response_buffer'] ) ) );?></pre></code>
+								<pre><code class="json"><?php echo( empty( $call_result['request']['response_buffer'] ) ? '(empty)' : trim( $call_result['request']['response_buffer'] ) );?></pre></code>
 							</div>
 						</div>
 
@@ -1435,9 +1435,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 								var_dump( $call_result['response']['response_array'] );
 								$buf = ob_get_clean();
 
-								echo nl2br( str_replace( '  ', ' &nbsp;', $buf ) );
+								echo str_replace( '  ', ' &nbsp;', $buf );
 							}
-							?>></code></pre>
+							?></code></pre>
 						</div>
 					
 					</div>
@@ -1806,7 +1806,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 		.form_field .form_input_array { width: 100%; clear: both; margin: 5px; 0; }
 		.form_field .form_input_array input:not([type='checkbox']) { width: 150px; padding: 3px; border: 1px solid #a1a1a1; }
 		.form_field .form_input_array select { max-width: 200px; }
-		.s2p_form .form_input_blob_array { width: 100%; clear: both; margin: 5px; 0; border-bottom: 1px solid #808080; }
+		.s2p_form .form_input_blob_array { width: 100%; clear: both; margin: 5px; border-bottom: 1px solid #808080; }
 		.s2p_form .form_input_blob_array input:not([type='checkbox']) { width: 150px; padding: 3px; border: 1px solid #a1a1a1; }
 		.s2p_form .form_input_blob_array select { max-width: 200px; }
 		.field_adder_container { clear:both; width:100%; margin-bottom: 5px; }
@@ -1842,8 +1842,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 			{
 				obj.slideToggle(200);
 			}
-			if (elem && elem.parent().hasClass('http_headers_code_title'))
-				elem.parent().toggleClass('expanded');
+
+            if( typeof elem != 'undefined'
+             && elem && elem.parent().hasClass( 'http_headers_code_title' ) )
+                elem.parent().toggleClass('expanded');
 		}
 
 		function toggle_regexp( obj )
