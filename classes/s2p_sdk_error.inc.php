@@ -34,6 +34,10 @@ class S2P_SDK_Error
     /** @var bool $debugging_mode */
     private $debugging_mode = false;
 
+    //! Tells if SDK should display detailed errors (including backtrace)
+    /** @var bool $detailed_errors */
+    private $detailed_errors = false;
+
     function __construct( $error_no = self::ERR_OK, $error_msg = '', $error_debug_msg = '', $static_instance = false )
     {
         $error_no = intval( $error_no );
@@ -48,6 +52,7 @@ class S2P_SDK_Error
         {
             $this->throw_errors( self::st_throw_errors() );
             $this->debugging_mode( self::st_debugging_mode() );
+            $this->detailed_errors( self::st_detailed_errors() );
         }
     }
 
@@ -326,8 +331,12 @@ class S2P_SDK_Error
         );
 
         if( $this->debugging_mode() )
-            $return_arr['display_error'] = $this->error_msg;
-        else
+        {
+            if( $this->detailed_errors() )
+                $return_arr['display_error'] = $this->error_msg;
+            else
+                $return_arr['display_error'] = $this->error_debug_msg;
+        } else
             $return_arr['display_error'] = $this->error_simple_msg;
 
         return $return_arr;
@@ -554,6 +563,21 @@ class S2P_SDK_Error
     public static function st_debugging_mode( $mode = null )
     {
         return self::get_error_static_instance()->debugging_mode( $mode );
+    }
+
+    public function detailed_errors( $mode = null )
+    {
+        if( is_null( $mode ) )
+            return $this->detailed_errors;
+
+        $this->detailed_errors = (!empty( $mode )?true:false);
+
+        return $this->detailed_errors;
+    }
+
+    public static function st_detailed_errors( $mode = null )
+    {
+        return self::get_error_static_instance()->detailed_errors( $mode );
     }
 
     static function get_error_static_instance()
