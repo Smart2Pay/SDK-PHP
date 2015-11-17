@@ -123,6 +123,27 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'regexp' => '^([0-9]{1,10})$',
             ),
             array(
+                'name' => 'includemethodids',
+                'external_name' => 'IncludeMethodIDs',
+                'type' => S2P_SDK_VTYPE_ARRAY,
+                'array_type' => S2P_SDK_VTYPE_INT,
+                'default' => null,
+            ),
+            array(
+                'name' => 'excludemethodids',
+                'external_name' => 'ExcludeMethodIDs',
+                'type' => S2P_SDK_VTYPE_ARRAY,
+                'array_type' => S2P_SDK_VTYPE_INT,
+                'default' => null,
+            ),
+            array(
+                'name' => 'prioritizemethodids',
+                'external_name' => 'PrioritizeMethodIDs',
+                'type' => S2P_SDK_VTYPE_ARRAY,
+                'array_type' => S2P_SDK_VTYPE_INT,
+                'default' => null,
+            ),
+            array(
                 'name' => 'siteid',
                 'external_name' => 'SiteID',
                 'display_name' => self::s2p_t( 'Payment site ID' ),
@@ -214,6 +235,12 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
+            ),
+            array(
+                'name' => 'redirectiniframe',
+                'external_name' => 'RedirectInIframe',
+                'display_name' => self::s2p_t( 'Payment redirect in IFrame' ),
+                'type' => S2P_SDK_VTYPE_BOOL,
             ),
             array(
                 'name' => 'redirecturl',

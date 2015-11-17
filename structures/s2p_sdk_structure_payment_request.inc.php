@@ -130,22 +130,8 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'default' => null,
             ),
             array(
-                'name' => 'includemethodoptionids',
-                'external_name' => 'IncludeMethodOptionIDs',
-                'type' => S2P_SDK_VTYPE_ARRAY,
-                'array_type' => S2P_SDK_VTYPE_INT,
-                'default' => null,
-            ),
-            array(
                 'name' => 'excludemethodids',
                 'external_name' => 'ExcludeMethodIDs',
-                'type' => S2P_SDK_VTYPE_ARRAY,
-                'array_type' => S2P_SDK_VTYPE_INT,
-                'default' => null,
-            ),
-            array(
-                'name' => 'excludemethodoptionids',
-                'external_name' => 'ExcludeMethodOptionIDs',
                 'type' => S2P_SDK_VTYPE_ARRAY,
                 'array_type' => S2P_SDK_VTYPE_INT,
                 'default' => null,
