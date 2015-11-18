@@ -119,6 +119,8 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         $return_arr['call_microseconds'] = 0;
         // Result of API call
         $return_arr['call_result'] = false;
+        // API call details (request + response)
+        $return_arr['call_details'] = false;
         // In case we want to finish transaction in same call we pass $finalize_params['redirect_now'] to true and SDK
         // will try to also make the redirect automatically (if headers not sent already)
         $return_arr['finalize_result'] = S2P_SDK_Method::default_finalize_result();
@@ -134,7 +136,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
                 return false;
             }
 
-            if( !$api->do_call( $call_params ) )
+            if( !($return_arr['call_details'] = $api->do_call( $call_params )) )
             {
                 if( !$api->has_error() )
                     self::st_set_error( self::ERR_API_QUICK_CALL, self::s2p_t( 'Failed initializing API object.' ) );

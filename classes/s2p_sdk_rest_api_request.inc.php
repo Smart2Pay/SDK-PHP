@@ -241,6 +241,9 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
             'request_error_msg' => '',
             'request_error_no' => 0,
             'request_params' => array(),
+
+            'response_headers' => '',
+
             'request_buffer' => '',
             'response_buffer' => '',
         );
@@ -468,14 +471,15 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         $response = self::default_response_array();
 
         $response['request_buffer'] = $post_string;
-        $response['response_headers'] = $request_headers;
-        $response['response_buffer'] = $response_buf;
         if( !empty( $curl_info ) and !empty( $curl_info['http_code'] ) )
             $response['http_code'] = $curl_info['http_code'];
         $response['request_details'] = $curl_info;
         $response['request_error_msg'] = @curl_error( $ch );
         $response['request_error_no'] = @curl_errno( $ch );
         $response['request_params'] = $return_params;
+
+        $response['response_headers'] = $request_headers;
+        $response['response_buffer'] = $response_buf;
 
         $this->_request_result = $response;
 
