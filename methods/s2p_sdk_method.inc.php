@@ -831,6 +831,10 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 'default' => 0,
                 'key' => 'id',
             ),
+            '{*PAYMENT_ID*}' => array(
+                'default' => 0,
+                'key' => 'payment_id',
+            ),
         );
     }
 
