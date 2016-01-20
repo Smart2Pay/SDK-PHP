@@ -199,6 +199,8 @@ class S2P_SDK_API extends S2P_SDK_Module
         $call_start = microtime( true );
         if( !($call_result = $this->_api->do_call( $params )) )
         {
+            self::reset_one_call_settings();
+
             $this->_call_time = microtime( true ) - $call_start;
             if( $this->_api->has_error() )
                 $this->copy_error( $this->_api );
@@ -208,6 +210,8 @@ class S2P_SDK_API extends S2P_SDK_Module
 
             return false;
         }
+
+        self::reset_one_call_settings();
 
         $this->_call_time = microtime( true ) - $call_start;
 
