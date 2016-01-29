@@ -225,9 +225,19 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
         return array(
 
             self::FUNC_LIST_ALL => array(
-                'name' => self::s2p_t( 'List available methods' ),
+                'name' => self::s2p_t( 'List all methods' ),
                 'url_suffix' => '/v1/methods/',
                 'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'additional_details',
+                        'external_name' => 'additionalDetails',
+                        'type' => S2P_SDK_Scope_Variable::TYPE_BOOL,
+                        'default' => false,
+                        'mandatory' => false,
+                    ),
+                ),
 
                 'mandatory_in_response' => array(
                     'methods' => array(),
@@ -285,6 +295,16 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
                 'name' => self::s2p_t( 'Get merchant\'s assigned methods' ),
                 'url_suffix' => '/v1/methods/assigned/',
                 'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'additional_details',
+                        'external_name' => 'additionalDetails',
+                        'type' => S2P_SDK_Scope_Variable::TYPE_BOOL,
+                        'default' => false,
+                        'mandatory' => false,
+                    ),
+                ),
 
                 'mandatory_in_response' => array(
                     'methods' => array(),

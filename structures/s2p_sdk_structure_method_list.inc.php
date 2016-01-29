@@ -86,6 +86,22 @@ class S2P_SDK_Structure_Method_List extends S2P_SDK_Scope_Structure
                 'default' => 0,
             ),
             array(
+                'name' => 'countries',
+                'external_name' => 'Countries',
+                'display_name' => self::s2p_t( 'Method supported countries' ),
+                'type' => S2P_SDK_VTYPE_ARRAY,
+                'array_type' => S2P_SDK_VTYPE_STRING,
+                'default' => array(),
+            ),
+            array(
+                'name' => 'currencies',
+                'external_name' => 'Currencies',
+                'display_name' => self::s2p_t( 'Method supported currencies' ),
+                'type' => S2P_SDK_VTYPE_ARRAY,
+                'array_type' => S2P_SDK_VTYPE_STRING,
+                'default' => array(),
+            ),
+            array(
                 'name' => 'detailsurl',
                 'external_name' => 'DetailsURL',
                 'display_name' => self::s2p_t( 'Method details URL' ),
