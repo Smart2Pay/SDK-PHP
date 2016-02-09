@@ -66,11 +66,11 @@ class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
                 'regexp' => '^(http(s)?:\/\/).{1,512}$',
             ),
             array(
-                'name' => 'signature',
-                'external_name' => 'Signature',
-                'display_name' => self::s2p_t( 'Site API signature' ),
+                'name' => 'alias',
+                'external_name' => 'Alias',
+                'display_name' => self::s2p_t( 'Site alias' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^.+$',
+                'regexp' => '^.{1,255}$',
             ),
             array(
                 'name' => 'apikey',

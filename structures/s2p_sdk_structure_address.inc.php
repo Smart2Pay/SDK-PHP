@@ -77,7 +77,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Address street name' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
-                'regexp' => '^.{1,100}$',
+                'regexp' => '^.{1,255}$',
             ),
             array(
                 'name' => 'streetnumber',
