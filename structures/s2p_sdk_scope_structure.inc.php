@@ -201,10 +201,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
     {
         if( !($scope_arr = @json_decode( $scope_buf, true ))
          or !is_array( $scope_arr ) )
-        {
-            $this->set_error( self::ERR_JSON, self::s2p_t( 'Couldn\'t decode JSON buffer.'  ) );
             return false;
-        }
 
         return $this->extract_info_from_response_array( $scope_arr, $parsing_params );
     }

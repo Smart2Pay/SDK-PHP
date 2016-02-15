@@ -132,6 +132,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Site ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
@@ -196,6 +197,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Site ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
@@ -242,6 +244,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Site ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
@@ -268,6 +271,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Site ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,

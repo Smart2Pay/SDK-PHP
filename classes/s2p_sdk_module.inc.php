@@ -18,6 +18,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
 
     private static $one_call_settings = array(
         'api_key' => '',
+        'site_id' => 0,
         'environment' => '',
         'return_url' => '',
     );
@@ -69,6 +70,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
     {
         self::$one_call_settings = array(
             'api_key' => '',
+            'site_id' => 0,
             'environment' => '',
             'return_url' => '',
         );
@@ -95,8 +97,16 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
     {
         $return_arr = array();
         $return_arr['api_key'] = '';
+        $return_arr['site_id'] = '';
         $return_arr['environment'] = '';
         $return_arr['return_url'] = '';
+
+        if( !empty( self::$one_call_settings['site_id'] ) )
+            $return_arr['site_id'] = self::$one_call_settings['site_id'];
+        elseif( defined( 'S2P_SDK_FORCE_SITE_ID' ) and constant( 'S2P_SDK_FORCE_SITE_ID' ) )
+            $return_arr['site_id'] = constant( 'S2P_SDK_FORCE_SITE_ID' );
+        elseif( defined( 'S2P_SDK_SITE_ID' ) and constant( 'S2P_SDK_SITE_ID' ) )
+            $return_arr['site_id'] = constant( 'S2P_SDK_SITE_ID' );
 
         if( !empty( self::$one_call_settings['api_key'] ) )
             $return_arr['api_key'] = self::$one_call_settings['api_key'];

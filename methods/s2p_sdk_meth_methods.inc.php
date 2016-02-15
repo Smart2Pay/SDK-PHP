@@ -233,6 +233,7 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
                     array(
                         'name' => 'additional_details',
                         'external_name' => 'additionalDetails',
+                        'display_name' => self::s2p_t( 'Additional details' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_BOOL,
                         'default' => false,
                         'mandatory' => false,
@@ -254,6 +255,7 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Method ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
@@ -277,6 +279,7 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'country',
+                        'display_name' => self::s2p_t( 'Country' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_STRING,
                         'default' => '',
                         'mandatory' => true,
@@ -300,6 +303,7 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
                     array(
                         'name' => 'additional_details',
                         'external_name' => 'additionalDetails',
+                        'display_name' => self::s2p_t( 'Additional details' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_BOOL,
                         'default' => false,
                         'mandatory' => false,
@@ -321,6 +325,7 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'country',
+                        'display_name' => self::s2p_t( 'Country' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_STRING,
                         'default' => '',
                         'mandatory' => true,

@@ -4,7 +4,7 @@
     if( !($_current_directory_path = __DIR__) )
         $_current_directory_path = getcwd();
 
-    define( 'S2P_SDK_VERSION', '1.0.30' );
+    define( 'S2P_SDK_VERSION', '1.0.31' );
 
     define( 'S2P_SDK_DIR_PATH', $_current_directory_path.'/' );
     define( 'S2P_SDK_DIR_CLASSES', $_current_directory_path.'/classes/' );

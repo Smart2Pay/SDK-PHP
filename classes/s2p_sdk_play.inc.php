@@ -169,8 +169,14 @@ $api_parameters['get_variables'] = array(<?php
 
                 $var_str .= ',';
 
-                if( !empty( $var_arr['mandatory'] ) )
-                    $var_str .= ' // '.strtoupper( self::s2p_t( 'mandatory' ) );
+                if( !empty( $var_arr['mandatory'] ) or !empty( $var_arr['display_name'] ) )
+                {
+                    $var_str .= ' //';
+                    if( !empty( $var_arr['display_name'] ) )
+                        $var_str .= ' '.$var_arr['display_name'];
+                    if( !empty( $var_arr['mandatory'] ) )
+                        $var_str .= ' '.strtoupper( self::s2p_t( 'mandatory' ) );
+                }
 
                 echo $var_str."\n";
             }

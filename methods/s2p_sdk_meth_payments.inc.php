@@ -341,6 +341,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
@@ -359,6 +360,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
@@ -383,6 +385,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
@@ -401,6 +404,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'limit',
+                        'display_name' => self::s2p_t( 'Rows limit' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => false,
@@ -408,6 +412,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     array(
                         'name' => 'start_date',
                         'external_name' => 'startDate',
+                        'display_name' => self::s2p_t( 'Interval starting date' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_DATETIME,
                         'default' => '',
                         'mandatory' => false,
@@ -415,6 +420,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     array(
                         'name' => 'end_date',
                         'external_name' => 'endDate',
+                        'display_name' => self::s2p_t( 'Interval ending date' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_DATETIME,
                         'default' => '',
                         'mandatory' => false,
@@ -422,6 +428,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     array(
                         'name' => 'method_id',
                         'external_name' => 'methodID',
+                        'display_name' => self::s2p_t( 'Method ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => false,
@@ -430,6 +437,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     array(
                         'name' => 'country',
                         'type' => S2P_SDK_Scope_Variable::TYPE_STRING,
+                        'display_name' => self::s2p_t( 'Country' ),
                         'default' => '',
                         'mandatory' => false,
                         'value_source' => S2P_SDK_Values_Source::TYPE_COUNTRY,
@@ -437,6 +445,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     array(
                         'name' => 'currency',
                         'type' => S2P_SDK_Scope_Variable::TYPE_STRING,
+                        'display_name' => self::s2p_t( 'Currency' ),
                         'default' => '',
                         'mandatory' => false,
                         'value_source' => S2P_SDK_Values_Source::TYPE_CURRENCY,
@@ -444,6 +453,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     array(
                         'name' => 'minimum_amount',
                         'external_name' => 'minimumAmount',
+                        'display_name' => self::s2p_t( 'Minimum amount' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => false,
@@ -451,6 +461,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     array(
                         'name' => 'maximum_amount',
                         'external_name' => 'maximumAmount',
+                        'display_name' => self::s2p_t( 'Maximum amount' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => false,
@@ -458,6 +469,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     array(
                         'name' => 'merchant_transaction_id',
                         'external_name' => 'merchantTransactionID',
+                        'display_name' => self::s2p_t( 'Merchant transaction ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_STRING,
                         'default' => '',
                         'mandatory' => false,
@@ -485,6 +497,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
@@ -503,6 +516,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
@@ -540,6 +554,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
@@ -568,6 +583,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 'get_variables' => array(
                     array(
                         'name' => 'payment_id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,
@@ -575,6 +591,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                     ),
                     array(
                         'name' => 'id',
+                        'display_name' => self::s2p_t( 'Refund ID' ),
                         'type' => S2P_SDK_Scope_Variable::TYPE_INT,
                         'default' => 0,
                         'mandatory' => true,

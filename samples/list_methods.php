@@ -7,9 +7,10 @@
 
     $api_parameters = array();
 
-    // By default, API will check S2P_SDK_API_KEY and S2P_SDK_ENVIRONMENT constats set in config.inc.php
+    // By default, API will check S2P_SDK_API_KEY, S2P_SDK_SITE_ID and S2P_SDK_ENVIRONMENT constats set in config.inc.php
     // If you want to override these constants (per request) uncomment lines below and provide values to override
     // $api_parameters['api_key'] = '{PROVIDED_APIKEY}';
+    // $api_parameters['site_id'] = '{PROVIDED_SITE_ID}';
     // $api_parameters['environment'] = 'test'; // test or live
 
     $api_parameters['method'] = 'methods';

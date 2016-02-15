@@ -341,7 +341,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             if( !array_key_exists( $get_var['name'], $post_arr['gvars'] ) )
             {
                 if( !empty( $get_var['mandatory'] ) )
-                    $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Mandatory field %s not provided.', $get_var['name'] );
+                    $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Mandatory field %s not provided.', (!empty( $get_var['display_name'] )?$get_var['display_name']:$get_var['name']) );
 
                 continue;
             }
@@ -349,7 +349,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             if( !empty( $get_var['regexp'] )
             and !@preg_match( '/'.$get_var['regexp'].'/', $post_arr['gvars'][$get_var['name']] ) )
             {
-                $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Field %s failed regular expression %s.', $get_var['name'], $get_var['regexp'] );
+                $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Field %s failed regular expression %s.', (!empty( $get_var['display_name'] )?$get_var['display_name']:$get_var['name']), $get_var['regexp'] );
                 continue;
             }
 
@@ -367,7 +367,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                 $value_source_obj->source_type( $get_var['value_source'] );
                 if( !$value_source_obj->valid_value( $var_value ) )
                 {
-                    $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Variable %s contains invalid value [%s].', $get_var['name'], $var_value );
+                    $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Variable %s contains invalid value [%s].', (!empty( $get_var['display_name'] )?$get_var['display_name']:$get_var['name']), $var_value );
                     continue;
                 }
             }
@@ -413,7 +413,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
         ?>
         <div class="form_field">
-            <label for="<?php echo $field_id?>" class="<?php echo (!empty( $get_var['mandatory'] )?'mandatory':'')?>"><?php echo $get_var['name']?></label>
+            <label for="<?php echo $field_id?>" class="<?php echo (!empty( $get_var['mandatory'] )?'mandatory':'')?>"><?php echo (!empty( $get_var['display_name'] )?$get_var['display_name'].' ('.$get_var['name'].')':$get_var['name'])?></label>
             <div class="form_input"><?php
                 if( !empty( $get_var['value_source'] )
                 and S2P_SDK_Values_Source::valid_type( $get_var['value_source'] )
@@ -1780,7 +1780,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 		/*#s2p_api_result_toggler { width: 100%; text-align: right; margin-bottom: 10px; clear: both; }*/
 		/*#s2p_api_form_toggler { width: 100%; text-align: left; margin-bottom: 10px; clear: both; }*/
 		/*.s2p_form fieldset { margin-bottom: 5px; }*/
-		.form_field { width: 100%; padding: 3px; min-height: 30px; margin-bottom: 5px; }
+		.form_field { width: 100%; padding: 3px; min-height: 30px; margin-bottom: 5px; clear: both; }
 		.form_field label { width: 16em; float: left; line-height: 25px; }
 		.form_field label.mandatory:after { color: red; content: '*'; }
 		.form_field .form_input { float: left; min-height: 30px; vertical-align: middle; }

@@ -578,12 +578,15 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 /** @var S2P_SDK_Scope_Structure $error_structure */
                 $error_structure = $this->_definition['error_structure'];
 
-                if( !( $json_array = $error_structure->extract_info_from_response_buffer( $request_result['response_buffer'], array( 'output_null_values' => true ) ) )
-                    or !is_array( $json_array )
+                if( !($json_array = $error_structure->extract_info_from_response_buffer( $request_result['response_buffer'], array( 'output_null_values' => true ) ))
+                 or !is_array( $json_array )
                 )
                 {
-                    if( ( $parsing_error = $error_structure->get_parsing_error() ) )
+                    if( ($parsing_error = $error_structure->get_parsing_error()) )
                         $this->copy_error_from_array( $parsing_error );
+
+                    elseif( !empty( $http_code_error ) )
+                        $this->set_error( self::ERR_RESPONSE_DATA, $http_code_error );
 
                     else
                         $this->set_error( self::ERR_RESPONSE_DATA, self::s2p_t( 'Couldn\'t extract respose data or response data is empty.' ) );
@@ -717,7 +720,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 {
                     if( !empty( $get_var['mandatory'] ) )
                     {
-                        $this->set_error( self::ERR_MANDATORY, self::s2p_t( 'Variable %s is mandatory for method %s.', $get_var['name'], $this->_definition['name'] ) );
+                        $this->set_error( self::ERR_MANDATORY, self::s2p_t( 'Variable %s is mandatory for method %s.', (!empty( $get_var['display_name'] )?$get_var['display_name']:$get_var['name']), $this->_definition['name'] ) );
                         return false;
                     }
 
@@ -738,7 +741,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 and !preg_match( '/'.$get_var['regexp'].'/', $var_value ) )
                 {
                     $this->set_error( self::ERR_REGEXP,
-                        self::s2p_t( 'Get variable [%s] is invalid.', $get_var['name'] ),
+                        self::s2p_t( 'Get variable %s is invalid.', (!empty( $get_var['display_name'] )?$get_var['display_name']:$get_var['name']) ),
                         sprintf( 'Get variable [%s] failed regular exp [%s].', $get_var['name'], $get_var['regexp'] ) );
 
                     return false;
@@ -749,7 +752,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                     $value_source_obj->source_type( $get_var['value_source'] );
                     if( !$value_source_obj->valid_value( $var_value ) )
                     {
-                        $this->set_error( self::ERR_VALUE_SOURCE, self::s2p_t( 'Variable %s contains invalid value [%s].', $get_var['name'], $var_value ) );
+                        $this->set_error( self::ERR_VALUE_SOURCE, self::s2p_t( 'Variable %s contains invalid value [%s].', (!empty( $get_var['display_name'] )?$get_var['display_name']:$get_var['name']), $var_value ) );
                         return false;
                     }
                 }
@@ -986,6 +989,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             'name' => '',
             // name of variable to be sent to server
             'external_name' => '',
+            // User-friendly name
+            'display_name' => '',
             // S2P_SDK_Scope_Variable::TYPE_*. Resulting value will be validated through S2P_SDK_Scope_Variable::scalar_value()
             'type' => 0,
             'array_type' => 0,
