@@ -60,6 +60,7 @@
 "Headers already set from file %s, line %s.","Headers already set from file %s, line %s."
 "Method not set","Method not set"
 "API Key not set.","API Key not set."
+"Site ID not set.","Site ID not set."
 "Couldn't obtain base URL.","Couldn't obtain base URL."
 "Couldn't prepare request data.","Couldn't prepare request data."
 "Couldn't prepare API request.","Couldn't prepare API request."

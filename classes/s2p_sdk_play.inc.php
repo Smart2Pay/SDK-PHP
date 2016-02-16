@@ -142,6 +142,8 @@ S2P_SDK\S2P_SDK_Module::st_debugging_mode( true );
 S2P_SDK\S2P_SDK_Module::st_throw_errors( false );
 
 $api_parameters = array();
+// Uncomment line below if you want to override Site ID set in config.inc.php
+// $api_parameters['site_id'] = '{PROVIDED_SITE_ID}';
 // Uncomment line below if you want to override API Key set in config.inc.php
 // $api_parameters['api_key'] = '{PROVIDED_APIKEY}';
 // Uncomment line below if you want to override environment set in config.inc.php

@@ -19,9 +19,9 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     const ENV_TEST = S2P_SDK_REST_TEST, ENV_LIVE = S2P_SDK_REST_LIVE;
 
     const ERR_ENVIRONMENT = 100, ERR_METHOD = 101, ERR_METHOD_FUNC = 102, ERR_PREPARE_REQUEST = 103, ERR_URL = 104, ERR_HTTP_METHOD = 105,
-          ERR_APIKEY = 106, ERR_CURL_CALL = 107, ERR_PARSE_RESPONSE = 108, ERR_VALIDATE_RESPONSE = 109, ERR_CALL_RESULT = 110;
+          ERR_APIKEY = 106, ERR_CURL_CALL = 107, ERR_PARSE_RESPONSE = 108, ERR_VALIDATE_RESPONSE = 109, ERR_CALL_RESULT = 110, ERR_SITE_ID = 107;
 
-    const TEST_BASE_URL = 'https://paytest.smart2pay.com', // 'http://85.186.26.139/HPP.REST',
+    const TEST_BASE_URL = 'https://paytest.smart2pay.com',
           LIVE_BASE_URL = 'https://pay.smart2pay.com';
 
     const TEST_RESOURCE_URL = 'https://apitest.smart2pay.com',
@@ -41,6 +41,9 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
     /** @var S2P_SDK_Rest_API_Request $_request */
     private $_request = null;
+
+    /** @var int $_site_id */
+    private $_site_id = 0;
 
     /** @var string $_api_key */
     private $_api_key = '';
@@ -70,6 +73,8 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
         $api_config_arr = self::get_api_configuration();
 
+        if( empty( $module_params['site_id'] ) and !empty( $api_config_arr['site_id'] ) )
+            $module_params['site_id'] = $api_config_arr['site_id'];
         if( empty( $module_params['api_key'] ) and !empty( $api_config_arr['api_key'] ) )
             $module_params['api_key'] = $api_config_arr['api_key'];
         if( empty( $module_params['environment'] ) and !empty( $api_config_arr['environment'] ) )
@@ -78,6 +83,12 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         if( !empty( $module_params['environment'] ) )
         {
             if( !$this->environment( $module_params['environment'] ) )
+                return false;
+        }
+
+        if( !empty( $module_params['site_id'] ) )
+        {
+            if( !$this->set_site_id( $module_params['site_id'] ) )
                 return false;
         }
 
@@ -114,6 +125,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         $this->_base_url = '';
         $this->_resource_url = '';
         $this->_api_key = '';
+        $this->_site_id = 0;
         $this->reset_call_result();
     }
 
@@ -265,6 +277,32 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     }
 
     /**
+     * Get Site ID
+     *
+     * @return int Returns Site ID
+     */
+    public function get_site_id()
+    {
+        return $this->_site_id;
+    }
+
+    /**
+     * Set Site ID
+     *
+     * @param int $site_id
+     *
+     * @return bool Returns true on success or false on fail
+     */
+    public function set_site_id( $site_id )
+    {
+        if( !is_scalar( $site_id ) )
+            return false;
+
+        $this->_site_id = intval( $site_id );
+        return true;
+    }
+
+    /**
      * Get api key
      *
      * @return string Returns api key
@@ -275,9 +313,9 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     }
 
     /**
-     * Set base URL
+     * Set API Key
      *
-     * @param string $url
+     * @param string $api_key
      *
      * @return bool Returns true on success or false on fail
      */
@@ -376,6 +414,12 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             return false;
         }
 
+        if( !($site_id = $this->get_site_id()) )
+        {
+            $this->set_error( self::ERR_SITE_ID, self::s2p_t( 'Site ID not set.' ) );
+            return false;
+        }
+
         if( !$this->validate_base_url()
          or empty( $this->_base_url ) )
         {
@@ -440,7 +484,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             $call_params['user_agent'] = 'APISDK_'.S2P_SDK_VERSION.'/PHP_'.phpversion().'/'.php_uname('s').'_'.php_uname('r');
         else
             $call_params['user_agent'] = trim( $params['user_agent'] );
-        $call_params['userpass'] = array( 'user' => $api_key, 'pass' => '' );
+        $call_params['userpass'] = array( 'user' => $site_id, 'pass' => $api_key );
 
         $this->trigger_hooks( 'rest_api_call_before', array( 'api_obj' => $this ) );
 

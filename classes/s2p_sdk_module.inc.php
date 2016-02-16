@@ -97,7 +97,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
     {
         $return_arr = array();
         $return_arr['api_key'] = '';
-        $return_arr['site_id'] = '';
+        $return_arr['site_id'] = 0;
         $return_arr['environment'] = '';
         $return_arr['return_url'] = '';
 

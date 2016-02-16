@@ -139,7 +139,7 @@ class S2P_SDK_Notification extends S2P_SDK_Module
 
     public function check_authentication()
     {
-        if( empty( $_SERVER['PHP_AUTH_USER'] ) or !isset( $_SERVER['PHP_AUTH_PW'] ) )
+        if( empty( $_SERVER['PHP_AUTH_USER'] ) or empty( $_SERVER['PHP_AUTH_PW'] ) )
         {
             $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'No authentication.' ) );
             return false;
@@ -147,16 +147,16 @@ class S2P_SDK_Notification extends S2P_SDK_Module
 
         $api_config_arr = self::get_api_configuration();
 
-        if( empty( $api_config_arr['api_key'] ) )
+        if( empty( $api_config_arr['api_key'] ) or empty( $api_config_arr['site_id'] ) )
         {
             $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'API Key not set in config file.' ) );
             return false;
         }
 
-        if( $_SERVER['PHP_AUTH_USER'] != $api_config_arr['api_key']
-         or $_SERVER['PHP_AUTH_PW'] != '' )
+        if( $_SERVER['PHP_AUTH_USER'] != $api_config_arr['site_id']
+         or $_SERVER['PHP_AUTH_PW'] != $api_config_arr['api_key'] )
         {
-            $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'Request doesn\'t match API Key set in config file.' ) );
+            $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'Request doesn\'t match API Key or Site ID configuration.' ) );
             return false;
         }
 

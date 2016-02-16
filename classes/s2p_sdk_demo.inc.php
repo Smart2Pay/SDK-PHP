@@ -70,7 +70,12 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( empty( $_SERVER['HTTP_HOST'] ) )
             return '';
 
-        $url = 'http://'.$_SERVER['HTTP_HOST'];
+        $protocol = 'http';
+        if( !empty( $_SERVER['HTTPS'] )
+        and ($_SERVER['HTTPS'] == 'yes' or $_SERVER['HTTPS'] == 'on' or $_SERVER['HTTPS'] == true or $_SERVER['HTTPS'] == 1) )
+            $protocol = 'https';
+
+        $url = $protocol.'://'.$_SERVER['HTTP_HOST'];
 
         $path = '';
         if( !empty( $_SERVER['SCRIPT_NAME'] ) )
@@ -110,6 +115,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
     {
         return array(
             'foobar' => 0,
+            'site_id' => 0,
             'api_key' => '',
             'environment' => 'test',
             'method' => '',
@@ -225,6 +231,8 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             // form defaults
             if( empty( $post_arr['api_key'] ) and !empty( $api_config_arr['api_key'] ) )
                 $post_arr['api_key'] = $api_config_arr['api_key'];
+            if( empty( $post_arr['site_id'] ) and !empty( $api_config_arr['site_id'] ) )
+                $post_arr['site_id'] = $api_config_arr['site_id'];
             if( empty( $post_arr['environment'] ) and !empty( $api_config_arr['environment'] ) )
                 $post_arr['environment'] = $api_config_arr['environment'];
         }
@@ -234,6 +242,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( !empty( $form_arr['hidden_form'] ) )
         {
             ?>
+            <input type="hidden" id="site_id" name="site_id" value="<?php echo self::form_str( $post_arr['site_id'] )?>" />
             <input type="hidden" id="api_key" name="api_key" value="<?php echo self::form_str( $post_arr['api_key'] )?>" />
             <input type="hidden" id="environment" name="environment" value="<?php echo self::form_str( $post_arr['environment'] )?>" />
             <input type="hidden" id="method" name="method" value="<?php echo self::form_str( $post_arr['method'] )?>" />
@@ -245,7 +254,15 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                 <label for="api_key"><?php echo self::s2p_t( 'API Key' )?></label>
 
                 <div class="form_input">
-                    <input type="text" id="api_key" name="api_key" value="<?php echo self::form_str( $post_arr['api_key'] )?>" style="width: 350px;"/>
+                    <input type="text" id="api_key" name="api_key" value="<?php echo self::form_str( $post_arr['api_key'] )?>" style="width: 350px;" />
+                </div>
+            </div>
+
+            <div class="form_field">
+                <label for="site_id"><?php echo self::s2p_t( 'Site ID' )?></label>
+
+                <div class="form_input">
+                    <input type="text" id="site_id" name="site_id" value="<?php echo self::form_str( $post_arr['site_id'] )?>" style="width: 150px;" />
                 </div>
             </div>
 
@@ -1041,6 +1058,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         if( empty( $post_arr['api_key'] ) )
             $return_arr['errors_arr'][] = self::s2p_t( 'Invalid API key.' );
 
+        if( empty( $post_arr['site_id'] ) )
+            $return_arr['errors_arr'][] = self::s2p_t( 'Invalid Site ID.' );
+
         if( empty( $post_arr['environment'] ) or !in_array( $post_arr['environment'], array( 'live', 'test' ) ) )
             $return_arr['errors_arr'][] = self::s2p_t( 'Invalid API environment.' );
 
@@ -1087,6 +1107,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         {
             $api_params = array();
             $api_params['api_key'] = $post_arr['api_key'];
+            $api_params['site_id'] = $post_arr['site_id'];
             $api_params['environment'] = $post_arr['environment'];
 
             $api_params['method'] = $post_arr['method'];
@@ -1321,21 +1342,17 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 			<?php
 		}		
 
-		
         if( empty( $params['hidden_form'] ) )
         {
-            ?>
-			<div id="api_form" style="width: 100%;<?php echo( !empty( $api_obj ) ? 'display:none;' : '' );?>"><?php
-
-
+            ?><div id="api_form" style="width: 100%;<?php echo( !empty( $api_obj ) ? 'display:none;' : '' );?>"><?php
         }
         ?>
 
-            <?php echo $this->get_form_common_fields( $post_params, $form_arr ); ?>
+        <?php echo $this->get_form_common_fields( $post_params, $form_arr ); ?>
 
-            <?php echo $this->get_form_method_get_params_fields( $post_params, $form_arr ); ?>
+        <?php echo $this->get_form_method_get_params_fields( $post_params, $form_arr ); ?>
 
-            <?php echo $this->get_form_method_parameters_fields( $post_params, $form_arr ); ?>
+        <?php echo $this->get_form_method_parameters_fields( $post_params, $form_arr ); ?>
 
         <?php
         if( !empty( $params['hidden_form'] ) )
