@@ -4,10 +4,12 @@ namespace S2P_SDK;
 
 class S2P_SDK_Values_Sources_Article_Type extends S2P_SDK_Language
 {
+    const TYPE_PRODUCT = 1, TYPE_SHIPPING = 2, TYPE_HANDLING = 3;
+
     private static $TYPES_ARR = array(
-        1 => 'Product',
-        2 => 'Shipping',
-        3 => 'Handling',
+        self::TYPE_PRODUCT => 'Product',
+        self::TYPE_SHIPPING => 'Shipping',
+        self::TYPE_HANDLING => 'Handling',
     );
 
     public static function get_types()
