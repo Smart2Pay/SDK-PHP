@@ -450,7 +450,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
 
             case self::TYPE_INT:
                 if( is_scalar( $value ) )
-                    $result = intval( $value );
+                    // workaround for float values converted in int (they might loose precision)
+                    $result = intval( number_format( $value, 0, '.', '' ) );
             break;
 
             case self::TYPE_FLOAT:
