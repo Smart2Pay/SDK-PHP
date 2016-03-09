@@ -11,21 +11,19 @@ include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_payment_request.inc.ph
 include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_method.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_values_source.inc.php' );
 
-if( !defined( 'S2P_SDK_METH_METHODS_LIST_ALL' ) )
-    define( 'S2P_SDK_METH_METHODS_LIST_ALL', 'list_all' );
-if( !defined( 'S2P_SDK_METH_METHODS_DETAILS' ) )
-    define( 'S2P_SDK_METH_METHODS_DETAILS', 'method_details' );
-if( !defined( 'S2P_SDK_METH_METHODS_FOR_COUNTRY' ) )
-    define( 'S2P_SDK_METH_METHODS_FOR_COUNTRY', 'for_country' );
-if( !defined( 'S2P_SDK_METH_METHODS_ASSIGNED' ) )
-    define( 'S2P_SDK_METH_METHODS_ASSIGNED', 'assigned_methods' );
-if( !defined( 'S2P_SDK_METH_METHODS_ASSIGNED_COUNTRY' ) )
-    define( 'S2P_SDK_METH_METHODS_ASSIGNED_COUNTRY', 'assigned_for_country' );
-
 class S2P_SDK_Meth_Methods extends S2P_SDK_Method
 {
-    const FUNC_LIST_ALL = S2P_SDK_METH_METHODS_LIST_ALL, FUNC_METHOD_DETAILS = S2P_SDK_METH_METHODS_DETAILS, FUNC_LIST_COUNTRY = S2P_SDK_METH_METHODS_FOR_COUNTRY,
-          FUNC_ASSIGNED = S2P_SDK_METH_METHODS_ASSIGNED, FUNC_ASSIGNED_COUNTRY = S2P_SDK_METH_METHODS_ASSIGNED_COUNTRY;
+    const FUNC_LIST_ALL = 'list_all', FUNC_METHOD_DETAILS = 'method_details', FUNC_LIST_COUNTRY = 'for_country',
+          FUNC_ASSIGNED = 'assigned_methods', FUNC_ASSIGNED_COUNTRY = 'assigned_for_country';
+
+    /**
+     * Tells which entry point does this method use
+     * @return string
+     */
+    public function get_entry_point()
+    {
+        return S2P_SDK_Rest_API::ENTRY_POINT_REST;
+    }
 
     /**
      * This method defines keywords that can be found in notification body and what structure should be used to extract notification data

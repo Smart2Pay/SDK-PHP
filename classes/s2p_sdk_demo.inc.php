@@ -420,7 +420,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             $field_value = $post_arr['gvars'][$get_var['name']];
         elseif( !empty( $get_var['check_constant'] ) and defined( $get_var['check_constant'] ) )
             $field_value = constant( $get_var['check_constant'] );
-        elseif( isset( $get_var['default'] ) )
+        elseif( array_key_exists( 'default', $get_var ) )
             $field_value = $get_var['default'];
         else
             $field_value = '';
@@ -451,7 +451,16 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                 {
                     if( $get_var['type'] == S2P_SDK_Scope_Variable::TYPE_BOOL )
                     {
-                        ?><input type="checkbox" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="1" <?php echo (!empty( $field_value )?'checked="checked"':'')?> /><?php
+                        if( false )
+                        {
+                            ?>
+                            <input type="checkbox" id="<?php echo $field_id ?>" name="<?php echo $field_name ?>" value="1" <?php echo(! empty($field_value) ? 'checked="checked"' : '') ?> /><?php
+                        }
+
+                        ?><select id="<?php echo $field_id ?>" name="<?php echo $field_name ?>">
+                        <option value="null"><?php echo self::s2p_t( 'Don\'t send' )?></option><option value="true"><?php echo self::s2p_t( 'True' )?></option><option value="false"><?php echo self::s2p_t( 'False' )?></option>
+                        </select><?php
+
                     } elseif( $get_var['type'] == S2P_SDK_Scope_Variable::TYPE_DATETIME )
                     {
                         ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" class="datepicker" /><?php
@@ -735,7 +744,25 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
                     if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_BOOL )
                     {
-                        ?><input type="checkbox" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="1" <?php echo (!empty( $field_value )?'checked="checked"':'')?> /><?php
+                        if( is_string( $field_value ) )
+                        {
+                            if( $field_value == 'true' )
+                                $field_value = true;
+                            elseif( $field_value == 'false' )
+                                $field_value = false;
+                            elseif( $field_value == 'null' )
+                                $field_value = null;
+                        }
+
+                        if( false )
+                        {
+                            ?>
+                            <input type="checkbox" id="<?php echo $field_id ?>" name="<?php echo $field_name ?>" value="1" <?php echo(! empty($field_value) ? 'checked="checked"' : '') ?> /><?php
+                        }
+
+                        ?><select id="<?php echo $field_id ?>" name="<?php echo $field_name ?>">
+                        <option value="null"><?php echo self::s2p_t( 'Don\'t send' )?></option><option value="true"><?php echo self::s2p_t( 'True' )?></option><option value="false"><?php echo self::s2p_t( 'False' )?></option>
+                    </select><?php
                     } elseif( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_DATETIME )
                     {
                         ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" class="datepicker" /><?php
@@ -1395,7 +1422,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 							<div class="http_headers_code_title expanded">
 								<a href="javascript:void(0);" onclick="toggle_container( 's2p_api_request_header', $(this) )"><?php echo self::s2p_t( 'Request headers' );?></a>
 							</div>
-							<pre id="s2p_api_request_header"><code class="http"><?php echo nl2br( trim( $call_result['request']['request_details']['request_header'] ) );?></code></pre>
+							<pre id="s2p_api_request_header"><code class="http"><?php echo trim( $call_result['request']['request_details']['request_header'] );?></code></pre>
 						</div>
 
 						<div class="http_headers_code request_body">
@@ -1404,7 +1431,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 							</div>
 							<div id="s2p_api_request_body" style="display: none;">
 								<div id="s2p_api_request_body_raw_toggler">&laquo;
-									<a href="javascript:void(0)" onclick="toggleResponseFormat($(this)); toggle_container( 's2p_api_request_body_raw' );toggle_container( 's2p_api_request_body_formatted' );"><?php echo self::s2p_t( '<span class="active">Raw</span> / <span>Formatted response<span>' )?></a> &raquo;
+									<a href="javascript:void(0)" onclick="toggleResponseFormat($(this)); toggle_container( 's2p_api_request_body_raw' );toggle_container( 's2p_api_request_body_formatted' );"><?php echo self::s2p_t( '<span class="active">Raw</span> / <span>Formatted request<span>' )?></a> &raquo;
 								</div>
 								<div id="s2p_api_request_body_raw" style="display: block;">
 									<pre><code class=""><?php echo( empty( $call_result['request']['request_buffer'] ) ? '(empty)' : nl2br( trim( $call_result['request']['request_buffer'] ) ) );?></pre></code>
@@ -1460,7 +1487,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 
 								echo nl2br( str_replace( '  ', ' &nbsp;', $buf ) );
 							}
-							?>></code></pre>
+							?></code></pre>
 						</div>
 					
 					</div>

@@ -9,26 +9,22 @@ include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_merchantsite.inc.php' 
 include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_merchantsite_list.inc.php' );
 include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_method.inc.php' );
 
-if( !defined( 'S2P_SDK_METH_MSITES_LIST_ALL' ) )
-    define( 'S2P_SDK_METH_MSITES_LIST_ALL', 'list_all' );
-if( !defined( 'S2P_SDK_METH_MSITES_DETAILS' ) )
-    define( 'S2P_SDK_METH_MSITES_DETAILS', 'site_details' );
-if( !defined( 'S2P_SDK_METH_MSITES_CREATE' ) )
-    define( 'S2P_SDK_METH_MSITES_CREATE', 'site_create' );
-if( !defined( 'S2P_SDK_METH_MSITES_EDIT' ) )
-    define( 'S2P_SDK_METH_MSITES_EDIT', 'site_edit' );
-if( !defined( 'S2P_SDK_METH_MSITES_REGEN_APIKEY' ) )
-    define( 'S2P_SDK_METH_MSITES_REGEN_APIKEY', 'regen_apikey' );
-if( !defined( 'S2P_SDK_METH_MSITES_REGEN_SIGNATURE' ) )
-    define( 'S2P_SDK_METH_MSITES_REGEN_SIGNATURE', 'regen_signature' );
-
 class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
 {
     const ERR_REASON_CODE = 300, ERR_EMPTY_ID = 301;
 
-    const FUNC_LIST_ALL = S2P_SDK_METH_MSITES_LIST_ALL, FUNC_SITE_DETAILS = S2P_SDK_METH_MSITES_DETAILS,
-          FUNC_SITE_CREATE = S2P_SDK_METH_MSITES_CREATE, FUNC_SITE_EDIT = S2P_SDK_METH_MSITES_EDIT,
-          FUNC_REGEN_APIKEY = S2P_SDK_METH_MSITES_REGEN_APIKEY, FUNC_REGEN_SIGNATURE = S2P_SDK_METH_MSITES_REGEN_SIGNATURE;
+    const FUNC_LIST_ALL = 'list_all', FUNC_SITE_DETAILS = 'site_details',
+          FUNC_SITE_CREATE = 'site_create', FUNC_SITE_EDIT = 'site_edit',
+          FUNC_REGEN_APIKEY = 'regen_apikey';
+
+    /**
+     * Tells which entry point does this method use
+     * @return string
+     */
+    public function get_entry_point()
+    {
+        return S2P_SDK_Rest_API::ENTRY_POINT_REST;
+    }
 
     /**
      * This method defines keywords that can be found in notification body and what structure should be used to extract notification data
@@ -62,6 +58,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
         {
             case self::FUNC_SITE_CREATE:
             case self::FUNC_SITE_EDIT:
+            case self::FUNC_REGEN_APIKEY:
                 if( !empty( $response_data['response_array']['merchantsite'] ) )
                 {
                     if( !empty( $response_data['response_array']['merchantsite']['details'] )
@@ -239,33 +236,6 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
             self::FUNC_REGEN_APIKEY => array(
                 'name' => self::s2p_t( 'Regenerate Merchant Site API Key' ),
                 'url_suffix' => '/v1/merchantsites/{*ID*}/regenerateapikey/',
-                'http_method' => 'POST',
-
-                'get_variables' => array(
-                    array(
-                        'name' => 'id',
-                        'display_name' => self::s2p_t( 'Site ID' ),
-                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
-                        'default' => 0,
-                        'mandatory' => true,
-                        'move_in_url' => true,
-                    ),
-                ),
-
-                'mandatory_in_response' => array(
-                    'merchantsite' => array(
-                        'id' => 0,
-                    ),
-                ),
-
-                'response_structure' => $merchantsite_obj,
-
-                'error_structure' => $merchantsite_obj,
-            ),
-
-            self::FUNC_REGEN_SIGNATURE => array(
-                'name' => self::s2p_t( 'Regenerate Merchant Site Signature' ),
-                'url_suffix' => '/v1/merchantsites/{*ID*}/regeneratesignature/',
                 'http_method' => 'POST',
 
                 'get_variables' => array(

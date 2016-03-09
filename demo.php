@@ -99,7 +99,7 @@
 
                     <div class="http_headers_code">
                         <div class="http_headers_code_title"><?php echo S2P_SDK\S2P_SDK_Demo::s2p_t( 'Request headers' );?></div>
-                        <?php echo nl2br( trim( $call_result['request']['request_details']['request_header'] ) );?>
+                        <?php echo trim( $call_result['request']['request_details']['request_header'] );?>
                     </div>
 
                     <div class="http_headers_code">

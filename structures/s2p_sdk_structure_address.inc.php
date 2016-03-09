@@ -37,6 +37,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
+                'skip_if_default' => true,
             ),
             array(
                 'name' => 'country',

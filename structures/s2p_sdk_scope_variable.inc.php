@@ -280,8 +280,14 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                     return false;
                 }
 
-                $current_value[$definition[$output_name_key]] = $var_val;
+                $assign_value = true;
+                if( !empty( $definition['skip_if_default'] )
+                and array_key_exists( 'default', $definition )
+                and $var_val === $definition['default'] )
+                    $assign_value = false;
 
+                if( $assign_value )
+                    $current_value[$definition[$output_name_key]] = $var_val;
             }
 
             else
@@ -460,7 +466,16 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             break;
 
             case self::TYPE_BOOL:
-                $result = (empty( $value )?false:true);
+                if( is_string( $value ) )
+                {
+                    if( $value == 'true' )
+                        $result = true;
+                    elseif( $value == 'false' )
+                        $result = false;
+                    elseif( $value == 'null' )
+                        $result = null;
+                } else
+                    $result = (empty( $value )?false:true);
             break;
 
             case self::TYPE_DATETIME:
@@ -581,6 +596,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             'array_type' => 0,
             'array_numeric_keys' => true,
             'default' => null,
+            'skip_if_default' => false,
             'regexp' => '',
             'structure' => null,
             'value_source' => 0,

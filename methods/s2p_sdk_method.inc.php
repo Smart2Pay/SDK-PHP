@@ -10,6 +10,7 @@ include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_scope_structure.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_generic_error.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_rest_api_request.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_values_source.inc.php' );
+include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_rest_api.inc.php' );
 
 abstract class S2P_SDK_Method extends S2P_SDK_Module
 {
@@ -50,6 +51,12 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
      * @var array $_request_params
      */
     protected $_request_params = array();
+
+    /**
+     * Tells which entry point does this method use
+     * @return string
+     */
+    abstract public function get_entry_point();
 
     /**
      * Child class should return an array with some details about current method
@@ -1239,9 +1246,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
         $this->reset_error();
 
-        $definition_arr = $this->get_method_definition();
-
-        if( !($new_definition_arr = self::validate_definition_arr( $definition_arr )) )
+        if( !($definition_arr = $this->get_method_definition())
+         or !($new_definition_arr = self::validate_definition_arr( $definition_arr )) )
         {
             if( self::st_has_error() )
                 $this->copy_static_error();

@@ -33,8 +33,9 @@ class S2P_SDK_Structure_Customer extends S2P_SDK_Scope_Structure
                 'external_name' => 'ID',
                 'display_name' => self::s2p_t( 'Customer ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
-                'default' => 0,
                 'regexp' => '^\d{1,12}$',
+                'default' => 0,
+                'skip_if_default' => true,
             ),
             array(
                 'name' => 'merchantcustomerid',
@@ -98,7 +99,8 @@ class S2P_SDK_Structure_Customer extends S2P_SDK_Scope_Structure
                 'external_name' => 'InputDateTime',
                 'display_name' => self::s2p_t( 'Customer creation date' ),
                 'type' => S2P_SDK_VTYPE_DATETIME,
-                'default' => '',
+                'default' => null,
+                'skip_if_default' => true,
             ),
         );
     }

@@ -9,14 +9,20 @@ include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_user_response.inc.php'
 include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_user_request.inc.php' );
 include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_method.inc.php' );
 
-if( !defined( 'S2P_SDK_METH_USERS_CREATE' ) )
-    define( 'S2P_SDK_METH_USERS_CREATE', 'create' );
-
 class S2P_SDK_Meth_Users extends S2P_SDK_Method
 {
     const ERR_REASON_CODE = 300, ERR_EMPTY_ID = 301;
 
-    const FUNC_CREATE = S2P_SDK_METH_USERS_CREATE;
+    const FUNC_CREATE = 'create';
+
+    /**
+     * Tells which entry point does this method use
+     * @return string
+     */
+    public function get_entry_point()
+    {
+        return S2P_SDK_Rest_API::ENTRY_POINT_REST;
+    }
 
     /**
      * This method defines keywords that can be found in notification body and what structure should be used to extract notification data

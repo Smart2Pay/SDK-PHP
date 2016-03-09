@@ -12,21 +12,12 @@ include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_payment_response_list.
 include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_payment_response.inc.php' );
 include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_method.inc.php' );
 
-if( !defined( 'S2P_SDK_METH_PREAPPROVALS_LIST_ALL' ) )
-    define( 'S2P_SDK_METH_PREAPPROVALS_LIST_ALL', 'list_all' );
-if( !defined( 'S2P_SDK_METH_PREAPPROVAL_INIT' ) )
-    define( 'S2P_SDK_METH_PREAPPROVAL_INIT', 'preapproval_init' );
-if( !defined( 'S2P_SDK_METH_PREAPPROVAL_DETAILS' ) )
-    define( 'S2P_SDK_METH_PREAPPROVAL_DETAILS', 'preapproval_details' );
-if( !defined( 'S2P_SDK_METH_PREAPPROVAL_PAYMENTS' ) )
-    define( 'S2P_SDK_METH_PREAPPROVAL_PAYMENTS', 'preapproval_payments' );
-
 class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
 {
     const ERR_REASON_CODE = 300, ERR_EMPTY_ID = 301;
 
-    const FUNC_INIT_PREAPPROVAL = S2P_SDK_METH_PREAPPROVAL_INIT, FUNC_LIST_ALL = S2P_SDK_METH_PREAPPROVALS_LIST_ALL, FUNC_DETAILS = S2P_SDK_METH_PREAPPROVAL_DETAILS,
-          FUNC_PAYMENTS = S2P_SDK_METH_PREAPPROVAL_PAYMENTS;
+    const FUNC_INIT_PREAPPROVAL = 'preapproval_init', FUNC_LIST_ALL = 'list_all', FUNC_DETAILS = 'preapproval_details',
+          FUNC_PAYMENTS = 'preapproval_payments';
 
     const STATUS_PENDING = 1, STATUS_OPEN = 2, STATUS_CLOSEDBYCUSTOMER = 4;
 
@@ -48,6 +39,15 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
             return false;
 
         return $statuses_arr[$status];
+    }
+
+    /**
+     * Tells which entry point does this method use
+     * @return string
+     */
+    public function get_entry_point()
+    {
+        return S2P_SDK_Rest_API::ENTRY_POINT_REST;
     }
 
     public function default_functionality()

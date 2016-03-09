@@ -204,10 +204,10 @@ class S2P_SDK_Error
             $this->error_debug_msg = $error_debug_msg;
         else
             $this->error_debug_msg = $error_msg;
-        $this->error_msg = 'Error: ('.$this->error_debug_msg.')'."\n".
+        $this->error_msg = '<pre>Error: ('.$this->error_debug_msg.')'."\n".
                            'Code: ('.$error_no.')'."\n".
                            'Backtrace:'."\n".
-                           $backtrace;
+                           $backtrace.'</pre>';
 
         if( empty( $params['prevent_throwing_errors'] )
         and $this->throw_errors() )

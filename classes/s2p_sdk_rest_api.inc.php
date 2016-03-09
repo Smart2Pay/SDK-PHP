@@ -18,8 +18,14 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 {
     const ENV_TEST = S2P_SDK_REST_TEST, ENV_LIVE = S2P_SDK_REST_LIVE;
 
+    const ENTRY_POINT_REST = 1, ENTRY_POINT_CARDS = 2;
+
     const ERR_ENVIRONMENT = 100, ERR_METHOD = 101, ERR_METHOD_FUNC = 102, ERR_PREPARE_REQUEST = 103, ERR_URL = 104, ERR_HTTP_METHOD = 105,
-          ERR_APIKEY = 106, ERR_CURL_CALL = 107, ERR_PARSE_RESPONSE = 108, ERR_VALIDATE_RESPONSE = 109, ERR_CALL_RESULT = 110, ERR_SITE_ID = 107;
+          ERR_APIKEY = 106, ERR_CURL_CALL = 107, ERR_PARSE_RESPONSE = 108, ERR_VALIDATE_RESPONSE = 109, ERR_CALL_RESULT = 110, ERR_SITE_ID = 107,
+          ERR_ENTRY_POINT = 108;
+
+    const TEST_CARDS_URL = 'http://smartcards.trafficmanager.net',
+          LIVE_CARDS_URL = ''; // not active yet...
 
     const TEST_BASE_URL = 'https://paytest.smart2pay.com',
           LIVE_BASE_URL = 'https://pay.smart2pay.com';
@@ -27,7 +33,10 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     const TEST_RESOURCE_URL = 'https://apitest.smart2pay.com',
           LIVE_RESOURCE_URL = 'https://api.smart2pay.com';
 
-    /** @var bool $_test_mode */
+    /** @var int $_entry_point */
+    private $_entry_point = self::ENTRY_POINT_REST;
+
+    /** @var string $_environment */
     private $_environment = self::ENV_LIVE;
 
     /** @var string $_base_url */
@@ -65,7 +74,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         if( empty( $module_params ) or ! is_array( $module_params ) )
             $module_params = array();
 
-        if( ! empty( $module_params['method'] ) )
+        if( !empty( $module_params['method'] ) )
         {
             if( !$this->method( $module_params['method'], $module_params ) )
                 return false;
@@ -120,6 +129,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
     private function reset_api()
     {
+        $this->_entry_point = self::ENTRY_POINT_REST;
         $this->_method = null;
         $this->_request = null;
         $this->_base_url = '';
@@ -185,6 +195,23 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             case self::ENV_LIVE:
                 return self::LIVE_RESOURCE_URL;
         }
+    }
+
+    public function entry_point( $ent = null )
+    {
+        if( $ent === null )
+            return $this->_entry_point;
+
+        if( !in_array( $ent, array( self::ENTRY_POINT_REST, self::ENTRY_POINT_CARDS ) ) )
+        {
+            $this->set_error( self::ERR_ENTRY_POINT,
+                                  self::s2p_t( 'Invalid entry point.' ),
+                                  sprintf( 'Invalid entry point. [%s]', $ent ) );
+            return false;
+        }
+
+        $this->_entry_point = $ent;
+        return true;
     }
 
     public function environment( $env = null )
@@ -331,6 +358,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     private function validate_base_url()
     {
         $env = $this->environment();
+        $entry_point = $this->entry_point();
 
         switch( $env )
         {
@@ -342,17 +370,27 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
                 return false;
 
             case self::ENV_TEST:
-                if( empty( $this->_base_url ) )
+                if( $entry_point == self::ENTRY_POINT_REST )
+                {
                     $this->_base_url = self::TEST_BASE_URL;
-                if( empty( $this->_resource_url ) )
-                    $this->_resource_url = self::TEST_RESOURCE_URL;
+                } elseif( $entry_point == self::ENTRY_POINT_CARDS )
+                {
+                    $this->_base_url = self::TEST_CARDS_URL;
+                }
+
+                $this->_resource_url = self::TEST_RESOURCE_URL;
             break;
 
             case self::ENV_LIVE:
-                if( empty( $this->_base_url ) )
+                if( $entry_point == self::ENTRY_POINT_REST )
+                {
                     $this->_base_url = self::LIVE_BASE_URL;
-                if( empty( $this->_resource_url ) )
-                    $this->_resource_url = self::LIVE_RESOURCE_URL;
+                } elseif( $entry_point == self::ENTRY_POINT_CARDS )
+                {
+                    $this->_base_url = self::LIVE_CARDS_URL;
+                }
+
+                $this->_resource_url = self::LIVE_RESOURCE_URL;
             break;
         }
 
@@ -389,6 +427,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     public function do_call( $params = false )
     {
         $this->reset_call_result();
+        $this->reset_error();
 
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
@@ -417,6 +456,12 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         if( !($site_id = $this->get_site_id()) )
         {
             $this->set_error( self::ERR_SITE_ID, self::s2p_t( 'Site ID not set.' ) );
+            return false;
+        }
+
+        if( !$this->entry_point( $this->_method->get_entry_point() ) )
+        {
+            $this->set_error( self::ERR_URL, self::s2p_t( 'Invalid entry point defined in method.' ) );
             return false;
         }
 
@@ -573,10 +618,11 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         // Make sure errors get thrown if any...
         if( $this->has_error()
         and $this->throw_errors() )
-        {
             $this->throw_error();
+
+        // Make sure errors get thrown if any...
+        if( $this->has_error() )
             return false;
-        }
 
         return $return_arr;
     }

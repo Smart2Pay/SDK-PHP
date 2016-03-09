@@ -11,6 +11,7 @@ include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_address.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_article.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_details.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_reference_details.inc.php' );
+include_once(S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_card_token_details.inc.php');
 
 class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
 {
@@ -40,8 +41,12 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
         $article_obj = new S2P_SDK_Structure_Article();
         $payment_details_obj = new S2P_SDK_Structure_Payment_Details();
         $reference_details_obj = new S2P_SDK_Structure_Payment_Reference_Details();
+        $token_details_obj = new S2P_SDK_Structure_Card_Token_Details();
 
         return array(
+            //
+            // Common and REST specific
+            //
             array(
                 'name' => 'id',
                 'external_name' => 'ID',
@@ -250,6 +255,33 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'default' => '',
                 'regexp' => '^(http(s)?(:\/\/|%3A%2F%2F).+){1,512}$',
             ),
+            //
+            // END Common and REST specific
+            //
+
+            array(
+                'name' => 'invalidrequestid',
+                'external_name' => 'InvalidRequestID',
+                'display_name' => self::s2p_t( 'Card failure reference ID' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+            ),
+            array(
+                'name' => 'statementdescriptor',
+                'external_name' => 'StatementDescriptor',
+                'display_name' => self::s2p_t( 'Statement descriptor' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+            ),
+            array(
+                'name' => 'token',
+                'external_name' => 'Token',
+                'display_name' => self::s2p_t( 'Token structure' ),
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'structure' => $token_details_obj->get_structure_definition(),
+            ),
+
         );
     }
 
