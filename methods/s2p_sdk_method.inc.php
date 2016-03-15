@@ -564,7 +564,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         if( ($http_code_error = self::get_http_code_error( $request_result['http_code'] )) )
         {
             if( ($generic_obj = new S2P_SDK_Structure_Generic_Error())
-            and ($json_array = $generic_obj->extract_info_from_response_buffer( $request_result['response_buffer'], array( 'output_null_values' => true ) ))
+            and ($json_array = $generic_obj->extract_info_from_response_buffer( $request_result['response_buffer'], array( 'output_null_values' => true, 'skip_regexps' => true ) ))
             and !empty( $json_array['message'] ) )
             {
                 // a bit useless, but we might change return value in the future...
@@ -585,7 +585,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 /** @var S2P_SDK_Scope_Structure $error_structure */
                 $error_structure = $this->_definition['error_structure'];
 
-                if( !($json_array = $error_structure->extract_info_from_response_buffer( $request_result['response_buffer'], array( 'output_null_values' => true ) ))
+                if( !($json_array = $error_structure->extract_info_from_response_buffer( $request_result['response_buffer'], array( 'output_null_values' => true, 'skip_regexps' => true ) ))
                  or !is_array( $json_array )
                 )
                 {
@@ -632,7 +632,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             /** @var S2P_SDK_Scope_Structure $response_structure */
             $response_structure = $this->_definition['response_structure'];
 
-            if( !($json_array = $response_structure->extract_info_from_response_buffer( $request_result['response_buffer'], array( 'output_null_values' => true ) ))
+            if( !($json_array = $response_structure->extract_info_from_response_buffer( $request_result['response_buffer'], array( 'output_null_values' => true, 'skip_regexps' => true ) ))
              or !is_array( $json_array ) )
             {
                 if( ($parsing_error = $response_structure->get_parsing_error()) )

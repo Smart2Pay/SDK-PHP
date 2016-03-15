@@ -62,7 +62,7 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Payment currency' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => null,
-                'regexp' => '^[A-Z]{3}$',
+                'regexp' => '^[a-zA-Z]{3}$',
                 'value_source' => S2P_SDK_Values_Source::TYPE_CURRENCY,
             ),
             array(
@@ -79,14 +79,14 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'external_name' => 'Description',
                 'display_name' => self::s2p_t( 'Payment description' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^.{1,255}$',
+                'regexp' => '^(.{1,500})?$',
             ),
             array(
                 'name' => 'statementdescriptor',
                 'external_name' => 'StatementDescriptor',
-                'display_name' => self::s2p_t( 'Payment description' ),
+                'display_name' => self::s2p_t( 'Payment statement description' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^.{1,255}$',
+                'regexp' => '^(.{1,250})?$',
             ),
             array(
                 'name' => 'billingaddress',

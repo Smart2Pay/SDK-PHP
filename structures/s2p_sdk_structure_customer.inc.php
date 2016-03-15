@@ -50,7 +50,7 @@ class S2P_SDK_Structure_Customer extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Customer email' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
-                'regexp' => '^[a-zA-Z0-9._%+-]{1,100}@[a-zA-Z0-9.-]{1,40}\.[a-zA-Z]{1,8}$',
+                'regexp' => S2P_SDK_Module::EMAIL_REGEXP,
             ),
             array(
                 'name' => 'firstname',

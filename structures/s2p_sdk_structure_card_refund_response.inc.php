@@ -110,7 +110,7 @@ class S2P_SDK_Structure_Card_Refund_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'statementdescriptor',
                 'external_name' => 'StatementDescriptor',
-                'display_name' => self::s2p_t( 'Refund description' ),
+                'display_name' => self::s2p_t( 'Refund statement description' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'regexp' => '^.{1,255}$',
             ),

@@ -8,7 +8,7 @@ if( !defined( 'S2P_SDK_DIR_STRUCTURES' ) )
 class S2P_SDK_Structure_User_Request extends S2P_SDK_Scope_Structure
 {
     const USER_PASS_REGEXP = '(?=^.{12,100}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_\-+}{":;\'?\/>.<,])(?!.*\s).*$',
-          USER_EMAIL_REGEXP = '^[a-zA-Z0-9._%+-]{1,100}@[a-zA-Z0-9.-]{1,40}\.[a-zA-Z]{1,8}$';
+          USER_EMAIL_REGEXP = S2P_SDK_Module::EMAIL_REGEXP;
 
     /**
      * Function should return array with full variable definition

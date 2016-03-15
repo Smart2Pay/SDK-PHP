@@ -32,6 +32,7 @@ class S2P_SDK_Structure_Card_Details extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
+                'regexp' => '^([A-Z a-z]{1,50})$',
             ),
             array(
                 'name' => 'number',
@@ -48,6 +49,7 @@ class S2P_SDK_Structure_Card_Details extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
+                'regexp' => '^(0[1-9]|1[0-2])$',
             ),
             array(
                 'name' => 'expirationyear',
@@ -56,6 +58,7 @@ class S2P_SDK_Structure_Card_Details extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
+                'regexp' => '^(19|20)([0-9]{2})$',
             ),
             array(
                 'name' => 'securitycode',
@@ -64,11 +67,12 @@ class S2P_SDK_Structure_Card_Details extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
+                'regexp' => '^([0-9]){3,4}$',
             ),
             array(
                 'name' => 'token',
                 'external_name' => 'Token',
-                'display_name' => self::s2p_t( 'Card holder name' ),
+                'display_name' => self::s2p_t( 'Card token' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
@@ -76,17 +80,9 @@ class S2P_SDK_Structure_Card_Details extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'maskednumber',
                 'external_name' => 'MaskedNumber',
-                'display_name' => self::s2p_t( 'Card holder name' ),
+                'display_name' => self::s2p_t( 'Card masked number' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
-                'skip_if_default' => true,
-            ),
-            array(
-                'name' => 'readonlynumber',
-                'external_name' => 'ReadOnlyNumber',
-                'display_name' => self::s2p_t( 'Card holder name' ),
-                'type' => S2P_SDK_VTYPE_BOOL,
-                'default' => null,
                 'skip_if_default' => true,
             ),
         );

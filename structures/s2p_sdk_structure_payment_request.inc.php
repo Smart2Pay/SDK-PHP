@@ -69,7 +69,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Payment currency' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => null,
-                'regexp' => '^[A-Z]{3}$',
+                'regexp' => '^[a-zA-Z]{3}$',
                 'value_source' => S2P_SDK_Values_Source::TYPE_CURRENCY,
             ),
             array(
