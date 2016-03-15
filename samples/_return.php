@@ -58,7 +58,10 @@
     switch( $return_parameters['data'] )
     {
         default:
-            S2P_SDK\S2P_SDK_Return::logf( 'unknown transaction status ('.$return_parameters['data'].')' );
+            if( ($status_str = S2P_SDK\S2P_SDK_Meth_Payments::valid_status( $return_parameters['data'] )) )
+                S2P_SDK\S2P_SDK_Return::logf( 'Transaction status ('.$return_parameters['data'].'): '.$status_str );
+            else
+                S2P_SDK\S2P_SDK_Return::logf( 'unknown transaction status ('.$return_parameters['data'].')' );
         break;
 
         case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_OPEN:

@@ -15,6 +15,7 @@
     include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_notification.inc.php' );
     include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_helper.inc.php' );
     include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_meth_payments.inc.php' );
+    include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_meth_preapprovals.inc.php' );
 
     define( 'S2P_SDK_NOTIFICATION_IDENTIFIER', microtime( true ) );
 
@@ -163,6 +164,61 @@
                 break;
                 case S2P_SDK\S2P_SDK_Meth_Preapprovals::STATUS_CLOSEDBYCUSTOMER:
                     S2P_SDK\S2P_SDK_Notification::logf( 'Preapproval is closed.', false );
+                break;
+            }
+        break;
+
+        case $notification_obj::TYPE_REFUND:
+            if( !($result_arr = $notification_obj->get_array())
+             or empty( $result_arr['refund'] ) or !is_array( $result_arr['refund'] ) )
+            {
+                S2P_SDK\S2P_SDK_Notification::logf( 'Couldn\'t extract refund object.' );
+                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
+                exit;
+            }
+
+            $refund_arr = $result_arr['refund'];
+
+            if( empty( $refund_arr['merchanttransactionid'] )
+             or empty( $refund_arr['status'] ) or empty( $refund_arr['status']['id'] ) )
+            {
+                S2P_SDK\S2P_SDK_Notification::logf( 'MerchantTransactionID or Status not provided.' );
+                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
+                exit;
+            }
+
+            if( !($status_title = S2P_SDK\S2P_SDK_Meth_Payments::valid_status( $refund_arr['status']['id'] )) )
+                $status_title = '(unknown)';
+
+            S2P_SDK\S2P_SDK_Notification::logf( 'Received '.$status_title.' notification for refund '.$refund_arr['merchanttransactionid'].'.', false );
+
+            // Update database according to payment status
+            switch( $refund_arr['status']['id'] )
+            {
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_OPEN:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Refund is open.', false );
+                break;
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_PENDING_CUSTOMER:
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_PENDING_PROVIDER:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Refund is pending.', false );
+                break;
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_SUCCESS:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Refund is successful.', false );
+                break;
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_CANCELLED:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Refund is cancelled.', false );
+                break;
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_FAILED:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Refund failed.', false );
+                break;
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_EXPIRED:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Refund expired.', false );
+                break;
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_PROCESSING:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Refund transaction...', false );
+                break;
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_AUTHORIZED:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Refund authorized.', false );
                 break;
             }
         break;
