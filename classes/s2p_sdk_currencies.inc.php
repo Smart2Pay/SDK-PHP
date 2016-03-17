@@ -21,7 +21,6 @@ class S2P_SDK_Currencies extends S2P_SDK_Language
         'BAM' => 'Convertible Mark',
         'BBD' => 'Barbados Dollar',
         'BDT' => 'Taka',
-        'BGL' => 'Lev',
         'BGN' => 'Bulgaria Leva',
         'BHD' => 'Bahraini Dinar',
         'BIF' => 'Burundi Franc',
