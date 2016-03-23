@@ -314,6 +314,14 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
 
                 'request_structure' => $card_payment_request_obj,
 
+                'hide_in_request' => array(
+                    'Payment' => array(
+                        'Customer' => array(
+                            'InputDateTime' => '',
+                        ),
+                    ),
+                ),
+
                 'mandatory_in_response' => array(
                     'payment' => array(),
                 ),
@@ -627,6 +635,14 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
                 ),
 
                 'request_structure' => $payout_request_obj,
+
+                'hide_in_request' => array(
+                    'Payout' => array(
+                        'Customer' => array(
+                            'InputDateTime' => '',
+                        ),
+                    ),
+                ),
 
                 'mandatory_in_response' => array(
                     'payout' => array(),

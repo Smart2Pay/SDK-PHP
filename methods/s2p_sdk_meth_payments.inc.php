@@ -276,6 +276,14 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
 
                 'request_structure' => $payment_request_obj,
 
+                'hide_in_request' => array(
+                    'Payment' => array(
+                        'Customer' => array(
+                            'InputDateTime' => '',
+                        ),
+                    ),
+                ),
+
                 'mandatory_in_response' => array(
                     'payment' => array(),
                 ),
@@ -509,6 +517,14 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                         'default' => 0,
                         'mandatory' => true,
                         'move_in_url' => true,
+                    ),
+                ),
+
+                'hide_in_request' => array(
+                    'Refund' => array(
+                        'Customer' => array(
+                            'InputDateTime' => '',
+                        ),
                     ),
                 ),
 

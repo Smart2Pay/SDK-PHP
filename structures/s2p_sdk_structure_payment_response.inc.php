@@ -234,6 +234,13 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'default' => '',
             ),
             array(
+                'name' => 'capture',
+                'external_name' => 'Capture',
+                'display_name' => self::s2p_t( 'Tells if payment was captured' ),
+                'type' => S2P_SDK_VTYPE_BOOL,
+                'default' => null,
+            ),
+            array(
                 'name' => 'tokenlifetime',
                 'external_name' => 'TokenLifetime',
                 'display_name' => self::s2p_t( 'Payment token lifetime' ),
