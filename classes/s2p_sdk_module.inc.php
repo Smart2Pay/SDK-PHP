@@ -144,7 +144,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
      * @see S2P_SDK\S2P_SDK_Module::st_get_error()
      * @see S2P_SDK\S2P_SDK_API::do_call()
      */
-    public static function quick_call( $api_parameters, $call_params = false, $finalize_params = false )
+    public static function quick_call( $api_parameters, $call_params = false, $finalize_params = false, $singleton = true )
     {
         self::st_reset_error();
 
@@ -176,7 +176,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         try
         {
             /** @var S2P_SDK_API $api */
-            if( !($api = self::get_instance( 'S2P_SDK_API', $api_parameters )) )
+            if( !($api = self::get_instance( 'S2P_SDK_API', $api_parameters, $singleton )) )
             {
                 if( !self::st_has_error() )
                     self::st_set_error( self::ERR_API_QUICK_CALL, self::s2p_t( 'Failed initializing API object.' ) );

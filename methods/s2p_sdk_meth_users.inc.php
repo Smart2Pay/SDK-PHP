@@ -13,7 +13,7 @@ class S2P_SDK_Meth_Users extends S2P_SDK_Method
 {
     const ERR_REASON_CODE = 300, ERR_EMPTY_ID = 301;
 
-    const FUNC_CREATE = 'create';
+    const FUNC_CREATE = 'create', FUNC_EDIT = 'edit';
 
     /**
      * Tells which entry point does this method use
@@ -54,6 +54,7 @@ class S2P_SDK_Meth_Users extends S2P_SDK_Method
 
         switch( $response_data['func'] )
         {
+            case self::FUNC_EDIT:
             case self::FUNC_CREATE:
                 if( !empty( $response_data['response_array']['user'] ) )
                 {
@@ -114,6 +115,43 @@ class S2P_SDK_Meth_Users extends S2P_SDK_Method
                     'User' => array(
                         'Name' => '',
                         'Email' => '',
+                    ),
+                ),
+
+                'request_structure' => $user_request_obj,
+
+                'mandatory_in_response' => array(
+                    'user' => array(
+                        'id' => 0,
+                    ),
+                ),
+
+                'response_structure' => $user_response_obj,
+
+                'error_structure' => $user_response_obj,
+            ),
+
+            self::FUNC_EDIT => array(
+                'name' => self::s2p_t( 'Edit User Account' ),
+                'url_suffix' => '/v1/users/{*ID*}/',
+                'http_method' => 'PATCH',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'display_name' => self::s2p_t( 'User Account ID' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'hide_in_request' => array(
+                    'User' => array(
+                        'Name' => '',
+                        'SiteID' => 0,
+                        'RoleID' => 0,
                     ),
                 ),
 
