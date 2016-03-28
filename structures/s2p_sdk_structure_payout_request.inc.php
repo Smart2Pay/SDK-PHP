@@ -91,8 +91,8 @@ class S2P_SDK_Structure_Payout_Request extends S2P_SDK_Scope_Structure
                 'structure' => $customer_obj->get_structure_definition(),
             ),
             array(
-                'name' => 'carddetails',
-                'external_name' => 'CardDetails',
+                'name' => 'card',
+                'external_name' => 'Card',
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'structure' => $card_details_obj->get_structure_definition(),
