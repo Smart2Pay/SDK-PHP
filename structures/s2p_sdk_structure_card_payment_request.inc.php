@@ -9,7 +9,7 @@ include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_customer.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_address.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_article.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_card_details.inc.php' );
-include_once(S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_card_token_details.inc.php');
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_card_token_details.inc.php');
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source.inc.php' );
 
 class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure

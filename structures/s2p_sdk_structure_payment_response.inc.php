@@ -11,7 +11,8 @@ include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_address.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_article.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_details.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_reference_details.inc.php' );
-include_once(S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_card_token_details.inc.php');
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_card_token_details.inc.php');
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_card_details.inc.php' );
 
 class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
 {
@@ -42,6 +43,7 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
         $payment_details_obj = new S2P_SDK_Structure_Payment_Details();
         $reference_details_obj = new S2P_SDK_Structure_Payment_Reference_Details();
         $token_details_obj = new S2P_SDK_Structure_Card_Token_Details();
+        $card_details_obj = new S2P_SDK_Structure_Card_Details();
 
         return array(
             //
@@ -287,6 +289,14 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'structure' => $token_details_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'card',
+                'external_name' => 'Card',
+                'display_name' => self::s2p_t( 'Card structure' ),
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'structure' => $card_details_obj->get_structure_definition(),
             ),
 
         );
