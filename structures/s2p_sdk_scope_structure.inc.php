@@ -410,6 +410,8 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
             $params['path'] = '';
         if( empty( $params['scope_external_names'] ) )
             $params['scope_external_names'] = false;
+        if( empty( $params['include_nodes_to_paths'] ) )
+            $params['include_nodes_to_paths'] = false;
 
         if( $scope_arr === false )
         {
@@ -450,6 +452,9 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
                 continue;
             } else
             {
+                if( empty( $params['include_nodes_to_paths'] ) )
+                    $return_arr[$current_path] = $node_arr;
+
                 // Complex structures...
                 $new_params = $params;
                 $new_params['path'] = $current_path;
