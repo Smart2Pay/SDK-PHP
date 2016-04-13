@@ -354,6 +354,25 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
                 'response_structure' => $payment_response_obj,
             ),
 
+            self::FUNC_PAYMENT_STATUS => array(
+                'name' => self::s2p_t( 'Card Payment Status' ),
+                'url_suffix' => '/v1/payments/{*ID*}/statuss',
+                'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'response_structure' => $payment_response_obj,
+            ),
+
             self::FUNC_CAPTURE_PAYMENT => array(
                 'name' => self::s2p_t( 'Capture Card Payment' ),
                 'url_suffix' => '/v1/payments/{*ID*}/capture',

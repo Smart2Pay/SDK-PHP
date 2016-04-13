@@ -14,7 +14,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
     const ERR_REASON_CODE = 300, ERR_EMPTY_ID = 301;
 
     const FUNC_LIST_ALL = 'list_all', FUNC_SITE_DETAILS = 'site_details',
-          FUNC_SITE_CREATE = 'site_create', FUNC_SITE_EDIT = 'site_edit',
+          FUNC_SITE_CREATE = 'site_create', FUNC_SITE_EDIT = 'site_edit', FUNC_SITE_DELETE = 'site_delete',
           FUNC_REGEN_APIKEY = 'regen_apikey';
 
     /**
@@ -57,7 +57,9 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
         switch( $response_data['func'] )
         {
             case self::FUNC_SITE_CREATE:
+            case self::FUNC_SITE_DETAILS:
             case self::FUNC_SITE_EDIT:
+            case self::FUNC_SITE_DELETE:
             case self::FUNC_REGEN_APIKEY:
                 if( !empty( $response_data['response_array']['merchantsite'] ) )
                 {
@@ -231,6 +233,29 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
                 'response_structure' => $merchantsite_obj,
 
                 'error_structure' => $merchantsite_obj,
+            ),
+
+            self::FUNC_SITE_DELETE => array(
+                'name' => self::s2p_t( 'Delete Merchant Site' ),
+                'url_suffix' => '/v1/merchantsites/{*ID*}/',
+                'http_method' => 'DELETE',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'display_name' => self::s2p_t( 'Site ID' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'merchantsite' => array(),
+                ),
+
+                'response_structure' => $merchantsite_obj,
             ),
 
             self::FUNC_REGEN_APIKEY => array(
