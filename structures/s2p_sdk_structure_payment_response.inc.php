@@ -283,9 +283,9 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'default' => '',
             ),
             array(
-                'name' => 'token',
-                'external_name' => 'Token',
-                'display_name' => self::s2p_t( 'Token structure' ),
+                'name' => 'creditcardtoken',
+                'external_name' => 'CreditCardToken',
+                'display_name' => self::s2p_t( 'Credit card token structure' ),
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'structure' => $token_details_obj->get_structure_definition(),
