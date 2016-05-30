@@ -141,8 +141,8 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'skip_if_default' => true,
             ),
             array(
-                'name' => 'reusetoken',
-                'external_name' => 'ReuseToken',
+                'name' => 'reusecreditcardtoken',
+                'external_name' => 'ReuseCreditCardToken',
                 'display_name' => self::s2p_t( 'Should re-use token?' ),
                 'type' => S2P_SDK_VTYPE_BOOL,
                 'default' => null,

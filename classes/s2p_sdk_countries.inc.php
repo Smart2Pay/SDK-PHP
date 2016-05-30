@@ -298,8 +298,8 @@ class S2P_SDK_Countries extends S2P_SDK_Language
         $found_terms = array();
         foreach( $all_terms_arr as $key => $val )
         {
-            if( stristr( $term, $key ) === false
-             or stristr( $term, $val ) === false )
+            if( stristr( $key, $term ) === false
+             or stristr( $val, $term ) === false )
                 continue;
 
             $found_terms[$key] = $val;
