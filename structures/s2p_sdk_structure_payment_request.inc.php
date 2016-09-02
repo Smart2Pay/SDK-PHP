@@ -48,6 +48,12 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'regexp' => '^\d{1,12}$',
             ),
             array(
+                'name' => 'clientip',
+                'external_name' => 'ClientIP',
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => null,
+            ),
+            array(
                 'name' => 'merchanttransactionid',
                 'external_name' => 'MerchantTransactionID',
                 'display_name' => self::s2p_t( 'Payment merchant assigned transaction ID' ),
