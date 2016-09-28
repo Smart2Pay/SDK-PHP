@@ -84,6 +84,31 @@ class S2P_SDK_Structure_Payment_Customer_Details extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
             ),
+            array(
+                'name' => 'payercountry',
+                'external_name' => 'PayerCountry',
+                'display_name' => self::s2p_t( 'Payer country ISO 2 characters' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'regexp' => '^[a-zA-Z]{2}$',
+                'value_source' => S2P_SDK_Values_Source::TYPE_COUNTRY,
+            ),
+            array(
+                'name' => 'payeremail',
+                'external_name' => 'PayerEmail',
+                'display_name' => self::s2p_t( 'Payer email address' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'regexp' => S2P_SDK_Module::EMAIL_REGEXP,
+            ),
+            array(
+                'name' => 'payerphone',
+                'external_name' => 'PayerPhone',
+                'display_name' => self::s2p_t( 'Payer phone number' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'regexp' => '^.{1,20}$',
+            ),
        );
     }
 

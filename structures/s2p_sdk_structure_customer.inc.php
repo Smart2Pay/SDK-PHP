@@ -74,6 +74,14 @@ class S2P_SDK_Structure_Customer extends S2P_SDK_Scope_Structure
                 'default' => '',
             ),
             array(
+                'name' => 'dateofbirth',
+                'external_name' => 'DateOfBirth',
+                'display_name' => self::s2p_t( 'Customer date of birth' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'regexp' => '^(((19|20)\d\d)(0[1-9]|1[012])(0[1-9]|[12][0-9]|3[01]))$',
+            ),
+            array(
                 'name' => 'socialsecuritynumber',
                 'external_name' => 'SocialSecurityNumber',
                 'display_name' => self::s2p_t( 'Customer social security number' ),

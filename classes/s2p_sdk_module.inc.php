@@ -12,6 +12,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
     const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001, ERR_API_QUICK_CALL = 1002;
 
     const EMAIL_REGEXP = '^[a-zA-Z0-9\._%+-]{1,100}@[a-zA-Z0-9\.-]{1,40}\.[a-zA-Z]{1,8}$';
+    const IP_REGEXP = '^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$';
 
     private static $instances = array();
     private static $hooks = array();
