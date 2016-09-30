@@ -17,7 +17,7 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
     const ERR_REASON_CODE = 300, ERR_EMPTY_ID = 301;
 
     const FUNC_INIT_PREAPPROVAL = 'preapproval_init', FUNC_LIST_ALL = 'list_all', FUNC_DETAILS = 'preapproval_details',
-          FUNC_PAYMENTS = 'preapproval_payments';
+          FUNC_PAYMENTS = 'preapproval_payments', FUNC_CLOSE = 'preapproval_close';
 
     const STATUS_PENDING = 1, STATUS_OPEN = 2, STATUS_CLOSEDBYCUSTOMER = 4;
 
@@ -113,6 +113,7 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
         switch( $response_data['func'] )
         {
             case self::FUNC_INIT_PREAPPROVAL:
+            case self::FUNC_CLOSE:
                 if( !empty( $response_data['response_array']['preapproval'] ) )
                 {
                     if( !empty( $response_data['response_array']['preapproval']['status'] )
@@ -144,13 +145,13 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
                         return false;
                     }
 
-                    //if( $response_data['func'] == self::FUNC_CANCEL_PAYMENT
-                    //and isset( $response_data['response_array']['payment']['status']['id'] )
-                    //and $response_data['response_array']['payment']['status']['id'] != self::STATUS_CANCELLED )
-                    //{
-                    //    $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'Payment not cancelled.' ) );
-                    //    return false;
-                    //}
+                    if( $response_data['func'] == self::FUNC_CLOSE
+                    and isset( $response_data['response_array']['preapproval']['status']['id'] )
+                    and $response_data['response_array']['preapproval']['status']['id'] != self::STATUS_CLOSEDBYCUSTOMER )
+                    {
+                       $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'Preapproval not closed.' ) );
+                       return false;
+                    }
                 }
             break;
 
@@ -215,6 +216,29 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
                 ),
 
                 'response_structure' => $preapproval_response_list_obj,
+            ),
+
+            self::FUNC_CLOSE => array(
+                'name' => self::s2p_t( 'Close a Preapproval' ),
+                'url_suffix' => '/v1/preapprovals/{*ID*}',
+                'http_method' => 'DELETE',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'display_name' => self::s2p_t( 'Preapproval ID' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'preapproval' => array(),
+                ),
+
+                'response_structure' => $preapproval_response_obj,
             ),
 
             self::FUNC_DETAILS => array(
