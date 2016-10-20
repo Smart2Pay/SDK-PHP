@@ -298,6 +298,18 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
             $params['post_arr'] = array();
         if( empty( $params['header_arr'] ) or !is_array( $params['header_arr'] ) )
             $params['header_arr'] = array();
+        if( empty( $params['curl_init_callback'] ) or !is_callable( $params['curl_init_callback'] ) )
+            $params['curl_init_callback'] = false;
+
+        if( !empty( $params['curl_init_callback'] ) )
+        {
+            if( ($curl_init_result = @call_user_func( $params['curl_init_callback'], array( 'ch' => $ch, 'params' => $params ) ))
+            and is_array( $curl_init_result ) )
+            {
+                if( !empty( $curl_init_result['params'] ) and is_array( $curl_init_result['params'] ) )
+                    $params = $curl_init_result['params'];
+            }
+        }
 
         // Convert old format to new format...
         if( !empty( $params['header_arr'] ) )

@@ -59,6 +59,9 @@
     );
 
     $call_params = array();
+    $call_params['curl_params'] = array(
+        'curl_init_callback' => 'api_curl_extra_init',
+    );
 
     $finalize_params = array();
     $finalize_params['redirect_now'] = false;
@@ -74,7 +77,7 @@
             echo 'Unknown error.';
     } else
     {
-        echo 'API call time: '.$call_result['call_microseconds'].'ms<br/>'."\n";
+        echo 'API call time: '.$call_result['call_microseconds'].'s<br/>'."\n";
 
         if( !empty( $call_result['finalize_result']['should_redirect'] )
         and !empty( $call_result['finalize_result']['redirect_to'] ) )
@@ -89,3 +92,38 @@
 
         echo '</pre>';
     }
+
+/**
+ * @param array $params_arr Value of 'ch' key is the cURL handler and 'params' key are parameters sent to \S2P_SDK\S2P_SDK_Rest_API_Request::do_curl() method
+ *
+ * @return bool|array If function call returns an array and on key 'params' there is an array, this array will replace exising $params array of parameters sent to \S2P_SDK\S2P_SDK_Rest_API_Request::do_curl() method.
+ * !!! If you override 'params', be carefull not to break 'params' array as cURL call might fail.
+ */
+function api_curl_extra_init( $params_arr )
+{
+    if( empty( $params_arr ) or !is_array( $params_arr )
+     or empty( $params_arr['ch'] )
+     or !is_resource( $params_arr['ch'] ) )
+        return false;
+
+    // !!! Example on adding extra custom headers to cURL call
+    // if( empty( $params_arr['params'] ) or !is_array( $params_arr['params'] ) )
+    //     $params_arr['params'] = array();
+    //
+    // if( empty( $params_arr['params']['header_keys_arr'] ) or !is_array( $params_arr['params']['header_keys_arr'] ) )
+    //     $params_arr['params']['header_keys_arr']['My-Header'] = 'MyValue';
+
+    // !!! Example on adding proxy settings to cURL request
+    // $proxy_server = '127.0.0.1:8888';
+    // $proxyauth = 'user:password';
+    //
+    // curl_setopt( $params_arr['ch'], CURLOPT_PROXY, $proxy_server );
+    // curl_setopt( $params_arr['ch'], CURLOPT_PROXYUSERPWD, $proxyauth );
+
+    return array(
+        // Uncomment this line if you want to alter specific parameters of \S2P_SDK\S2P_SDK_Rest_API_Request::do_curl() method
+        // Some parameters will be overridden by \S2P_SDK\S2P_SDK_Rest_API_Request::do_curl() method.
+        // Check method to see what other parameters you can alter
+        // 'params' => $params_arr['params'],
+    );
+}

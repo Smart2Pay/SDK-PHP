@@ -142,8 +142,8 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
      *
      * @return array|false Returns false on error (error available with S2P_SDK\S2P_SDK_Module::st_get_error())
      *
-     * @see S2P_SDK\S2P_SDK_Module::st_get_error()
-     * @see S2P_SDK\S2P_SDK_API::do_call()
+     * @see \S2P_SDK\S2P_SDK_Module::st_get_error()
+     * @see \S2P_SDK\S2P_SDK_API::do_call()
      */
     public static function quick_call( $api_parameters, $call_params = false, $finalize_params = false, $singleton = true )
     {

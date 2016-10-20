@@ -35,7 +35,7 @@
             echo 'Unknown error.';
     } else
     {
-        echo 'API call time: '.$call_result['call_microseconds'].'ms<br/>'."\n";
+        echo 'API call time: '.$call_result['call_microseconds'].'s<br/>'."\n";
 
         if( !empty( $call_result['finalize_result']['should_redirect'] )
         and !empty( $call_result['finalize_result']['redirect_to'] ) )

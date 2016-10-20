@@ -24,8 +24,8 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
           ERR_APIKEY = 106, ERR_CURL_CALL = 107, ERR_PARSE_RESPONSE = 108, ERR_VALIDATE_RESPONSE = 109, ERR_CALL_RESULT = 110, ERR_SITE_ID = 111,
           ERR_ENTRY_POINT = 112;
 
-    const TEST_CARDS_URL = 'http://smartcards.trafficmanager.net',
-          LIVE_CARDS_URL = ''; // not active yet...
+    const TEST_CARDS_URL = 'https://securetest.smart2pay.com',
+          LIVE_CARDS_URL = 'https://secure.smart2pay.com';
 
     const TEST_BASE_URL = 'https://paytest.smart2pay.com',
           LIVE_BASE_URL = 'https://pay.smart2pay.com';
@@ -440,6 +440,8 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             $params['quick_return_request'] = false;
         if( empty( $params['custom_validators'] ) or !is_array( $params['custom_validators'] ) )
             $params['custom_validators'] = array();
+        if( empty( $params['curl_params'] ) or !is_array( $params['curl_params'] ) )
+            $params['curl_params'] = array();
 
         if( empty( $this->_method ) )
         {
@@ -524,9 +526,9 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
         $this->_request->add_header( 'Content-Type', 'application/json; charset=utf-8' );
 
-        $call_params = array();
+        $call_params = $params['curl_params'];
         if( empty( $params['user_agent'] ) )
-            $call_params['user_agent'] = 'APISDK_'.S2P_SDK_VERSION.'/PHP_'.phpversion().'/'.php_uname('s').'_'.php_uname('r');
+            $call_params['user_agent'] = 'APISDK_'.S2P_SDK_VERSION.'/PHP_'.@phpversion().'/'.@php_uname('s').'_'.@php_uname('r');
         else
             $call_params['user_agent'] = trim( $params['user_agent'] );
         $call_params['userpass'] = array( 'user' => $site_id, 'pass' => $api_key );

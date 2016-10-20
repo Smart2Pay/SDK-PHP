@@ -46,9 +46,9 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
      * Extracts custom validator for specific payment methods. Details about validator comes from server...
      *
      * @param array $validator_arr
-     * @param false|array $payment_request_arr Payment request array obtained from \S2P_SDK\S2P_SDK_Structure_Payment_Request
+     * @param bool|array $payment_request_arr Payment request array obtained from \S2P_SDK\S2P_SDK_Structure_Payment_Request
      *
-     * @return false|array Returns a payment request node transformed from validator source
+     * @return bool|array Returns a payment request node transformed from validator source
      */
     public static function extract_method_validator( $validator_arr, $payment_request_arr = false )
     {
