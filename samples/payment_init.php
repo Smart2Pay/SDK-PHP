@@ -60,7 +60,12 @@
 
     $call_params = array();
     $call_params['curl_params'] = array(
-        'curl_init_callback' => 'api_curl_extra_init',
+        // In case you use proxy
+        // 'proxy_server' => '8.8.8.8:888',
+        // In case you need proxy authentication
+        // 'proxy_auth' => 'user:pass',
+        // For full access to cURL handler
+        // 'curl_init_callback' => 'api_curl_extra_init',
     );
 
     $finalize_params = array();
@@ -113,12 +118,10 @@ function api_curl_extra_init( $params_arr )
     // if( empty( $params_arr['params']['header_keys_arr'] ) or !is_array( $params_arr['params']['header_keys_arr'] ) )
     //     $params_arr['params']['header_keys_arr']['My-Header'] = 'MyValue';
 
-    // !!! Example on adding proxy settings to cURL request
-    // $proxy_server = '127.0.0.1:8888';
-    // $proxyauth = 'user:password';
+    // !!! Example on adding extra cURL options
     //
-    // curl_setopt( $params_arr['ch'], CURLOPT_PROXY, $proxy_server );
-    // curl_setopt( $params_arr['ch'], CURLOPT_PROXYUSERPWD, $proxyauth );
+    // @curl_setopt( $params_arr['ch'], CURLOPT_HTTPPROXYTUNNEL, 0 );
+    // @curl_setopt( $params_arr['ch'], CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5 );
 
     return array(
         // Uncomment this line if you want to alter specific parameters of \S2P_SDK\S2P_SDK_Rest_API_Request::do_curl() method

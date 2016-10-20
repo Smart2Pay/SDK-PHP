@@ -46,4 +46,4 @@ Once all above steps are completed you can test a full end-to-end transaction an
 
 demo.php script will generate logs when redirected back to return page in log_return.log and also for notifications in log_demo.log. Please make sure PHP has rights to create and write in these files located in root of SDK directory. If PHP doesn't have creation rights on SDK directory create these two log files first and give PHP write rights on them.
 
-For quick samples of how you should implement SDK methods and functionalities please check samples directory.
+For quick samples on how you should implement SDK methods and functionalities please check samples directory.

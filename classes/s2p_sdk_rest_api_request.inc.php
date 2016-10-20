@@ -300,6 +300,10 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
             $params['header_arr'] = array();
         if( empty( $params['curl_init_callback'] ) or !is_callable( $params['curl_init_callback'] ) )
             $params['curl_init_callback'] = false;
+        if( empty( $params['proxy_server'] ) )
+            $params['proxy_server'] = '';
+        if( empty( $params['proxy_auth'] ) )
+            $params['proxy_auth'] = '';
 
         if( !empty( $params['curl_init_callback'] ) )
         {
@@ -397,7 +401,12 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
             @curl_setopt( $ch, CURLOPT_HTTPHEADER, $params['header_arr'] );
 
         if( !empty( $params['user_agent'] ) )
-            curl_setopt( $ch, CURLOPT_USERAGENT, $params['user_agent'] );
+            @curl_setopt( $ch, CURLOPT_USERAGENT, $params['user_agent'] );
+
+        if( !empty( $params['proxy_server'] ) )
+            @curl_setopt( $ch, CURLOPT_PROXY, $params['proxy_server'] );
+        if( !empty( $params['proxy_auth'] ) )
+            @curl_setopt( $ch, CURLOPT_PROXYUSERPWD, $params['proxy_auth'] );
 
         @curl_setopt( $ch, CURLOPT_URL, $url );
         @curl_setopt( $ch, CURLOPT_HEADER, 1 );
