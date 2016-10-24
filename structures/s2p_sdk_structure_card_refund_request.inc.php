@@ -36,6 +36,14 @@ class S2P_SDK_Structure_Card_Refund_Request extends S2P_SDK_Scope_Structure
                 'default' => '',
             ),
             array(
+                'name' => 'originatortransactionid',
+                'external_name' => 'OriginatorTransactionID',
+                'display_name' => self::s2p_t( 'Initial payment transaction ID' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
+            ),
+            array(
                 'name' => 'amount',
                 'external_name' => 'Amount',
                 'display_name' => self::s2p_t( 'Refund amount' ),
