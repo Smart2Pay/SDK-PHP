@@ -49,6 +49,14 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
             ),
             array(
+                'name' => 'originatortransactionid',
+                'external_name' => 'OriginatorTransactionID',
+                'display_name' => self::s2p_t( 'Initial payment transaction ID' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
+            ),
+            array(
                 'name' => 'amount',
                 'external_name' => 'Amount',
                 'display_name' => self::s2p_t( 'Payment amount' ),
@@ -141,12 +149,27 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'skip_if_default' => true,
             ),
             array(
+                'name' => '3dsecure',
+                'external_name' => '3DSecure',
+                'display_name' => self::s2p_t( 'Should try a 3D secure payment?' ),
+                'type' => S2P_SDK_VTYPE_BOOL,
+                'default' => null,
+                'skip_if_default' => true,
+            ),
+            array(
                 'name' => 'reusecreditcardtoken',
                 'external_name' => 'ReuseCreditCardToken',
                 'display_name' => self::s2p_t( 'Should re-use token?' ),
                 'type' => S2P_SDK_VTYPE_BOOL,
                 'default' => null,
                 'skip_if_default' => true,
+            ),
+            array(
+                'name' => 'paymenttokenlifetime',
+                'external_name' => 'PaymentTokenLifetime',
+                'display_name' => self::s2p_t( 'Payment token lifetime' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'regexp' => '^\d{1,12}$',
             ),
         );
     }
