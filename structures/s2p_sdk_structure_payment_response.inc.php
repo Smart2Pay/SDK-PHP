@@ -113,6 +113,14 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'value_source' => S2P_SDK_Values_Source::TYPE_CURRENCY,
             ),
             array(
+                'name' => 'capturedamount',
+                'external_name' => 'CapturedAmount',
+                'display_name' => self::s2p_t( 'Payment amount captured' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'default' => 0,
+                'regexp' => '^\d{1,12}$',
+            ),
+            array(
                 'name' => 'returnurl',
                 'external_name' => 'ReturnURL',
                 'display_name' => self::s2p_t( 'Payment return URL' ),

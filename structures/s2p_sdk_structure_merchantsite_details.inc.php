@@ -70,7 +70,7 @@ class S2P_SDK_Structure_Merchantsite_Details extends S2P_SDK_Scope_Structure
                 'external_name' => 'City',
                 'display_name' => self::s2p_t( 'Site City' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^[0-9a-zA-Z; \.\']{1,512}$',
+                'regexp' => '^.{1,50}$',
             ),
             array(
                 'name' => 'email',
@@ -84,7 +84,7 @@ class S2P_SDK_Structure_Merchantsite_Details extends S2P_SDK_Scope_Structure
                 'external_name' => 'Address',
                 'display_name' => self::s2p_t( 'Site contact address' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^[0-9a-zA-Z; \.\']{1,512}$',
+                'regexp' => '^.{1,512}$',
             ),
             array(
                 'name' => 'bankname',
@@ -126,14 +126,14 @@ class S2P_SDK_Structure_Merchantsite_Details extends S2P_SDK_Scope_Structure
                 'external_name' => 'VATNumber',
                 'display_name' => self::s2p_t( 'Site VAT number' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^[a-zA-Z]{4}[a-zA-Z]{2}[a-zA-Z0-9]{2}[XXX0-9]{0,3}',
+                'regexp' => '^.{1,50}$',
             ),
             array(
                 'name' => 'registrationnumber',
                 'external_name' => 'RegistrationNumber',
                 'display_name' => self::s2p_t( 'Site registration number' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^[a-zA-Z]{4}[a-zA-Z]{2}[a-zA-Z0-9]{2}[XXX0-9]{0,3}',
+                'regexp' => '^.{1,50}$',
             ),
        );
     }
