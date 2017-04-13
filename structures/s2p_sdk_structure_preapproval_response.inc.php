@@ -150,7 +150,7 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Option for Payment Method ID' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
-                'regexp' => '^\d{1,12}$',
+                'regexp' => '^([0-9]{1,10})$',
             ),
         );
     }
