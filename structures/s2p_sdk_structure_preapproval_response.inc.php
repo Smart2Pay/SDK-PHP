@@ -144,6 +144,14 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
                 'default' => '',
                 'regexp' => '^(http(s)?(:\/\/|%3A%2F%2F).+){1,512}$',
             ),
+            array(
+                'name' => 'methodoptionid',
+                'external_name' => 'MethodOptionID',
+                'display_name' => self::s2p_t( 'Option for Payment Method ID' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'default' => 0,
+                'regexp' => '^\d{1,12}$',
+            ),
         );
     }
 
