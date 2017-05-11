@@ -157,9 +157,9 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'skip_if_default' => true,
             ),
             array(
-                'name' => 'reusecreditcardtoken',
-                'external_name' => 'ReuseCreditCardToken',
-                'display_name' => self::s2p_t( 'Should re-use token?' ),
+                'name' => 'generatecreditcardtoken',
+                'external_name' => 'GenerateCreditCardToken',
+                'display_name' => self::s2p_t( 'Should return credit card token in response?' ),
                 'type' => S2P_SDK_VTYPE_BOOL,
                 'default' => null,
                 'skip_if_default' => true,

@@ -40,6 +40,14 @@ class S2P_SDK_Structure_Card_Token_Details extends S2P_SDK_Scope_Structure
                 'skip_if_default' => true,
             ),
             array(
+                'name' => 'requiresecuritycode',
+                'external_name' => 'RequireSecurityCode',
+                'display_name' => self::s2p_t( 'Should payer be asked for CVV/CVC?' ),
+                'type' => S2P_SDK_VTYPE_BOOL,
+                'default' => null,
+                'skip_if_default' => true,
+            ),
+            array(
                 'name' => 'securitycode',
                 'external_name' => 'SecurityCode',
                 'display_name' => self::s2p_t( 'Token security code' ),
