@@ -26,7 +26,7 @@ class S2P_SDK_Rest_API_Codes extends S2P_SDK_Language
     {
         return array(
 
-            0 => self::s2p_t( 'Host not found.' ),
+            0 => self::s2p_t( 'Host not found / Timed out' ),
 
             100 => self::s2p_t( 'Continue' ),
             101 => self::s2p_t( 'Switching Protocols' ),

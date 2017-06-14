@@ -34,6 +34,23 @@ class S2P_SDK_Language extends S2P_SDK_Error
     }
 
     /**
+     * @return bool Returns true if multi language is enabled or false otherwise
+     */
+    public static function get_multi_language_enabled()
+    {
+        return self::language_container()->get_multi_language_enabled();
+    }
+
+    /**
+     * @param bool $enabled Whether multi language should be enabled or not
+     * @return bool Returns multi language enabled value currently set
+     */
+    public static function set_multi_language( $enabled )
+    {
+        return self::language_container()->set_multi_language( $enabled );
+    }
+
+    /**
      * @return string Returns currently selected language
      */
     public static function get_current_language()
@@ -42,7 +59,10 @@ class S2P_SDK_Language extends S2P_SDK_Error
     }
 
     /**
-     * @return string Returns currently selected language
+     * @param string $lang ISO 2 chars (lowercase) language code to add language files to
+     * @param array $files_arr Array with language files to be added
+     *
+     * @return bool Returns true on success or false on falure
      */
     public static function add_language_files( $lang, $files_arr )
     {
@@ -110,6 +130,8 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
     // We take error codes from 100000+ to let 1-99999 for custom defined constant errors
     const ERR_LANGUAGE_DEFINITION = 100000, ERR_LANGUAGE_LOAD = 100001, ERR_NOT_STRING = 100002;
 
+    //! Tells if multi language should be enabled for SDK
+    private static $MULTI_LANGUAGE_ENABLED = true;
     //! Fallback language in case we try to translate a text which is not defined in current language
     private static $DEFAULT_LANGUAGE = '';
     //! Current language
@@ -123,6 +145,27 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
     function __construct()
     {
         parent::__construct();
+    }
+
+    public static function st_get_multi_language_enabled()
+    {
+        return self::$MULTI_LANGUAGE_ENABLED;
+    }
+
+    public static function st_set_multi_language( $enabled )
+    {
+        self::$MULTI_LANGUAGE_ENABLED = (!empty( $enabled )?true:false);
+        return self::$MULTI_LANGUAGE_ENABLED;
+    }
+
+    public function get_multi_language_enabled()
+    {
+        return self::st_get_multi_language_enabled();
+    }
+
+    public function set_multi_language( $enabled )
+    {
+        return self::st_set_multi_language( $enabled );
     }
 
     public static function st_get_current_language()
@@ -243,9 +286,18 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
         return true;
     }
 
+    /**
+     * @param string $lang ISO 2 chars (lowercase) language code to add language files to
+     * @param array $files_arr Array with language files to be added
+     *
+     * @return bool Returns true on success or false on falure
+     */
     public function add_language_files( $lang, array $files_arr )
     {
         $this->reset_error();
+
+        if( !self::st_get_multi_language_enabled() )
+            return true;
 
         $lang = self::prepare_lang_index( $lang );
         if( empty( $lang )
@@ -264,7 +316,7 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
         foreach( $files_arr as $lang_file )
         {
             if( empty( $lang_file )
-                or !@file_exists( $lang_file ) or !@is_readable( $lang_file ) )
+             or !@file_exists( $lang_file ) or !@is_readable( $lang_file ) )
             {
                 $this->set_error( self::ERR_LANGUAGE_DEFINITION, 'Language file ['.@basename( $lang_file ).'] for language ['.$lang.'] not found or not readable.' );
                 return false;
@@ -306,6 +358,9 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
     {
         $this->reset_error();
 
+        if( !self::st_get_multi_language_enabled() )
+            return true;
+
         if( !($lang = self::valid_language( $lang ))
          or !($lang_details = self::get_defined_language( $lang ))
          or empty( $lang_details['files'] ) or !is_array( $lang_details['files'] ) )
@@ -333,6 +388,9 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
      */
     private function load_language_file( $file, $lang )
     {
+        if( !self::st_get_multi_language_enabled() )
+            return true;
+
         if( !($lang = self::valid_language( $lang )) )
         {
             $this->set_error( self::ERR_LANGUAGE_LOAD, 'Language ['.$lang.'] not defined.' );
@@ -482,13 +540,12 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
         if( !is_string( $index ) )
             return 'Language index is not a string ('.gettype( $index ).' provided)';
 
-        if( !($lang = self::valid_language( $lang )) )
-            return $index;
-
         if( empty( $args ) or !is_array( $args ) )
             $args = array();
 
-        if( !self::language_loaded( $lang ) )
+        if( self::st_get_multi_language_enabled()
+        and ($lang = self::valid_language( $lang ))
+        and !self::language_loaded( $lang ) )
         {
             if( !$this->load_language( $lang ) )
             {
@@ -501,7 +558,9 @@ class S2P_SDK_Language_Container extends S2P_SDK_Error
             }
         }
 
-        if( isset( self::$LANGUAGE_INDEXES[$lang][$index] ) )
+        if( self::st_get_multi_language_enabled()
+        and !empty( $lang )
+        and isset( self::$LANGUAGE_INDEXES[$lang][$index] ) )
             $working_index = self::$LANGUAGE_INDEXES[$lang][$index];
         else
             $working_index = $index;

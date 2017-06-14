@@ -4,7 +4,7 @@
     if( !($_current_directory_path = __DIR__) )
         $_current_directory_path = getcwd();
 
-    define( 'S2P_SDK_VERSION', '1.1.19' );
+    define( 'S2P_SDK_VERSION', '1.1.20' );
 
     define( 'S2P_SDK_DIR_PATH', $_current_directory_path.'/' );
     define( 'S2P_SDK_DIR_CLASSES', $_current_directory_path.'/classes/' );
@@ -20,6 +20,8 @@
 
     include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_scope_variable.inc.php' );
     include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_scope_structure.inc.php' );
+
+    S2P_SDK\S2P_SDK_Language::set_multi_language( true );
 
     if(
         !S2P_SDK\S2P_SDK_Language::define_language( S2P_SDK\S2P_SDK_Language::LANG_EN, array(

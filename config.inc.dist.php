@@ -24,6 +24,7 @@
     S2P_SDK\S2P_SDK_Module::st_debugging_mode( false );
     S2P_SDK\S2P_SDK_Module::st_detailed_errors( false );
     S2P_SDK\S2P_SDK_Module::st_throw_errors( false );
+    S2P_SDK\S2P_SDK_Module::set_multi_language( false );
 
     if( !S2P_SDK\S2P_SDK_Language::language_container()->get_current_language() )
         S2P_SDK\S2P_SDK_Language::language_container()->set_current_language( S2P_SDK\S2P_SDK_Language::LANG_EN );
