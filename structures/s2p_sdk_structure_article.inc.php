@@ -79,6 +79,14 @@ class S2P_SDK_Structure_Article extends S2P_SDK_Scope_Structure
                 'regexp' => '^\d{1,4}$',
             ),
             array(
+                'name' => 'discountvalue',
+                'external_name' => 'DiscountValue',
+                'display_name' => self::s2p_t( 'Integer value e.g 10 GBP discount (value with two decimals for 10 GBP send 1000)' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'default' => 0,
+                'regexp' => '^\d{1,4}$',
+            ),
+            array(
                 'name' => 'type',
                 'external_name' => 'Type',
                 'display_name' => self::s2p_t( 'Article type' ),
