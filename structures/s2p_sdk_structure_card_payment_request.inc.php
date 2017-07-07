@@ -53,7 +53,7 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'external_name' => 'OriginatorTransactionID',
                 'display_name' => self::s2p_t( 'Initial payment transaction ID' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
+                'default' => null,
                 'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
             ),
             array(
