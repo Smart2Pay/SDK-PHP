@@ -13,6 +13,7 @@ include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_details.inc.php'
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_reference_details.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_card_token_details.inc.php');
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_card_details.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_preapproval_details.inc.php' );
 
 class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
 {
@@ -44,6 +45,7 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
         $reference_details_obj = new S2P_SDK_Structure_Payment_Reference_Details();
         $token_details_obj = new S2P_SDK_Structure_Card_Token_Details();
         $card_details_obj = new S2P_SDK_Structure_Card_Details();
+        $preapproval_details_obj = new S2P_SDK_Structure_Preapproval_details();
 
         return array(
             //
@@ -90,7 +92,7 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'originatortransactionid',
                 'external_name' => 'OriginatorTransactionID',
-                'display_name' => self::s2p_t( 'Initial payment transaction ID' ),
+                'display_name' => self::s2p_t( 'A number that uniquely identifies the transaction in the original requester\'s system' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
@@ -301,6 +303,13 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
             // END Common and REST specific
             //
 
+            array(
+                'name' => 'preapprovaldetails',
+                'external_name' => 'PreapprovalDetails',
+                'display_name' => self::s2p_t( 'Preapproval details' ),
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'structure' => $preapproval_details_obj->get_structure_definition(),
+            ),
             array(
                 'name' => 'invalidrequestid',
                 'external_name' => 'InvalidRequestID',
