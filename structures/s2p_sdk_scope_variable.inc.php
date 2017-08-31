@@ -20,6 +20,8 @@ if( !defined( 'S2P_SDK_VTYPE_BLARRAY' ) )
     define( 'S2P_SDK_VTYPE_BLARRAY', 7 );
 if( !defined( 'S2P_SDK_VTYPE_BLOB' ) )
     define( 'S2P_SDK_VTYPE_BLOB', 8 );
+if( !defined( 'S2P_SDK_VTYPE_BLOB_GROUP' ) )
+    define( 'S2P_SDK_VTYPE_BLOB_GROUP', 9 );
 
 class S2P_SDK_Scope_Variable extends S2P_SDK_Language
 {
@@ -40,7 +42,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
     protected $_value;
 
     const TYPE_STRING = S2P_SDK_VTYPE_STRING, TYPE_INT = S2P_SDK_VTYPE_INT, TYPE_FLOAT = S2P_SDK_VTYPE_FLOAT, TYPE_BOOL = S2P_SDK_VTYPE_BOOL, TYPE_DATETIME = S2P_SDK_VTYPE_DATETIME,
-          TYPE_ARRAY = S2P_SDK_VTYPE_ARRAY, TYPE_BLOB_ARRAY = S2P_SDK_VTYPE_BLARRAY, TYPE_BLOB = S2P_SDK_VTYPE_BLOB;
+          TYPE_ARRAY = S2P_SDK_VTYPE_ARRAY, TYPE_BLOB_ARRAY = S2P_SDK_VTYPE_BLARRAY, TYPE_BLOB = S2P_SDK_VTYPE_BLOB, TYPE_BLOB_GROUP = S2P_SDK_VTYPE_BLOB_GROUP;
     private static $TYPES_ARR = array(
         self::TYPE_STRING => array(
             'title' => 'string',
@@ -65,6 +67,9 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         ),
         self::TYPE_BLOB => array(
             'title' => 'object',
+        ),
+        self::TYPE_BLOB_GROUP => array(
+            'title' => 'object group',
         ),
     );
 
@@ -124,7 +129,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         if( empty( $definition ) or !self::valid_definition( $definition ) )
             return false;
 
-        if( !array_key_exists( $definition[$scope_name_key], $scope_arr ) )
+        if( $definition['type'] != self::TYPE_BLOB_GROUP
+        and !array_key_exists( $definition[$scope_name_key], $scope_arr ) )
             return false;
 
         $current_value = array();
@@ -132,6 +138,17 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         {
             $current_value[ $definition[ $output_name_key ] ] = self::scalar_value( $definition['type'], $scope_arr[$definition[$scope_name_key]] );
 
+        } elseif( $definition['type'] == self::TYPE_BLOB_GROUP )
+        {
+            foreach( $definition['structure'] as $structure_element )
+            {
+                if( !self::valid_definition( $structure_element )
+                 or ($property_result = $this->transform_keys( $scope_arr, $structure_element, $params )) === false
+                 or !is_array( $property_result ) )
+                    continue;
+
+                $current_value = array_merge( $current_value, $property_result );
+            }
         } else
         {
             $params['parsing_path'] .= ($params['parsing_path']!=''?'.':'').$definition[$scope_name_key];
@@ -244,14 +261,36 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         }
 
         $current_value = array();
-        if( (!empty( $params['nullify_full_object'] ) and self::scalar_type( $definition['type'] ))
-         or !array_key_exists( $definition[$scope_name_key], $scope_arr ) )
+        if( $definition['type'] != self::TYPE_BLOB_GROUP
+        and (
+            (!empty( $params['nullify_full_object'] ) and self::scalar_type( $definition['type'] ))
+            or !array_key_exists( $definition[$scope_name_key], $scope_arr )
+            ) )
         {
             if( ($null_value = $this->nullify( $definition, $params )) !== null
              or ($null_value === null and !empty( $params['output_null_values'] ))
              or empty( $params['parsing_path'] ) )
                 $current_value[ $definition[ $output_name_key ] ] = $null_value;
 
+        } elseif( $definition['type'] == self::TYPE_BLOB_GROUP )
+        {
+            foreach( $definition['structure'] as $structure_element )
+            {
+                if( !self::valid_definition( $structure_element ) )
+                    continue;
+
+                if( ($property_result = $this->extract_values_from_scope( $scope_arr, $structure_element, $params )) === false
+                 or !is_array( $property_result ) )
+                {
+                    if( $this->has_error() )
+                        return false;
+
+                    $this->set_error( self::ERR_PARSE, self::s2p_t( 'Error parsing variable [%s]', $params['parsing_path'] ) );
+                    return false;
+                }
+
+                $current_value = array_merge( $current_value, $property_result );
+            }
         } else
         {
             $params['parsing_path'] .= ($params['parsing_path']!=''?'.':'').$definition[$scope_name_key];
@@ -427,7 +466,9 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                 }
                 $null_arr[] = $node_arr;
             break;
+
             case self::TYPE_BLOB:
+            case self::TYPE_BLOB_GROUP:
                 foreach( $definition['structure'] as $element_definition )
                 {
                     if( !self::valid_definition( $element_definition ) )
@@ -568,7 +609,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
     public static function object_type( $type )
     {
         $type = intval( $type );
-        return (in_array( $type, array( self::TYPE_BLOB_ARRAY, self::TYPE_BLOB ) )?true:false);
+        return (in_array( $type, array( self::TYPE_BLOB_ARRAY, self::TYPE_BLOB, self::TYPE_BLOB_GROUP ) )?true:false);
     }
 
     public static function get_types()
@@ -608,8 +649,10 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
     public static function valid_definition( $definition_arr )
     {
         if( empty( $definition_arr ) or !is_array( $definition_arr )
-         or empty( $definition_arr['name'] ) or empty( $definition_arr['external_name'] )
          or empty( $definition_arr['type'] ) or !self::valid_type( $definition_arr['type'] )
+         or ($definition_arr['type'] != self::TYPE_BLOB_GROUP
+                and (empty( $definition_arr['name'] ) or empty( $definition_arr['external_name'] ))
+            )
          or !array_key_exists( 'structure', $definition_arr ) )
             return false;
 
@@ -652,7 +695,8 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         if( empty( $new_definition_arr['name'] ) and !empty( $new_definition_arr['external_name'] ) )
             $new_definition_arr['name'] = $new_definition_arr['external_name'];
 
-        $params['path'] .= (!empty( $params['path'] )?'.':'').$new_definition_arr['name'];
+        if( $new_definition_arr['type'] != self::TYPE_BLOB_GROUP )
+            $params['path'] .= (!empty( $params['path'] )?'.':'').$new_definition_arr['name'];
 
         $new_definition_arr['hint_path'] = $params['path'];
 

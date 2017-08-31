@@ -15,7 +15,8 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
 {
     const ERR_TYPE = 1;
 
-    const TYPE_COUNTRY = 1, TYPE_CURRENCY = 2, TYPE_AVAILABLE_METHODS = 3, TYPE_METHODS = 4, TYPE_RECURRING_METHODS = 5, TYPE_ARTICLE_TYPE = 6;
+    const TYPE_COUNTRY = 1, TYPE_CURRENCY = 2, TYPE_AVAILABLE_METHODS = 3, TYPE_METHODS = 4, TYPE_RECURRING_METHODS = 5,
+          TYPE_ARTICLE_TYPE = 6;
 
     private static $TYPES_ARR = array(
         self::TYPE_COUNTRY => 'Country',

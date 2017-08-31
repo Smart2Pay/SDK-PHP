@@ -387,6 +387,11 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                     $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Variable %s contains invalid value [%s].', (!empty( $get_var['display_name'] )?$get_var['display_name']:$get_var['name']), $var_value );
                     continue;
                 }
+            } elseif( !empty( $get_var['value_array'] ) and is_array( $get_var['value_array'] )
+                  and !isset( $get_var['value_array'][$var_value] ) )
+            {
+                $submit_result_arr['errors_arr']['gvars'][ $get_var['name'] ] = self::s2p_t( 'Variable %s contains invalid value [%s].', (!empty( $get_var['display_name'] )?$get_var['display_name']:$get_var['name']), $var_value );
+                continue;
             }
         }
 
@@ -432,13 +437,21 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         <div class="form_field">
             <label for="<?php echo $field_id?>" class="<?php echo (!empty( $get_var['mandatory'] )?'mandatory':'')?>"><?php echo (!empty( $get_var['display_name'] )?$get_var['display_name'].' ('.$get_var['name'].')':$get_var['name'])?></label>
             <div class="form_input"><?php
-                if( !empty( $get_var['value_source'] )
-                and S2P_SDK_Values_Source::valid_type( $get_var['value_source'] )
-                and ($value_source_obj = new S2P_SDK_Values_Source( $get_var['value_source'] ))
-                // make sure we don't stop here...
-                and ($value_source_obj->remote_calls( $params['allow_remote_calls'] ) or true)
-                and ($options_value = $value_source_obj->get_option_values())
-                and is_array( $options_value ) )
+
+                if( empty( $get_var['value_source'] )
+                 or !S2P_SDK_Values_Source::valid_type( $get_var['value_source'] )
+                 or !($value_source_obj = new S2P_SDK_Values_Source( $get_var['value_source'] ))
+                 // make sure we don't stop here...
+                 or ($value_source_obj->remote_calls( $params['allow_remote_calls'] ) and false)
+                 or !($options_value = $value_source_obj->get_option_values())
+                 or !is_array( $options_value ) )
+                    $options_value = array();
+
+                if( empty( $options_value )
+                and !empty( $get_var['value_array'] ) and is_array( $get_var['value_array'] ) )
+                    $options_value = $get_var['value_array'];
+
+                if( !empty( $options_value ) and is_array( $options_value ) )
                 {
                     ?><select id="<?php echo $field_id?>" name="<?php echo $field_name?>">
                     <option value=""> - <?php echo self::s2p_t( 'Choose an option' );?> [<?php echo count( $options_value)?>] - </option><?php
@@ -741,6 +754,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                      or !($options_value = $value_source_obj->get_option_values())
                      or !is_array( $options_value ) )
                         $options_value = array();
+
+                    if( empty( $options_value )
+                    and !empty( $structure_definition['value_array'] ) and is_array( $structure_definition['value_array'] ) )
+                        $options_value = $structure_definition['value_array'];
 
                     if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_BOOL )
                     {

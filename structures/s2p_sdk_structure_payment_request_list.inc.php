@@ -23,5 +23,4 @@ class S2P_SDK_Structure_Payment_Request_List extends S2P_SDK_Structure_Payment_R
             'default' => null,
         );
     }
-
 }

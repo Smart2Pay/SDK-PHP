@@ -762,6 +762,11 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                         $this->set_error( self::ERR_VALUE_SOURCE, self::s2p_t( 'Variable %s contains invalid value [%s].', (!empty( $get_var['display_name'] )?$get_var['display_name']:$get_var['name']), $var_value ) );
                         return false;
                     }
+                } elseif( !empty( $get_var['value_array'] ) and is_array( $get_var['value_array'] )
+                and !isset( $get_var['value_array'][$var_value] ) )
+                {
+                    $this->set_error( self::ERR_VALUE_SOURCE, self::s2p_t( 'Variable %s contains invalid value [%s].', (!empty( $get_var['display_name'] )?$get_var['display_name']:$get_var['name']), $var_value ) );
+                    return false;
                 }
 
                 if( !empty( $get_var['move_in_url'] ) )
@@ -948,9 +953,10 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
      * Removes fields set in $scope_arr array as defined in $remove_fields_arr (output/input array)
      *
      * @param array $scope_arr
-     * @param array $mandatory_fields_arr
+     * @param array $remove_fields_arr
+     * @param array|bool $params
      *
-     * @return bool Returns new scope with removed keys
+     * @return array|bool Returns new scope with removed keys
      */
     protected function remove_fields( $scope_arr, $remove_fields_arr, $params = false )
     {
@@ -1011,6 +1017,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             'skip_if_default' => true,
             // In case GET variable has a class that can generate key value pairs (defined in S2P_SDK_Values_Source::TYPE_*)
             'value_source' => 0,
+            // In case GET variable has possible values defined in a simple array
+            'value_array' => array(),
         );
     }
 
@@ -1054,6 +1062,12 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         if( !empty( $new_definition_arr['value_source'] ) and !S2P_SDK_Values_Source::valid_type( $new_definition_arr['value_source'] ) )
         {
             self::st_set_error( self::ERR_GET_VARIABLES, self::s2p_t( 'Invalid values source for variable %s.', $new_definition_arr['name'] ) );
+            return false;
+        }
+
+        if( !empty( $new_definition_arr['value_array'] ) and !is_array( $new_definition_arr['value_array'] ) )
+        {
+            self::st_set_error( self::ERR_GET_VARIABLES, self::s2p_t( 'Invalid values array for variable %s.', $new_definition_arr['name'] ) );
             return false;
         }
 

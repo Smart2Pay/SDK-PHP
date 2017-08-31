@@ -34,6 +34,15 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
      */
     abstract public function get_structure_definition();
 
+    /**
+     * Overwrite this method in case you want to add keys in "root" of the structure
+     * @return array
+     */
+    public function get_merged_structure_definition()
+    {
+        return array();
+    }
+
     function __construct()
     {
         parent::__construct();
@@ -96,7 +105,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
             return $result_definition;
 
         if( $definition_arr === null
-            and !($definition_arr = $this->get_validated_definition()) )
+        and !($definition_arr = $this->get_validated_definition()) )
             return false;
 
         if( empty( $definition_arr ) or !is_array( $definition_arr ) )
@@ -117,7 +126,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
     /**
      * Returns validated definition with variable external names as keys
      *
-     * @return array Structure definition with variable external names as keys
+     * @return bool|null|array Structure definition with variable external names as keys
      */
     function get_structure_with_external_keys( $definition_arr = null, $top_level = true )
     {
@@ -150,16 +159,24 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
      * Order of merged structures will determine order of keys in resulting JSON
      *
      * @param S2P_SDK_Scope_Structure $structure
+     * @param bool $for_request
+     *
+     * @return bool
      */
     public function merge_structure( $structure, $for_request = false )
     {
         if( empty( $structure ) or !($structure instanceof S2P_SDK_Scope_Structure) )
             return false;
 
+        // if( !empty( $for_request ) )
+        //     $key = $this->get_external_name();
+        // else
+        //     $key = $this->get_name();
+
         if( !empty( $for_request ) )
-            $key = $this->get_external_name();
+            $key = $structure->get_external_name();
         else
-            $key = $this->get_name();
+            $key = $structure->get_name();
 
         if( empty( $key ) )
         {
@@ -297,6 +314,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
      * In case of parsing errors we try to extract as much information as possible from array.
      *
      * @param array $scope_arr
+     * @param array|bool $parsing_params
      *
      * @return array|bool|mixed
      */
