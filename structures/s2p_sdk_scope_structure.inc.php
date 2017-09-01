@@ -95,7 +95,10 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
     /**
      * Returns validated definition with variable names as keys
      *
-     * @return array Structure definition with variable names as keys
+     * @var array|null $definition_arr
+     * @var bool $top_level
+     *
+     * @return array|bool|null Structure definition with variable names as keys
      */
     function get_structure_with_keys( $definition_arr = null, $top_level = true )
     {
@@ -112,9 +115,21 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
             return null;
 
         $new_definition = array();
-        if( !empty( $definition_arr['structure'] ) )
-            $new_definition[$definition_arr['name']] = $this->get_structure_with_keys( $definition_arr['structure'], false );
-        else
+        if( !empty( $definition_arr['structure'] ) and is_array( $definition_arr['structure'] ) )
+        {
+            foreach( $definition_arr['structure'] as $element_definition )
+            {
+                if( $definition_arr['type'] == S2P_SDK_Scope_Variable::TYPE_BLOB_GROUP )
+                    $new_definition = array_merge( $new_definition, $this->get_structure_with_keys( $element_definition, false ) );
+                else
+                {
+                    if( empty( $new_definition[$definition_arr['name']] ) )
+                        $new_definition[$definition_arr['name']] = array();
+
+                    $new_definition[$definition_arr['name']] = array_merge( $new_definition[$definition_arr['name']], $this->get_structure_with_keys( $element_definition, false ) );
+                }
+            }
+        } else
             $new_definition[$definition_arr['name']] = $definition_arr;
 
         if( $top_level )
@@ -126,30 +141,45 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
     /**
      * Returns validated definition with variable external names as keys
      *
+     * @var array|null $definition_arr
+     * @var bool $top_level
+     *
      * @return bool|null|array Structure definition with variable external names as keys
      */
     function get_structure_with_external_keys( $definition_arr = null, $top_level = true )
     {
-        static $result_definition = null;
+        static $result_definition_ext = null;
 
-        if( $result_definition !== null )
-            return $result_definition;
+        if( $result_definition_ext !== null )
+            return $result_definition_ext;
 
         if( $definition_arr === null
-            and !($definition_arr = $this->get_validated_definition()) )
+        and !($definition_arr = $this->get_validated_definition()) )
             return false;
 
         if( empty( $definition_arr ) or !is_array( $definition_arr ) )
             return null;
 
         $new_definition = array();
-        if( !empty( $definition_arr['structure'] ) )
-            $new_definition[$definition_arr['external_name']] = $this->get_structure_with_keys( $definition_arr['structure'], false );
-        else
+        if( !empty( $definition_arr['structure'] ) and is_array( $definition_arr['structure'] ) )
+        {
+            foreach( $definition_arr['structure'] as $element_definition )
+            {
+                if( $definition_arr['type'] == S2P_SDK_Scope_Variable::TYPE_BLOB_GROUP )
+                    $new_definition = array_merge( $new_definition, $this->get_structure_with_external_keys( $element_definition, false ) );
+                else
+                {
+                    if( empty( $new_definition[$definition_arr['external_name']] ) )
+                        $new_definition[$definition_arr['external_name']] = array();
+
+                    $new_definition[$definition_arr['external_name']] = array_merge( $new_definition[$definition_arr['external_name']], $this->get_structure_with_external_keys( $element_definition, false ) );
+                }
+            }
+        } else
             $new_definition[$definition_arr['external_name']] = $definition_arr;
 
         if( $top_level )
-            $result_definition = $new_definition;
+            $result_definition_ext = $new_definition;
 
         return $new_definition;
     }
@@ -459,7 +489,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
         $return_arr = array();
         foreach( $scope_arr as $current_node => $node_arr )
         {
-            $current_path = $params['path'].($params['path']!=''?'.':'').$current_node;
+            $current_path = $params['path'].($params['path'] != '' ? '.' : '').$current_node;
             $current_path = preg_replace( '@\.[0-9]+\.@', '.', $current_path );
 
             if( !is_array( $node_arr )
@@ -541,9 +571,12 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
 
         foreach( $definition_arr as $node_arr )
         {
-            $current_path = $params['current_path'].($params['current_path']!=''?'.':'').$node_arr[$check_key];
+            $current_path = $params['current_path'];
+            if( $node_arr['type'] != S2P_SDK_Scope_Variable::TYPE_BLOB_GROUP )
+                $current_path .= ($params['current_path']!=''?'.':'').$node_arr[$check_key];
 
-            if( !isset( $path[1] ) and !empty( $node_arr[$check_key] )
+            if( $node_arr['type'] != S2P_SDK_Scope_Variable::TYPE_BLOB_GROUP
+            and !isset( $path[1] ) and !empty( $node_arr[$check_key] )
             // current node key is same as current path element
             and $node_arr[$check_key] == $path[0]
             // full paths match
@@ -552,8 +585,11 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
 
             if( !empty( $node_arr['structure'] ) )
             {
-                if( !isset( $path[1] )
-                or !($new_path = array_slice( $path, 1 )) )
+                if( $node_arr['type'] == S2P_SDK_Scope_Variable::TYPE_BLOB_GROUP )
+                    $new_path = $path;
+
+                elseif( !isset( $path[1] )
+                 or !($new_path = array_slice( $path, 1 )) )
                     continue;
 
                 $new_params = $params;
