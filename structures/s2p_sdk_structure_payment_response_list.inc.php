@@ -67,6 +67,12 @@ class S2P_SDK_Structure_Payment_Response_List extends S2P_SDK_Structure_Payment_
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
             ),
+            array(
+                'name' => 'error',
+                'external_name' => 'Error',
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+            ),
         );
     }
 

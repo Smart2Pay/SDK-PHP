@@ -539,11 +539,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
 
                 'response_structure' => $payment_response_list_obj,
 
-                'mandatory_in_error' => array(
-                    'payment' => array(),
-                ),
-
-                'error_structure' => $payment_response_obj,
+                'error_structure' => $payment_response_list_obj,
             ),
 
             self::FUNC_REFUND_TYPES => array(

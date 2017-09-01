@@ -395,6 +395,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
      * If result has errors there is no use to send buggy request so we just return false.
      *
      * @param array $info_arr
+     * @param array|bool $parsing_params
      *
      * @return array|bool
      */
