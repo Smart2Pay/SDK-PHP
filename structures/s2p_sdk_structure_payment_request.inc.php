@@ -9,6 +9,7 @@ include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_customer.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_address.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_article.inc.php' );
 include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_payment_details.inc.php' );
+include_once( S2P_SDK_DIR_STRUCTURES.'s2p_sdk_structure_preapproval_details.inc.php' );
 include_once( S2P_SDK_DIR_CLASSES.'s2p_sdk_values_source.inc.php' );
 
 class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
@@ -37,6 +38,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
         $address_obj = new S2P_SDK_Structure_Address();
         $article_obj = new S2P_SDK_Structure_Article();
         $payment_details_obj = new S2P_SDK_Structure_Payment_Details();
+        $preapproval_details_obj = new S2P_SDK_Structure_Preapproval_details();
 
         return array(
             array(
@@ -165,6 +167,13 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'structure' => $payment_details_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'preapprovaldetails',
+                'external_name' => 'PreapprovalDetails',
+                'display_name' => self::s2p_t( 'Preapproval details' ),
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'structure' => $preapproval_details_obj->get_structure_definition(),
             ),
             array(
                 'name' => 'customparameters',

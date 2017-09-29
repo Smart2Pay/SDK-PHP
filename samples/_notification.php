@@ -19,6 +19,7 @@
 
     define( 'S2P_SDK_NOTIFICATION_IDENTIFIER', microtime( true ) );
 
+    // Change this to false on production sites
     S2P_SDK\S2P_SDK_Notification::logging_enabled( true );
 
     S2P_SDK\S2P_SDK_Notification::logf( '--- Notification START --------------------', false );
@@ -39,6 +40,8 @@
         S2P_SDK\S2P_SDK_Notification::logf( $error_msg );
         exit;
     }
+
+    // S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
 
     if( !$notification_obj->check_authentication() )
     {
