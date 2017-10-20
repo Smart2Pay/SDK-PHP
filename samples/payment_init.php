@@ -66,6 +66,8 @@
         // 'proxy_auth' => 'user:pass',
         // For full access to cURL handler
         // 'curl_init_callback' => 'api_curl_extra_init',
+        // Use constant function so in case constant is not set, it will be empty and cURL call function would choose a default value
+        'connection_ssl_version' => constant( 'CURL_SSLVERSION_TLSv1_2' ),
     );
 
     $finalize_params = array();

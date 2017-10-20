@@ -20,6 +20,10 @@
     $api_parameters['method_params'] = array();
 
     $call_params = array();
+    $call_params['curl_params'] = array(
+        // Use constant function so in case constant is not set, it will be empty and cURL call function would choose a default value
+        'connection_ssl_version' => constant( 'CURL_SSLVERSION_TLSv1_2' ),
+    );
 
     $finalize_params = array();
     $finalize_params['redirect_now'] = false;

@@ -137,10 +137,10 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
      * Entry point when making Smart2Pay API calls
      *
      * @param array $api_parameters Parameters passed to API object which contains request details
-     * @param array|false $call_params Additional parameters sent to S2P_SDK\S2P_SDK_API::do_call()
-     * @param array|false $finalize_params Array with parameters sent to
+     * @param array|bool $call_params Additional parameters sent to S2P_SDK\S2P_SDK_API::do_call()
+     * @param array|bool $finalize_params Array with parameters sent to
      *
-     * @return array|false Returns false on error (error available with S2P_SDK\S2P_SDK_Module::st_get_error())
+     * @return array|bool Returns false on error (error available with S2P_SDK\S2P_SDK_Module::st_get_error())
      *
      * @see \S2P_SDK\S2P_SDK_Module::st_get_error()
      * @see \S2P_SDK\S2P_SDK_API::do_call()

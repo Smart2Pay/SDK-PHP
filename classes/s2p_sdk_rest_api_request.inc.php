@@ -304,6 +304,13 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
             $params['proxy_server'] = '';
         if( empty( $params['proxy_auth'] ) )
             $params['proxy_auth'] = '';
+        if( empty( $params['connection_ssl_version'] ) )
+        {
+            if( !defined( 'CURL_SSLVERSION_TLSv1_2' ) )
+                $params['connection_ssl_version'] = 6;
+            else
+                $params['connection_ssl_version'] = CURL_SSLVERSION_TLSv1_2;
+        }
 
         if( !empty( $params['curl_init_callback'] ) )
         {
@@ -415,6 +422,9 @@ class S2P_SDK_Rest_API_Request extends S2P_SDK_Language
         @curl_setopt( $ch, CURLOPT_RETURNTRANSFER, 1 );
         @curl_setopt( $ch, CURLOPT_SSL_VERIFYPEER, false );
         @curl_setopt( $ch, CURLOPT_SSL_VERIFYHOST, 0 );
+
+        @curl_setopt( $ch, CURLOPT_SSLVERSION, $params['connection_ssl_version'] );
+
         @curl_setopt( $ch, CURLOPT_TIMEOUT, $params['timeout'] );
 
         if( !empty( $params['userpass'] ) )
