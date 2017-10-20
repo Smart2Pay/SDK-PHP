@@ -141,8 +141,22 @@ class S2P_SDK_Notification extends S2P_SDK_Module
     {
         if( empty( $_SERVER['PHP_AUTH_USER'] ) or empty( $_SERVER['PHP_AUTH_PW'] ) )
         {
-            $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'No authentication.' ) );
-            return false;
+            if( empty( $_SERVER['HTTP_AUTHORIZATION'] )
+             or !($auth_arr = explode(':', base64_decode( trim( substr( $_SERVER['HTTP_AUTHORIZATION'], 6 ) ) ) ))
+             or count( $auth_arr ) != 2 )
+            {
+                $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'No authentication.' ) );
+                return false;
+            }
+
+            $_SERVER['PHP_AUTH_USER'] = $auth_arr[0];
+            $_SERVER['PHP_AUTH_PW'] = $auth_arr[1];
+
+            if( empty( $_SERVER['PHP_AUTH_USER'] ) or empty( $_SERVER['PHP_AUTH_PW'] ) )
+            {
+                $this->set_error( self::ERR_AUTHENTICATION, self::s2p_t( 'No authentication.' ) );
+                return false;
+            }
         }
 
         $api_config_arr = self::get_api_configuration();
