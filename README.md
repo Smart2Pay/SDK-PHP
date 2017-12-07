@@ -4,7 +4,7 @@ For quick information about available SDK methods and functionalities, please op
 
 For live demo of methods and functionalities available in current version of SDK, please open _{SDK directory}/demo.php_ script in a browser (requires a web server).
 
-Please note that in order to test a full end-to-end transaction you will require a valid Smart2Pay test account which you can obtain at [https://docs.smart2pay.com/s2p-register/]. After you registered a test account at docs.smart2pay.com, use API Key and Site ID found at Getting Started > Integration Roadmap > Integration Site and configure your SDK by copying config.inc.dist.php to config.inc.php and provide required variables found in config.inc.php.
+Please note that in order to test a full end-to-end transaction you will require a valid Smart2Pay test account which you can obtain at [https://docs.smart2pay.com/s2p-register/]. After you registered a test account at docs.smart2pay.com, use API Key and Site ID found at Getting Started > Integration Roadmap > Integration Site and configure your SDK by copying config.dist.php to config.php and provide required variables found in config.php.
 
 
 #### Creating your test merchant account
@@ -15,7 +15,7 @@ Please note that in order to test a full end-to-end transaction you will require
 
 
 #### Configuring your SDK
-1. Copy **config.inc.dist.php** file located in root directory of your SDK to **config.inc.php** and edit config.inc.php file.
+1. Copy **config.dist.php** file located in root directory of your SDK to **config.php** and edit config.php file.
 2. Paste Site ID (from Getting Started > Integration Roadmap > Integration Site) in constant definition *S2P_SDK_SITE_ID* like below:
 
     ```php

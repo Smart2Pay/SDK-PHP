@@ -12,11 +12,6 @@
     //
     //
 
-    include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_notification.inc.php' );
-    include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_helper.inc.php' );
-    include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_meth_payments.inc.php' );
-    include_once( S2P_SDK_DIR_METHODS . 's2p_sdk_meth_preapprovals.inc.php' );
-
     define( 'S2P_SDK_NOTIFICATION_IDENTIFIER', microtime( true ) );
 
     // Change this to false on production sites

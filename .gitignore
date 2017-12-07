@@ -1,0 +1,16 @@
+# IDE and sys dirs
+.DS_Store/
+.idea/
+Doxyfile
+
+# Composer files
+composer.lock
+composer.phar
+vendor/
+
+# SDK files
+config.php
+config.inc.php
+log_demo.log
+log_return.log
+test.php

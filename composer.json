@@ -1,0 +1,28 @@
+{
+  "name": "smart2pay/SDK-PHP",
+  "description": "Smart2Pay SDK",
+  "keywords": [
+    "Smart2Pay",
+    "payments",
+    "alternative payments",
+    "sdk"
+  ],
+  "homepage": "http://www.smart2pay.com/",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Smart2Pay",
+      "homepage": "http://www.smart2pay.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.3.3",
+    "ext-curl": "*",
+    "ext-json": "*",
+    "ext-mbstring": "*"
+  },
+  "autoload": {
+    "psr-0": { "S2P_SDK\\" : [ "classes/", "structures/" ] },
+    "psr-4": { "S2P_SDK\\" : [ "classes/", "structures/" ] }
+  }
+}
