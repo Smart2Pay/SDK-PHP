@@ -132,6 +132,20 @@ class S2P_SDK_Structure_Merchantsite_Details extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'regexp' => '^.{1,50}$',
             ),
+            array(
+                'name' => 'mcc',
+                'external_name' => 'MCC',
+                'display_name' => self::s2p_t( 'Site company MCC' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'regexp' => '^[0-9]{1,10}$',
+            ),
+            array(
+                'name' => 'main_business',
+                'external_name' => 'MainBusiness',
+                'display_name' => self::s2p_t( 'Site company main business' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'regexp' => '^.{1,100}$',
+            ),
        );
     }
 

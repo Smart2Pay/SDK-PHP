@@ -5,7 +5,7 @@
     and !($_current_directory_path = @getcwd()) )
         $_current_directory_path = '.';
 
-    define( 'S2P_SDK_VERSION', '2.0.0' );
+    define( 'S2P_SDK_VERSION', '2.0.1' );
 
     define( 'S2P_SDK_DIR_PATH', $_current_directory_path.'/' );
     define( 'S2P_SDK_DIR_CLASSES', $_current_directory_path.'/classes/' );
@@ -74,6 +74,10 @@
     include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_user_request.php' );
     include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_merchantsite.php' );
     include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_merchantsite_list.php' );
+    include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_merchant_request.php' );
+    include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_merchant_response.php' );
+    include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_merchant_create_request.php' );
+    include_once( S2P_SDK_DIR_STRUCTURES . 's2p_sdk_structure_merchant_create_response.php' );
 
     include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_api.php' );
 
