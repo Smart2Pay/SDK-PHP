@@ -123,6 +123,13 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'structure' => $token_details_obj->get_structure_definition(),
             ),
             array(
+                'name' => 'installments',
+                'external_name' => 'Installments',
+                'display_name' => self::s2p_t( 'Payment split into installments' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'regexp' => '^\d{1,12}$',
+            ),
+            array(
                 'name' => 'capture',
                 'external_name' => 'Capture',
                 'display_name' => self::s2p_t( 'Should capture payment?' ),
