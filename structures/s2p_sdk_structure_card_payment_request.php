@@ -39,6 +39,14 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
             ),
             array(
+                'name' => 'skinid',
+                'external_name' => 'SkinID',
+                'display_name' => self::s2p_t( 'Skin ID to be used' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'default' => null,
+                'regexp' => '^\d{1,12}$',
+            ),
+            array(
                 'name' => 'originatortransactionid',
                 'external_name' => 'OriginatorTransactionID',
                 'display_name' => self::s2p_t( 'A number that uniquely identifies the transaction in the original requester\'s system' ),

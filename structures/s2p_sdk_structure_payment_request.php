@@ -131,6 +131,12 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_BOOL,
             ),
             array(
+                'name' => 'redirectmerchantiniframe',
+                'external_name' => 'RedirectMerchantInIframe',
+                'display_name' => self::s2p_t( 'Payment redirect in IFrame' ),
+                'type' => S2P_SDK_VTYPE_BOOL,
+            ),
+            array(
                 'name' => 'includemethodids',
                 'external_name' => 'IncludeMethodIDs',
                 'type' => S2P_SDK_VTYPE_ARRAY,

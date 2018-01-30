@@ -33,6 +33,7 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
         $token_details_obj = new S2P_SDK_Structure_Card_Token_Details();
         $card_details_obj = new S2P_SDK_Structure_Card_Details();
         $preapproval_details_obj = new S2P_SDK_Structure_Preapproval_details();
+        $fraud_details_obj = new S2P_SDK_Structure_Fraud_Details_Response();
 
         return array(
             //
@@ -279,6 +280,12 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_BOOL,
             ),
             array(
+                'name' => 'redirectmerchantiniframe',
+                'external_name' => 'RedirectMerchantInIframe',
+                'display_name' => self::s2p_t( 'Payment redirect in IFrame' ),
+                'type' => S2P_SDK_VTYPE_BOOL,
+            ),
+            array(
                 'name' => 'redirecturl',
                 'external_name' => 'RedirectURL',
                 'display_name' => self::s2p_t( 'Payment redirect URL' ),
@@ -320,6 +327,13 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'structure' => $token_details_obj->get_structure_definition(),
             ),
             array(
+                'name' => 'installments',
+                'external_name' => 'Installments',
+                'display_name' => self::s2p_t( 'Payment split into installments' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'regexp' => '^\d{1,12}$',
+            ),
+            array(
                 'name' => 'retry',
                 'external_name' => 'Retry',
                 'display_name' => self::s2p_t( 'Should retry payment?' ),
@@ -343,7 +357,14 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'default' => null,
                 'structure' => $card_details_obj->get_structure_definition(),
             ),
-
+            array(
+                'name' => 'fraud',
+                'external_name' => 'Fraud',
+                'display_name' => self::s2p_t( 'Fraud check structure' ),
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'structure' => $fraud_details_obj->get_structure_definition(),
+            ),
         );
     }
 
