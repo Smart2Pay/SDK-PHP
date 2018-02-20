@@ -369,7 +369,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                 $default_var_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $get_var['default'], $get_var['array_type'], $get_var['array_numeric_keys'] );
 
             if( !empty( $get_var['skip_if_default'] )
-            and $var_value === $default_var_value )
+            and ($var_value === null or $var_value === $default_var_value) )
                 continue;
 
             if( !empty( $get_var['value_source'] ) and $value_source_obj::valid_type( $get_var['value_source'] ) )
@@ -1053,6 +1053,32 @@ class S2P_SDK_Demo extends S2P_SDK_Module
         return $submit_arr;
     }
 
+    public function clear_empty_post_fields( $post_vars_arr )
+    {
+        if( empty( $post_vars_arr ) or !is_array( $post_vars_arr ) )
+            return array();
+
+        $new_post_arr = array();
+        foreach( $post_vars_arr as $key => $val )
+        {
+            if( is_array( $val ) )
+            {
+                if( ($new_val = $this->clear_empty_post_fields( $val )) )
+                    $new_post_arr[$key] = $new_val;
+
+                continue;
+            }
+
+            if( $val === ''
+             or $val === 'null' )
+                continue;
+
+            $new_post_arr[$key] = $val;
+        }
+
+        return $new_post_arr;
+    }
+
     public function handle_submit( $params = false )
     {
         $this->reset_error();
@@ -1067,6 +1093,11 @@ class S2P_SDK_Demo extends S2P_SDK_Module
             $params['post_arr'] = array();
 
         $post_arr = $params['post_arr'];
+
+        if( !($mparams_arr = $this->clear_empty_post_fields( $post_arr['mparams'] )) )
+            $mparams_arr = array();
+
+        $post_arr['mparams'] = $mparams_arr;
 
         $return_arr = self::default_submit_result();
         $return_arr['post_arr'] = $post_arr;

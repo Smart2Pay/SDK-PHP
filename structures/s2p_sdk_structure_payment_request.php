@@ -44,6 +44,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'external_name' => 'ClientIP',
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => null,
+                'skip_if_default' => true,
                 'regexp' => S2P_SDK_Module::IP_REGEXP,
             ),
             array(
@@ -51,7 +52,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'external_name' => 'MerchantTransactionID',
                 'display_name' => self::s2p_t( 'Payment merchant assigned transaction ID' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
+                'default' => null,
                 'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
             ),
             array(
@@ -59,7 +60,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'external_name' => 'OriginatorTransactionID',
                 'display_name' => self::s2p_t( 'A number that uniquely identifies the transaction in the original requester\'s system' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
+                'default' => null,
                 'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
             ),
             array(
@@ -84,7 +85,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'external_name' => 'ReturnURL',
                 'display_name' => self::s2p_t( 'Payment return URL' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
+                'default' => null,
                 'regexp' => '^(http(s)?(:\/\/|%3A%2F%2F).+){1,512}$',
                 'check_constant' => 'S2P_SDK_PAYMENT_RETURN_URL',
             ),
@@ -169,6 +170,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'external_name' => 'PreapprovalDetails',
                 'display_name' => self::s2p_t( 'Preapproval details' ),
                 'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
                 'structure' => $preapproval_details_obj->get_structure_definition(),
             ),
             array(

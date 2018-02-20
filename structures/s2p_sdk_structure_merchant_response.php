@@ -50,6 +50,7 @@ class S2P_SDK_Structure_Merchant_Response extends S2P_SDK_Scope_Structure
                 'external_name' => 'Active',
                 'display_name' => self::s2p_t( 'Merchant status' ),
                 'type' => S2P_SDK_VTYPE_BOOL,
+                'default' => true,
             ),
             array(
                 'name' => 'provider_merchant_id',
@@ -57,12 +58,14 @@ class S2P_SDK_Structure_Merchant_Response extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'ID of merchant provider' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'regexp' => '^\d{1,12}$',
+                'default' => 0,
             ),
             array(
                 'name' => 'required_site_id',
                 'external_name' => 'RequiredSiteID',
                 'display_name' => self::s2p_t( 'Requested site ID' ),
                 'type' => S2P_SDK_VTYPE_BOOL,
+                'default' => false,
             ),
             array(
                 'name' => 'reasons',
