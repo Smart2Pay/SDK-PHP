@@ -49,7 +49,7 @@ class S2P_SDK_Countries extends S2P_SDK_Language
         'CH' => 'Switzerland',
         'CI' => 'Ivory Coast',
         'CK' => 'Cook Islands',
-        'CL' => 'Chili',
+        'CL' => 'Chile',
         'CM' => 'Cameroon',
         'CN' => 'China',
         'CO' => 'Colombia',

@@ -7,6 +7,8 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
     const FUNC_LIST_ALL = 'list_all', FUNC_METHOD_DETAILS = 'method_details', FUNC_LIST_COUNTRY = 'for_country',
           FUNC_ASSIGNED = 'assigned_methods', FUNC_ASSIGNED_COUNTRY = 'assigned_for_country';
 
+    const METHOD_KLARNA_INVOICE = 75, METHOD_KLARNA_PAYMENTS = 1078;
+
     /**
      * Tells which entry point does this method use
      * @return string

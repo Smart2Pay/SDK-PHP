@@ -5,7 +5,7 @@
     and !($_current_directory_path = @getcwd()) )
         $_current_directory_path = '.';
 
-    define( 'S2P_SDK_VERSION', '2.0.4' );
+    define( 'S2P_SDK_VERSION', '2.0.5' );
 
     define( 'S2P_SDK_DIR_PATH', $_current_directory_path.'/' );
     define( 'S2P_SDK_DIR_CLASSES', $_current_directory_path.'/classes/' );

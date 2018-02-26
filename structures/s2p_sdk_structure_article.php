@@ -87,8 +87,12 @@ class S2P_SDK_Structure_Article extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Article type' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
-                // 1 - product, 2 - shipping, 3 - handling
-                'regexp' => '^(1|2|3)$',
+                // 1 - product, 2 - shipping, 3 - handling, 4 - discount, 5 - physical, 6 - shipping fee, 7 -sales tax, 9 - digital
+                // 9 - gift card, 10 - store credit, 11 - surcharge
+                // 1 - 4 are used for Klarna Invoice
+                // 4 - 11 are used for Klarna Payments
+                // see Type field in Articles node in sample at: https://docs.smart2pay.com/specific-capture-status-codes-for-klarna-payments/
+                'regexp' => '^(1|2|3|4|5|6|7|8|9|10|11)$',
                 'value_source' => S2P_SDK_Values_Source::TYPE_ARTICLE_TYPE,
             ),
         );
