@@ -30,6 +30,10 @@ class S2P_SDK_Error
     /** @var bool $throw_errors */
     private $throw_errors = false;
 
+    //! If true SDK will not throw any errors at all
+    /** @var bool $prevent_throwing_errors */
+    private $prevent_throwing_errors = true;
+
     //! Tells if SDK in is debugging mode
     /** @var bool $debugging_mode */
     private $debugging_mode = false;
@@ -53,6 +57,7 @@ class S2P_SDK_Error
             $this->throw_errors( self::st_throw_errors() );
             $this->debugging_mode( self::st_debugging_mode() );
             $this->detailed_errors( self::st_detailed_errors() );
+            $this->prevent_throwing_errors( self::st_prevent_throwing_errors() );
         }
     }
 
@@ -60,11 +65,11 @@ class S2P_SDK_Error
      * Throw exception with error code and error message only if there is an error code diffrent than self::ERR_OK
      *
      * @return bool
-     * @throws \Exception
      */
     public function throw_error()
     {
-        if( $this->error_no == self::ERR_OK )
+        if( $this->error_no == self::ERR_OK
+         or $this->prevent_throwing_errors() )
             return false;
 
         if( $this->debugging_mode() )
@@ -73,11 +78,17 @@ class S2P_SDK_Error
             throw new \Exception( $this->error_simple_msg, $this->error_no );
     }
 
+    /**
+     * Throw exception with error code and error message only if there is an error code diffrent than self::ERR_OK
+     *
+     * @return bool
+     * @throws \Exception
+     */
     public static function st_throw_error()
     {
         $error_instance = self::get_error_static_instance();
-        if( ($error_arr = $error_instance->get_error())
-        and $error_arr['error_no'] == self::ERR_OK )
+        if( (($error_arr = $error_instance->get_error()) and $error_arr['error_no'] == self::ERR_OK)
+         or self::st_prevent_throwing_errors() )
             return false;
 
         if( self::st_debugging_mode() )
@@ -106,7 +117,7 @@ class S2P_SDK_Error
     /**
      *   Method returns number of warnings warnings (for specified tag or as total)
      *
-     *   @param $tag string Check if we have warnings for provided tag (false by default)
+     *   @param string|bool $tag Check if we have warnings for provided tag (false by default)
      *   @return int Return warnings number (for specified tag or as total)
      **/
     public function has_warnings( $tag = false )
@@ -155,8 +166,10 @@ class S2P_SDK_Error
     /**
      *   Set an error code and error message. Also method will make a backtrace of this call and present all functions/methods called (with their parameters) and files/line of call.
      *
-     *   @param $error_no int Error code
-     *   @param $error_msg string Error message
+     * @param int $error_no Error code
+     * @param string $error_msg Error message
+     * @param string $error_debug_msg Error message
+     * @param bool|array $params Error message
      **/
     public function set_error( $error_no, $error_msg, $error_debug_msg = '', $params = false )
     {
@@ -223,8 +236,8 @@ class S2P_SDK_Error
     /**
      *   Add a warning message for a speficied tag or as general warning. Also method will make a backtrace of this call and present all functions/methods called (with their parameters) and files/line of call.
      *
-     *   @param $warning string Warning message
-     *   @param $tag string Add warning for a specific tag (default false). If this is not provided warning will be added as general warning.
+     *   @param string $warning Warning message
+     *   @param bool|string $tag Add warning for a specific tag (default false). If this is not provided warning will be added as general warning.
      **/
     public function add_warning( $warning, $tag = false )
     {
@@ -272,9 +285,11 @@ class S2P_SDK_Error
 
     //! Remove warnings
     /**
-     *   Remove warning messages for a speficied tag or all warnings.
+     * Remove warning messages for a speficied tag or all warnings.
      *
-     *   @param $tag string Remove warnings of specific tag or all warnings. (default false)
+     * @param string|bool $tag Remove warnings of specific tag or all warnings. (default false)
+     *
+     * @return int Returns number of warnings remaining (if any)
      **/
     public function reset_warnings( $tag = false )
     {
@@ -408,10 +423,10 @@ class S2P_SDK_Error
 
     //! Return warnings for specified tag or all warnings
     /**
-     *   Return warnings array for specified tag (if any) or
+     * Return warnings array for specified tag (if any) or
      *
-     *   \param $tag Check if we have warnings for provided tag (false by default)
-     *   \return (mixed) Return array of warnings (all or for specified tag) or false if no warnings
+     * @param string|bool $tag Check if we have warnings for provided tag (false by default)
+     * @return array|bool Return array of warnings (all or for specified tag) or false if no warnings
      **/
     public function get_warnings( $tag = false )
     {
@@ -548,6 +563,21 @@ class S2P_SDK_Error
     public static function st_throw_errors( $mode = null )
     {
         return self::get_error_static_instance()->throw_errors( $mode );
+    }
+
+    public function prevent_throwing_errors( $mode = null )
+    {
+        if( is_null( $mode ) )
+            return $this->prevent_throwing_errors;
+
+        $this->prevent_throwing_errors = (!empty( $mode )?true:false);
+
+        return $this->prevent_throwing_errors;
+    }
+
+    public static function st_prevent_throwing_errors( $mode = null )
+    {
+        return self::get_error_static_instance()->prevent_throwing_errors( $mode );
     }
 
     public function debugging_mode( $mode = null )

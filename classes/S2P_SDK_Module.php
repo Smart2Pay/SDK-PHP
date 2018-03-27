@@ -4,13 +4,17 @@ namespace S2P_SDK;
 
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001, ERR_API_QUICK_CALL = 1002;
+    const SDK_VERSION = '2.1.0';
+
+    const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001, ERR_API_QUICK_CALL = 1002, ERR_SDK_INIT = 1003;
 
     const EMAIL_REGEXP = '^[a-zA-Z0-9\._%+-]{1,100}@[a-zA-Z0-9\.-]{1,40}\.[a-zA-Z]{1,8}$';
     const IP_REGEXP = '^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$';
 
     private static $instances = array();
     private static $hooks = array();
+    private static $sdk_inited = false;
+    private static $sdk_init_failed = false;
 
     private static $one_call_settings = array(
         'api_key' => '',
@@ -37,8 +41,96 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
      */
     abstract public function destroy();
 
+    final public static function sdk_inited( $mode = null )
+    {
+        if( $mode === null )
+            return self::$sdk_inited;
+
+        self::$sdk_inited = (!empty( $mode ));
+
+        return self::$sdk_inited;
+    }
+
+    final public static function sdk_init( $root_dir = false )
+    {
+        if( self::sdk_inited() )
+            return true;
+
+        // Inhibit throwing errors (required for PSR-4 autoloading)
+        self::st_prevent_throwing_errors( true );
+
+        self::$sdk_init_failed = false;
+
+        if( !defined( 'S2P_SDK_VERSION' ) )
+        {
+            define( 'S2P_SDK_VERSION', self::SDK_VERSION );
+
+            if( $root_dir === false )
+                $root_dir = @dirname( __DIR__ );
+
+            $root_dir = rtrim( $root_dir, '/\\' );
+
+            define( 'S2P_SDK_DIR_PATH', $root_dir.'/' );
+            define( 'S2P_SDK_DIR_CLASSES', $root_dir.'/classes/' );
+            define( 'S2P_SDK_DIR_STRUCTURES', $root_dir.'/structures/' );
+            define( 'S2P_SDK_DIR_METHODS', $root_dir.'/methods/' );
+            define( 'S2P_SDK_DIR_LANGUAGES', $root_dir.'/languages/' );
+        }
+
+        self::set_multi_language( true );
+
+        if(
+            !self::define_language( self::LANG_EN, array(
+                'title' => 'English',
+                'files' => array( S2P_SDK_DIR_LANGUAGES.'en.csv' ),
+            ) )
+            or
+
+            !self::define_language( self::LANG_RO, array(
+                'title' => 'Romana',
+                'files' => array( S2P_SDK_DIR_LANGUAGES.'ro.csv' ),
+            ) )
+        )
+        {
+            self::st_set_error( self::ERR_SDK_INIT, 'Couldn\'t initialize language system.' );
+            return false;
+        }
+
+        if( @file_exists( S2P_SDK_DIR_PATH.'config.php' ) )
+        {
+            include_once( S2P_SDK_DIR_PATH.'config.php' );
+        } elseif( @file_exists( S2P_SDK_DIR_PATH.'config.inc.php' ) )
+        {
+            include_once( S2P_SDK_DIR_PATH.'config.inc.php' );
+        } else
+        {
+            self::st_set_error( self::ERR_SDK_INIT, 'SDK config file not found. Please create Smart2Pay SDK configuration file.' );
+            return false;
+        }
+
+        //
+        // !!! If you want to customize bellow values use config.php file
+        //
+        // Set SDK in debugging mode (or not)
+        self::st_debugging_mode( false );
+        // display full trace with the error (or not)
+        self::st_detailed_errors( false );
+        // Favor throwing errors when setting errors in classes (or not)
+        self::st_throw_errors( false );
+        //
+        // END !!!
+        //
+
+        self::sdk_inited( true );
+
+        return true;
+    }
+
     function __construct( $module_params = false )
     {
+        if( !self::sdk_inited() )
+            self::sdk_init();
+
         parent::__construct();
 
         if( $module_params !== null )
@@ -140,9 +232,18 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
      * @see \S2P_SDK\S2P_SDK_Module::st_get_error()
      * @see \S2P_SDK\S2P_SDK_API::do_call()
      */
-    public static function quick_call( $api_parameters, $call_params = false, $finalize_params = false, $singleton = true )
+    final public static function quick_call( $api_parameters, $call_params = false, $finalize_params = false, $singleton = true )
     {
         self::st_reset_error();
+
+        if( !self::sdk_inited()
+        and !self::sdk_init() )
+        {
+            if( !self::st_has_error() )
+                self::st_set_error( self::ERR_API_QUICK_CALL, self::s2p_t( 'Couldn\'t initialize SDK.' ) );
+
+            return false;
+        }
 
         if( empty( $api_parameters ) or !is_array( $api_parameters ) )
         {
@@ -344,7 +445,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         // Autoloading methods
         if( substr( $module_lower, 0, 13 ) == 's2p_sdk_meth_' )
         {
-            if( !@file_exists( S2P_SDK_DIR_METHODS.$module_lower.'.php' ) )
+            if( !@file_exists( S2P_SDK_DIR_METHODS.$module.'.php' ) )
             {
                 self::st_set_error( self::ERR_STATIC_INSTANCE,
                                         self::s2p_t( 'Module file not found.' ),
@@ -352,7 +453,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
                 return false;
             }
 
-            include_once( S2P_SDK_DIR_METHODS.$module_lower.'.php' );
+            include_once( S2P_SDK_DIR_METHODS.$module.'.php' );
 
             if( !class_exists( 'S2P_SDK\\'.$module, false ) )
             {
@@ -366,9 +467,9 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         }
 
         // Fallback on "normal" classes
-        if( @file_exists( S2P_SDK_DIR_CLASSES.$module_lower.'.php' ) )
+        if( @file_exists( S2P_SDK_DIR_CLASSES.$module.'.php' ) )
         {
-            include_once( S2P_SDK_DIR_CLASSES.$module_lower.'.php' );
+            include_once( S2P_SDK_DIR_CLASSES.$module.'.php' );
 
             if( !class_exists( 'S2P_SDK\\'.$module, false ) )
             {
@@ -385,8 +486,8 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
     }
 
     /**
-     * Initiate an instance of S2P_SDK module (all modules class names should start with S2P_SDK_{camelcase_module_name} and file name should be lower case
-     * and should start with s2p_sdk_{lowercase_module_name}.php
+     * Initiate an instance of S2P_SDK module (all modules class names should start with S2P_SDK_{camelcase_module_name} and file name should follow case of class name
+     * S2P_SDK_{lowercase_module_name}.php
      *
      * @param string $module Module name (eg. S2P_SDK_Meth_Payments)
      * @param array $module_params Parameters to be sent to init() method of module
@@ -462,9 +563,9 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
 
         if( !empty( $singleton ) )
         {
-            self::$instances[ $module ] = $module_instance;
+            self::$instances[$module] = $module_instance;
 
-            return self::$instances[ $module ];
+            return self::$instances[$module];
         }
 
         return $module_instance;

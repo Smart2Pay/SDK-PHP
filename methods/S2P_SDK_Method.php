@@ -263,7 +263,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
         self::st_reset_error();
 
-        if( !($method_files_arr = @glob( S2P_SDK_DIR_METHODS.'s2p_sdk_meth_*.php' ))
+        if( !($method_files_arr = @glob( S2P_SDK_DIR_METHODS.'S2P_SDK_Meth_*.php' ))
          or !is_array( $method_files_arr ) )
         {
             self::st_set_error( self::ERR_METHOD_FILES, self::s2p_t( 'No methods found in this SDK.' ) );
@@ -273,14 +273,14 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         $method_details = array();
         foreach( $method_files_arr as $method_file )
         {
-            if( !preg_match( '@'.preg_quote( S2P_SDK_DIR_METHODS ).'s2p_sdk_meth_([a-zA-Z0-9_-]+).php@', $method_file, $matches )
+            if( !preg_match( '@'.preg_quote( S2P_SDK_DIR_METHODS ).'S2P_SDK_Meth_([a-zA-Z0-9_-]+).php@', $method_file, $matches )
              or !is_array( $matches ) or empty( $matches[1] ) )
                 continue;
 
-            if( !($instance = self::get_instance( 'S2P_SDK_Meth_'.ucfirst( $matches[1] ), null, false )) )
+            if( !($instance = self::get_instance( 'S2P_SDK_Meth_'.$matches[1], null, false )) )
             {
                 if( !self::st_has_error() )
-                    self::st_set_error( self::ERR_INSTANTIATE_METHOD, self::s2p_t( 'Error instantiating method %s.', ucfirst( $matches[1] ) ) );
+                    self::st_set_error( self::ERR_INSTANTIATE_METHOD, self::s2p_t( 'Error instantiating method %s.', $matches[1] ) );
 
                 $method_details = null;
 

@@ -5,7 +5,7 @@ namespace S2P_SDK;
 if( !defined( 'S2P_SDK_DIR_METHODS' ) or !defined( 'S2P_SDK_DIR_PATH' ) )
     die( 'Something went bad' );
 
-include_once( S2P_SDK_DIR_METHODS.'s2p_sdk_method.php' );
+include_once( S2P_SDK_DIR_METHODS.'S2P_SDK_Method.php' );
 
 class S2P_SDK_Play extends S2P_SDK_Module
 {
@@ -33,7 +33,7 @@ class S2P_SDK_Play extends S2P_SDK_Module
             $methods_dir = substr( $methods_dir, 0, -1 );
 
         if( !@is_dir( $methods_dir )
-         or !@file_exists( S2P_SDK_DIR_METHODS.'s2p_sdk_method.php' ) )
+         or !@file_exists( S2P_SDK_DIR_METHODS.'S2P_SDK_Method.php' ) )
             die( 'SDK is not correctly configured. Please check bootstrap script.' );
 
         return true;
