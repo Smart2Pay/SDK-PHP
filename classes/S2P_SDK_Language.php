@@ -15,11 +15,6 @@ class S2P_SDK_Language extends S2P_SDK_Error
     /** @var S2P_SDK_Language_Container $lang_callable_obj */
     private static $lang_callable_obj = false;
 
-    function __construct()
-    {
-        parent::__construct();
-    }
-
     /**
      * Returns language class that handles translation tasks
      *

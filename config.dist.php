@@ -21,9 +21,14 @@
     if( !defined( 'S2P_SDK_PAYMENT_RETURN_URL' ) )
         define( 'S2P_SDK_PAYMENT_RETURN_URL', '' );
 
+    // Set SDK in debugging mode (or not)
     S2P_SDK\S2P_SDK_Module::st_debugging_mode( false );
+    // display full trace with the error (or not)
     S2P_SDK\S2P_SDK_Module::st_detailed_errors( false );
+    // Favor throwing errors when setting errors in classes (or not)
     S2P_SDK\S2P_SDK_Module::st_throw_errors( false );
+
+    // If you use will use more than English as language, you can set this to true
     S2P_SDK\S2P_SDK_Module::set_multi_language( false );
 
     if( !S2P_SDK\S2P_SDK_Language::language_container()->get_current_language() )

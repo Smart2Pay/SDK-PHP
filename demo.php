@@ -2,7 +2,7 @@
 
     include_once( 'bootstrap.php' );
 
-    include_once( S2P_SDK_DIR_CLASSES . 's2p_sdk_demo.php' );
+    include_once( S2P_SDK_DIR_CLASSES . 'S2P_SDK_Demo.php' );
 
     if( !($demo = new S2P_SDK\S2P_SDK_Demo())
      or $demo->has_error() )
