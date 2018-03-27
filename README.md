@@ -1,5 +1,7 @@
 # Smart2Pay SDK
 
+**NB**: If you installed our SDK using composer, please read the note at the end of the file.
+
 For quick information about available SDK methods and functionalities, please open _{SDK directory}/play.php_ script in a browser (requires a web server).
 
 For live demo of methods and functionalities available in current version of SDK, please open _{SDK directory}/demo.php_ script in a browser (requires a web server).
@@ -47,3 +49,7 @@ Once all above steps are completed you can test a full end-to-end transaction an
 demo.php script will generate logs when redirected back to return page in log_return.log and also for notifications in log_demo.log. Please make sure PHP has rights to create and write in these files located in root of SDK directory. If PHP doesn't have creation rights on SDK directory create these two log files first and give PHP write rights on them.
 
 For quick samples on how you should implement SDK methods and functionalities please check samples directory.
+
+#### Composer installs note
+
+If you installed our SDK using composer and you don't want to create a custom config.php file, you will have to define _S2P_SDK_SITE_ID_, _S2P_SDK_API_KEY_ and _S2P_SDK_ENVIRONMENT_ constants in SDK wrapper script. Please check files in _samples_ directory.
