@@ -245,6 +245,7 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'methodtransactionid',
                 'external_name' => 'MethodTransactionID',
+                'display_name' => self::s2p_t( 'The transaction ID from the payment method provider, can be used for customer support.' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
             ),

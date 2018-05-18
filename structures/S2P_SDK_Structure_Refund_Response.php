@@ -70,6 +70,13 @@ class S2P_SDK_Structure_Refund_Response extends S2P_SDK_Scope_Structure
                 'regexp' => '^\d{1,12}$',
             ),
             array(
+                'name' => 'methodtransactionid',
+                'external_name' => 'MethodTransactionID',
+                'display_name' => self::s2p_t( 'The transaction ID from the payment method provider, can be used for customer support.' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+            ),
+            array(
                 'name' => 'amount',
                 'external_name' => 'Amount',
                 'display_name' => self::s2p_t( 'Refund amount' ),
