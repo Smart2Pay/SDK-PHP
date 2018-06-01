@@ -728,7 +728,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                     $default_var_value = S2P_SDK_Scope_Variable::scalar_value( $get_var['type'], $get_var['default'], $get_var['array_type'], $get_var['array_numeric_keys'] );
 
                 if( !empty( $get_var['skip_if_default'] )
-                and $var_value === $default_var_value )
+                and ($var_value === null or $var_value === $default_var_value) )
                     continue;
 
                 if( empty( $params['skip_regexps'] )
@@ -837,6 +837,10 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             '{*PAYMENT_ID*}' => array(
                 'default' => 0,
                 'key' => 'payment_id',
+            ),
+            '{*TOKEN*}' => array(
+                'default' => 0,
+                'key' => 'token',
             ),
         );
     }

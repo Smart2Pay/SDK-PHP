@@ -49,6 +49,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Address city' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
+                'skip_if_default' => true,
                 'regexp' => '^.{1,40}$',
             ),
             array(
@@ -57,6 +58,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Address zipcode' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
+                'skip_if_default' => true,
                 'regexp' => '^.{1,50}$',
             ),
             array(
@@ -65,6 +67,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Address state' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
+                'skip_if_default' => true,
                 'regexp' => '^.{1,50}$',
             ),
             array(
@@ -73,6 +76,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Address street name' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
+                'skip_if_default' => true,
                 'regexp' => '^.{1,255}$',
             ),
             array(
@@ -81,6 +85,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Address street number' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
+                'skip_if_default' => true,
                 'regexp' => '^.{1,255}$',
             ),
             array(
@@ -89,6 +94,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'external_name' => 'HouseNumber',
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
+                'skip_if_default' => true,
                 'regexp' => '^.{1,255}$',
             ),
             array(
@@ -97,6 +103,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Address house extension' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
+                'skip_if_default' => true,
                 'regexp' => '^.{1,255}$',
             ),
         );

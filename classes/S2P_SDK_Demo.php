@@ -622,7 +622,8 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                     $transformed_arr[] = $val;
                 else
                 {
-                    if( $post_arr['keys'][$key] == '' )
+                    if( $post_arr['keys'][$key] === ''
+                     or $post_arr['keys'][$key] === null )
                         continue;
 
                     $transformed_arr[(string)$post_arr['keys'][$key]] = $val;

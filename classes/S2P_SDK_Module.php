@@ -4,7 +4,7 @@ namespace S2P_SDK;
 
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const SDK_VERSION = '2.1.2';
+    const SDK_VERSION = '2.1.3';
 
     const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001, ERR_API_QUICK_CALL = 1002, ERR_SDK_INIT = 1003;
 
@@ -139,6 +139,9 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Merchant_Create_Request.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Merchant_Create_Response.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Fraud_Details_Response.php' );
+
+        include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Card_Authentication_Request.php' );
+        include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Card_Authentication_Response.php' );
 
         include_once( S2P_SDK_DIR_CLASSES . 'S2P_SDK_API.php' );
 

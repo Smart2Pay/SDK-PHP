@@ -268,7 +268,16 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             if( ($null_value = $this->nullify( $definition, $params )) !== null
              or ($null_value === null and !empty( $params['output_null_values'] ))
              or empty( $params['parsing_path'] ) )
-                $current_value[ $definition[ $output_name_key ] ] = $null_value;
+            {
+                $assign_value = true;
+                if( !empty( $definition['skip_if_default'] )
+                and array_key_exists( 'default', $definition )
+                and $null_value === $definition['default'] )
+                    $assign_value = false;
+
+                if( $assign_value )
+                    $current_value[$definition[$output_name_key]] = $null_value;
+            }
 
         } elseif( $definition['type'] == self::TYPE_BLOB_GROUP )
         {

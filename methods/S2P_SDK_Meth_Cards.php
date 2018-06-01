@@ -12,7 +12,9 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
 
           FUNC_REFUND_INIT = 'refund_init', FUNC_REFUNDS_LIST = 'refunds_list', FUNC_REFUND_DETAILS = 'refund_details', FUNC_REFUND_STATUS = 'refund_status',
 
-          FUNC_PAYOUT_INIT = 'payout_init', FUNC_PAYOUT_LIST = 'payouts_list', FUNC_PAYOUT_DETAILS = 'payout_details', FUNC_PAYOUT_STATUS = 'payout_status';
+          FUNC_PAYOUT_INIT = 'payout_init', FUNC_PAYOUT_LIST = 'payouts_list', FUNC_PAYOUT_DETAILS = 'payout_details', FUNC_PAYOUT_STATUS = 'payout_status',
+
+          FUNC_CARDAUTH_INIT = 'card_auth_init', FUNC_CARDAUTH_DETAILS = 'card_auth_details', FUNC_CARDAUTH_CANCEL = 'card_auth_cancel';
 
     const STATUS_OPEN = 1, STATUS_SUCCESS = 2, STATUS_CANCELLED = 3, STATUS_FAILED = 4, STATUS_EXPIRED = 5, STATUS_PENDING_CANCEL = 6,
           STATUS_PENDING_CAPTURE = 7, STATUS_AUTHORIZED = 8, STATUS_PARTIALLY_REFUNDED = 9, STATUS_REFUNDED = 10, STATUS_DISPUTED = 11, STATUS_DISPUTE_WON = 12,
@@ -238,7 +240,7 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
                                     $error_msg .= $error_reason;
                             }
 
-                            if( ! empty( $error_msg ) )
+                            if( !empty( $error_msg ) )
                             {
                                 $error_msg = self::s2p_t( 'Returned by server: %s', $error_msg );
                                 $this->set_error( self::ERR_REASON_CODE, $error_msg );
@@ -251,6 +253,44 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
                     if( empty( $response_data['response_array']['payout']['id'] ) )
                     {
                         $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'Payout ID is empty.' ) );
+                        return false;
+                    }
+                }
+            break;
+
+            case self::FUNC_CARDAUTH_INIT:
+            case self::FUNC_CARDAUTH_DETAILS:
+            case self::FUNC_CARDAUTH_CANCEL:
+                if( !empty( $response_data['response_array']['cardauthentication'] ) )
+                {
+                    if( !empty( $response_data['response_array']['cardauthentication']['status'] )
+                    and is_array( $response_data['response_array']['cardauthentication']['status'] ) )
+                    {
+                        if( !empty( $response_data['response_array']['cardauthentication']['status']['reasons'] )
+                        and is_array( $response_data['response_array']['cardauthentication']['status']['reasons'] ) )
+                        {
+                            $error_msg = '';
+                            foreach( $response_data['response_array']['cardauthentication']['status']['reasons'] as $reason_arr )
+                            {
+                                if( ( $error_reason = ( ! empty( $reason_arr['code'] ) ? $reason_arr['code'] . ' - ' : '' ) . ( ! empty( $reason_arr['info'] ) ? $reason_arr['info'] : '' ) ) != '' )
+                                    $error_msg .= $error_reason;
+                            }
+
+                            if( !empty( $error_msg ) )
+                            {
+                                $error_msg = self::s2p_t( 'Returned by server: %s', $error_msg );
+                                $this->set_error( self::ERR_REASON_CODE, $error_msg );
+
+                                return false;
+                            }
+                        }
+                    }
+
+                    if( empty( $response_data['response_array']['cardauthentication']['credicardtoken'] )
+                     or !is_array( $response_data['response_array']['cardauthentication']['credicardtoken'] )
+                     or empty( $response_data['response_array']['cardauthentication']['credicardtoken']['value'] ) )
+                    {
+                        $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'Credit card token is empty.' ) );
                         return false;
                     }
                 }
@@ -281,6 +321,9 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
         $payout_request_obj = new S2P_SDK_Structure_Payout_Request();
         $payout_response_obj = new S2P_SDK_Structure_Payout_Response();
         $payout_response_list_obj = new S2P_SDK_Structure_Payout_Response_List();
+
+        $card_auth_request_obj = new S2P_SDK_Structure_Card_Authentication_Request();
+        $card_auth_response_obj = new S2P_SDK_Structure_Card_Authentication_Response();
 
         return array(
 
@@ -561,7 +604,7 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
             ),
 
             self::FUNC_REFUND_DETAILS => array(
-                'name' => self::s2p_t( 'Card Payment Details' ),
+                'name' => self::s2p_t( 'Card Payment Refund Details' ),
                 'url_suffix' => '/v1/payments/{*PAYMENT_ID*}/refunds/{*ID*}',
                 'http_method' => 'GET',
 
@@ -598,7 +641,7 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
             ),
 
             self::FUNC_REFUND_STATUS => array(
-                'name' => self::s2p_t( 'Get Payment Refund Status' ),
+                'name' => self::s2p_t( 'Get Cart Payment Refund Status' ),
                 'url_suffix' => '/v1/refunds/{*ID*}/status',
                 'http_method' => 'GET',
 
@@ -737,6 +780,93 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
 
                 'error_structure' => $payout_response_obj,
             ),
+
+            self::FUNC_CARDAUTH_INIT => array(
+                'name' => self::s2p_t( 'Initiate a Card Authentication' ),
+                'url_suffix' => '/v1/card/authenticate',
+                'http_method' => 'POST',
+
+                'mandatory_in_request' => array(
+                    'CardAuthentication' => array(
+                        'Card' => array(
+                            'Number' => '',
+                        ),
+                    ),
+                ),
+
+                'request_structure' => $card_auth_request_obj,
+
+                'mandatory_in_response' => array(
+                    'card_authentication' => array(),
+                ),
+
+                'response_structure' => $card_auth_response_obj,
+
+                'mandatory_in_error' => array(
+                    'card_authentication' => array(),
+                ),
+
+                'error_structure' => $card_auth_response_obj,
+            ),
+
+            self::FUNC_CARDAUTH_DETAILS => array(
+                'name' => self::s2p_t( 'Get Card Authentication Details' ),
+                'url_suffix' => '/v1/card/token/{*TOKEN*}',
+                'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'token',
+                        'display_name' => self::s2p_t( 'Card Authentication Token' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_STRING,
+                        'default' => '',
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'card_authentication' => array(),
+                ),
+
+                'response_structure' => $card_auth_response_obj,
+
+                'mandatory_in_error' => array(
+                    'card_authentication' => array(),
+                ),
+
+                'error_structure' => $card_auth_response_obj,
+            ),
+
+            self::FUNC_CARDAUTH_CANCEL => array(
+                'name' => self::s2p_t( 'Get Cart Payment Refund Status' ),
+                'url_suffix' => '/v1/card/token/{*TOKEN*}/cancel',
+                'http_method' => 'POST',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'token',
+                        'display_name' => self::s2p_t( 'Card Authentication Token' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_STRING,
+                        'default' => '',
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'card_authentication' => array(),
+                ),
+
+                'response_structure' => $card_auth_response_obj,
+
+                'mandatory_in_error' => array(
+                    'card_authentication' => array(),
+                ),
+
+                'error_structure' => $card_auth_response_obj,
+            ),
+
         );
     }
 }
