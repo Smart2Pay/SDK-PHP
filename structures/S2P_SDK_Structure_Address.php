@@ -40,7 +40,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Address country' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
-                'regexp' => '^[a-zA-Z]{2}$',
+                'regexp' => '^([A-Za-z]{2})?$',
                 'value_source' => S2P_SDK_Values_Source::TYPE_COUNTRY,
             ),
             array(
@@ -50,7 +50,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
-                'regexp' => '^.{1,40}$',
+                'regexp' => '^(.{1,255})?$',
             ),
             array(
                 'name' => 'zipcode',
@@ -59,7 +59,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
-                'regexp' => '^.{1,50}$',
+                'regexp' => '^(.{1,255})?$',
             ),
             array(
                 'name' => 'state',
@@ -68,7 +68,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
-                'regexp' => '^.{1,50}$',
+                'regexp' => '^(.{1,255})?$',
             ),
             array(
                 'name' => 'street',
@@ -77,7 +77,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
-                'regexp' => '^.{1,255}$',
+                'regexp' => '^(.{1,255})?$',
             ),
             array(
                 'name' => 'streetnumber',
@@ -86,7 +86,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
-                'regexp' => '^.{1,255}$',
+                'regexp' => '^(.{1,255})?$',
             ),
             array(
                 'name' => 'housenumber',
@@ -95,7 +95,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
-                'regexp' => '^.{1,255}$',
+                'regexp' => '^(.{1,255})?$',
             ),
             array(
                 'name' => 'houseextension',
@@ -104,7 +104,7 @@ class S2P_SDK_Structure_Address extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
-                'regexp' => '^.{1,255}$',
+                'regexp' => '^(.{1,255})?$',
             ),
         );
     }

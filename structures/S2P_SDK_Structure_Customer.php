@@ -40,6 +40,7 @@ class S2P_SDK_Structure_Customer extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Merchant assigned customer ID' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => null,
+                'regexp' => '^([0-9a-zA-Z_-]{1,50})?$',
             ),
             array(
                 'name' => 'email',

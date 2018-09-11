@@ -86,7 +86,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Payment return URL' ),
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => null,
-                'regexp' => '^(http(s)?(:\/\/|%3A%2F%2F).+){1,512}$',
+                'regexp' => '^(http(s)?(:\/\/|%3A%2F%2F).{1,512})?$',
                 'check_constant' => 'S2P_SDK_PAYMENT_RETURN_URL',
             ),
             array(

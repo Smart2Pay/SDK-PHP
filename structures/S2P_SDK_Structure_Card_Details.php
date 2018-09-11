@@ -32,7 +32,7 @@ class S2P_SDK_Structure_Card_Details extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
-                'regexp' => '^([A-Z a-z]{1,50})$',
+                'regexp' => '^[^\d]*$',
             ),
             array(
                 'name' => 'number',
@@ -41,6 +41,7 @@ class S2P_SDK_Structure_Card_Details extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
+                'regexp' => '^(\d{16,19})$',
             ),
             array(
                 'name' => 'expirationmonth',
@@ -49,7 +50,7 @@ class S2P_SDK_Structure_Card_Details extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
-                'regexp' => '^(0[1-9]|1[0-2])$',
+                'regexp' => '^(0?[1-9]|1[0-2])$',
             ),
             array(
                 'name' => 'expirationyear',
@@ -58,7 +59,7 @@ class S2P_SDK_Structure_Card_Details extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
-                'regexp' => '^(19|20)([0-9]{2})$',
+                'regexp' => '^(20|)([0-9]{2})$',
             ),
             array(
                 'name' => 'securitycode',
