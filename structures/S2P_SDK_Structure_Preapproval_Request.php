@@ -45,6 +45,14 @@ class S2P_SDK_Structure_Preapproval_Request extends S2P_SDK_Scope_Structure
                 'value_source' => S2P_SDK_Values_Source::TYPE_RECURRING_METHODS,
             ),
             array(
+                'name' => 'methodoptionid',
+                'external_name' => 'MethodOptionID',
+                'display_name' => self::s2p_t( 'Option for Payment Method ID' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'default' => 0,
+                'regexp' => '^([0-9]{1,10})$',
+            ),
+            array(
                 'name' => 'recurringperiod',
                 'external_name' => 'RecurringPeriod',
                 'display_name' => self::s2p_t( 'Preapproval recurring period' ),

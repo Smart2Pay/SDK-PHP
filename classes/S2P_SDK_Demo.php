@@ -470,6 +470,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                     } elseif( $get_var['type'] == S2P_SDK_Scope_Variable::TYPE_DATETIME )
                     {
                         ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" class="datepicker" /><?php
+                    } elseif( $get_var['type'] == S2P_SDK_Scope_Variable::TYPE_DATE )
+                    {
+                        ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" class="datepickerdateonly" /><?php
                     } else
                     {
                         ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" /><?php
@@ -481,6 +484,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                 if( $get_var['type'] == S2P_SDK_Scope_Variable::TYPE_DATETIME )
                 {
                     echo ' - yyyymmddhhmmss';
+                } elseif( $get_var['type'] == S2P_SDK_Scope_Variable::TYPE_DATE )
+                {
+                    echo ' - yyyymmdd';
                 }
             ?></div>
         </div>
@@ -777,6 +783,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                     } elseif( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_DATETIME )
                     {
                         ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" class="datepicker" /><?php
+                    } elseif( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_DATE )
+                    {
+                        ?><input type="text" id="<?php echo $field_id?>" name="<?php echo $field_name?>" value="<?php echo self::form_str( $field_value )?>" class="datepickerdateonly" /><?php
                     } elseif( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_ARRAY )
                     {
                         if( empty( $field_value ) or !is_array( $field_value ) )
@@ -889,6 +898,9 @@ class S2P_SDK_Demo extends S2P_SDK_Module
                     if( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_DATETIME )
                     {
                         echo ' - yyyymmddhhmmss';
+                    } elseif( $structure_definition['type'] == S2P_SDK_Scope_Variable::TYPE_DATE )
+                    {
+                        echo ' - yyyymmdd';
                     }
 
                     if( !empty( $structure_definition['regexp'] ) )
@@ -1719,7 +1731,7 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 					
 			#api_result {
 				}
-		.datepicker { width: 120px !important; }
+		.datepicker, .datepickerdateonly { width: 120px !important; }
 		
 				#api_result > div {	
 					}
@@ -2018,6 +2030,10 @@ class S2P_SDK_Demo extends S2P_SDK_Module
 			$('.datepicker').datepicker({
 				firstDay: 1,
 				dateFormat: 'yymmdd000000'
+			});
+			$('.datepickerdateonly').datepicker({
+				firstDay: 1,
+				dateFormat: 'yymmdd'
 			});
 
 			$("[id*='___template'] input, [id*='___template'] select, [id*='___template'] textarea").each(function(){

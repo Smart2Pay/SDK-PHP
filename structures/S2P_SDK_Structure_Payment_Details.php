@@ -162,6 +162,27 @@ class S2P_SDK_Structure_Payment_Details extends S2P_SDK_Scope_Structure
                 'default' => '',
                 'regexp' => '^.{1,20}$',
             ),
+            array(
+                'name' => 'billingcyclestart',
+                'external_name' => 'BillingCycleStart',
+                'display_name' => self::s2p_t( 'Payment billing cycle start' ),
+                'type' => S2P_SDK_VTYPE_DATE,
+                'default' => '',
+            ),
+            array(
+                'name' => 'billingcycleend',
+                'external_name' => 'BillingCycleEnd',
+                'display_name' => self::s2p_t( 'Payment billing cycle end' ),
+                'type' => S2P_SDK_VTYPE_DATE,
+                'default' => '',
+            ),
+            array(
+                'name' => 'unsubscribeintstructions',
+                'external_name' => 'UnsubscribeIntstructions',
+                'display_name' => self::s2p_t( 'Instructions related to unsubscription' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+            ),
        );
     }
 

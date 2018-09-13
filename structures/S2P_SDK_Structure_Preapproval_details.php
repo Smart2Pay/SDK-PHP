@@ -41,6 +41,14 @@ class S2P_SDK_Structure_Preapproval_details extends S2P_SDK_Scope_Structure
                 'default' => '',
             ),
             array(
+                'name' => 'frequency',
+                'external_name' => 'Frequency',
+                'display_name' => self::s2p_t( 'Preapproval frequency' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'value_source' => S2P_SDK_Values_Source::TYPE_PREAPPROVAL_FREQUENCY,
+            ),
+            array(
                 'name' => 'preapprovaldescription',
                 'external_name' => 'PreapprovalDescription',
                 'display_name' => self::s2p_t( 'Preapproval description' ),

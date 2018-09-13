@@ -20,6 +20,8 @@ if( !defined( 'S2P_SDK_VTYPE_BLOB' ) )
     define( 'S2P_SDK_VTYPE_BLOB', 8 );
 if( !defined( 'S2P_SDK_VTYPE_BLOB_GROUP' ) )
     define( 'S2P_SDK_VTYPE_BLOB_GROUP', 9 );
+if( !defined( 'S2P_SDK_VTYPE_DATE' ) )
+    define( 'S2P_SDK_VTYPE_DATE', 10 );
 
 class S2P_SDK_Scope_Variable extends S2P_SDK_Language
 {
@@ -39,8 +41,9 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
      */
     protected $_value;
 
-    const TYPE_STRING = S2P_SDK_VTYPE_STRING, TYPE_INT = S2P_SDK_VTYPE_INT, TYPE_FLOAT = S2P_SDK_VTYPE_FLOAT, TYPE_BOOL = S2P_SDK_VTYPE_BOOL, TYPE_DATETIME = S2P_SDK_VTYPE_DATETIME,
-          TYPE_ARRAY = S2P_SDK_VTYPE_ARRAY, TYPE_BLOB_ARRAY = S2P_SDK_VTYPE_BLARRAY, TYPE_BLOB = S2P_SDK_VTYPE_BLOB, TYPE_BLOB_GROUP = S2P_SDK_VTYPE_BLOB_GROUP;
+    const TYPE_STRING = S2P_SDK_VTYPE_STRING, TYPE_INT = S2P_SDK_VTYPE_INT, TYPE_FLOAT = S2P_SDK_VTYPE_FLOAT, TYPE_BOOL = S2P_SDK_VTYPE_BOOL,
+          TYPE_DATETIME = S2P_SDK_VTYPE_DATETIME, TYPE_ARRAY = S2P_SDK_VTYPE_ARRAY, TYPE_BLOB_ARRAY = S2P_SDK_VTYPE_BLARRAY,
+          TYPE_BLOB = S2P_SDK_VTYPE_BLOB, TYPE_BLOB_GROUP = S2P_SDK_VTYPE_BLOB_GROUP, TYPE_DATE = S2P_SDK_VTYPE_DATE;
     private static $TYPES_ARR = array(
         self::TYPE_STRING => array(
             'title' => 'string',
@@ -68,6 +71,9 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         ),
         self::TYPE_BLOB_GROUP => array(
             'title' => 'object group',
+        ),
+        self::TYPE_DATE => array(
+            'title' => 'date',
         ),
     );
 
@@ -554,6 +560,25 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
                 }
             break;
 
+            case self::TYPE_DATE:
+                $value = trim( $value );
+                if( !empty( $value )
+                and strlen( $value ) == 8 )
+                {
+                    $year = (int)@substr( $value, 0, 4 );
+                    $month = (int)@substr( $value, 4, 2 );
+                    $day = (int)@substr( $value, 6, 2 );
+
+                    // get a good year margin...
+                    if( $year > 1000 and $year < 10000
+                    and $month >= 1 and $month <= 12
+                    and $day >= 1 and $day <= 31 )
+                        $result = $year.
+                                  ($month<10?'0':'').$month.
+                                  ($day<10?'0':'').$day;
+                }
+            break;
+
             case self::TYPE_ARRAY:
                 $result = array();
                 if( !empty( $value ) and is_array( $value ) )
@@ -610,7 +635,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
     public static function scalar_type( $type )
     {
         $type = intval( $type );
-        return (in_array( $type, array( self::TYPE_STRING, self::TYPE_INT, self::TYPE_FLOAT, self::TYPE_BOOL, self::TYPE_DATETIME, self::TYPE_ARRAY ) )?true:false);
+        return (in_array( $type, array( self::TYPE_STRING, self::TYPE_INT, self::TYPE_FLOAT, self::TYPE_BOOL, self::TYPE_DATETIME, self::TYPE_DATE, self::TYPE_ARRAY ) )?true:false);
     }
 
     public static function object_type( $type )

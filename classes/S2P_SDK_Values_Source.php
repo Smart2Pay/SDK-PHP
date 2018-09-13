@@ -7,7 +7,7 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
     const ERR_TYPE = 1;
 
     const TYPE_COUNTRY = 1, TYPE_CURRENCY = 2, TYPE_AVAILABLE_METHODS = 3, TYPE_METHODS = 4, TYPE_RECURRING_METHODS = 5,
-          TYPE_ARTICLE_TYPE = 6;
+          TYPE_ARTICLE_TYPE = 6, TYPE_PREAPPROVAL_FREQUENCY = 7;
 
     private static $TYPES_ARR = array(
         self::TYPE_COUNTRY => 'Country',
@@ -16,6 +16,7 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
         self::TYPE_METHODS => 'Methods',
         self::TYPE_RECURRING_METHODS => 'Recurring Methods',
         self::TYPE_ARTICLE_TYPE => 'Article Type',
+        self::TYPE_PREAPPROVAL_FREQUENCY => 'Preapproval Frequency',
     );
 
     /** @var int $_type */
@@ -154,6 +155,14 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
                     $return_arr[$key] = $key.' - '.$text;
                 }
             break;
+
+            case self::TYPE_PREAPPROVAL_FREQUENCY:
+                $return_arr = S2P_SDK_Values_Sources_Preapproval_Frequency::get_frequencies();
+                foreach( $return_arr as $key => $text )
+                {
+                    $return_arr[$key] = $text.' ('.$key.')';
+                }
+            break;
         }
 
         return $return_arr;
@@ -198,6 +207,10 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
 
             case self::TYPE_ARTICLE_TYPE:
                 $return_check = S2P_SDK_Values_Sources_Article_Type::valid_type( $val );
+            break;
+
+            case self::TYPE_PREAPPROVAL_FREQUENCY:
+                $return_check = S2P_SDK_Values_Sources_Preapproval_Frequency::valid_frequency( $val );
             break;
         }
 
