@@ -4,7 +4,7 @@ namespace S2P_SDK;
 
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const SDK_VERSION = '2.1.4';
+    const SDK_VERSION = '2.1.5';
 
     const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001, ERR_API_QUICK_CALL = 1002, ERR_SDK_INIT = 1003;
 
@@ -87,6 +87,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         include_once( S2P_SDK_DIR_CLASSES . 'S2P_SDK_Values_Source_Methods.php' );
         include_once( S2P_SDK_DIR_CLASSES . 'S2P_SDK_Values_Source_Recurring_Methods.php' );
         include_once( S2P_SDK_DIR_CLASSES . 'S2P_SDK_Values_Sources_Article_Type.php' );
+        include_once( S2P_SDK_DIR_CLASSES . 'S2P_SDK_Values_Sources_Preapproval_Frequency.php' );
         include_once( S2P_SDK_DIR_CLASSES . 'S2P_SDK_Values_Source.php' );
 
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Scope_Variable.php' );
