@@ -1,5 +1,6 @@
 {
   "name": "smart2pay/sdk-php",
+  "type": "library",
   "version": "2.1.5",
   "description": "Smart2Pay SDK - enable payments on your site easily 200+ methods, 80+ countries",
   "keywords": [
@@ -8,7 +9,7 @@
     "alternative payments",
     "sdk"
   ],
-  "homepage": "http://www.smart2pay.com/",
+  "homepage": "https://github.com/Smart2Pay/SDK-PHP",
   "license": "MIT",
   "authors": [
     {
