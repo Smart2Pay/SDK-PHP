@@ -183,6 +183,38 @@ class S2P_SDK_Structure_Payment_Details extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
             ),
+            array(
+                'name' => 'isoffline',
+                'external_name' => 'IsOffline',
+                'display_name' => self::s2p_t( 'Offline payment method' ),
+                'type' => S2P_SDK_VTYPE_BOOL,
+                'default' => null,
+                'skip_if_default' => true,
+            ),
+            array(
+                'name' => 'storename',
+                'external_name' => 'StoreName',
+                'display_name' => self::s2p_t( 'Store name. Can be null only when the store information is verified' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'skip_if_default' => true,
+            ),
+            array(
+                'name' => 'storeid',
+                'external_name' => 'StoreId',
+                'display_name' => self::s2p_t( 'Store ID' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'skip_if_default' => true,
+            ),
+            array(
+                'name' => 'terminalid',
+                'external_name' => 'TerminalID',
+                'display_name' => self::s2p_t( 'Terminal ID' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'skip_if_default' => true,
+            ),
        );
     }
 
