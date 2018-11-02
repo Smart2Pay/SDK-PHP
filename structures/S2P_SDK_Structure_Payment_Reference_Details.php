@@ -103,6 +103,13 @@ class S2P_SDK_Structure_Payment_Reference_Details extends S2P_SDK_Scope_Structur
                 'default' => '',
             ),
             array(
+                'name' => 'amounttopay',
+                'external_name' => 'AmountToPay',
+                'display_name' => self::s2p_t( 'Amount to be paid' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+            ),
+            array(
                 'name' => 'qrcodeurl',
                 'external_name' => 'QRCodeURL',
                 'display_name' => self::s2p_t( 'QRCode URL' ),

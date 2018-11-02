@@ -153,6 +153,13 @@ class S2P_SDK_Structure_Preapproval_Response extends S2P_SDK_Scope_Structure
                 'default' => '',
                 'value_source' => S2P_SDK_Values_Source::TYPE_PREAPPROVAL_FREQUENCY,
             ),
+            array(
+                'name' => 'mandatereference',
+                'external_name' => 'MandateReference',
+                'display_name' => self::s2p_t( 'Preapproval mandate reference' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+            ),
         );
     }
 
