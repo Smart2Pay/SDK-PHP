@@ -7,7 +7,7 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
     const ERR_TYPE = 1;
 
     const TYPE_COUNTRY = 1, TYPE_CURRENCY = 2, TYPE_AVAILABLE_METHODS = 3, TYPE_METHODS = 4, TYPE_RECURRING_METHODS = 5,
-          TYPE_ARTICLE_TYPE = 6, TYPE_PREAPPROVAL_FREQUENCY = 7;
+          TYPE_ARTICLE_TYPE = 6, TYPE_PREAPPROVAL_FREQUENCY = 7, TYPE_ARTICLE_TAX_TYPE = 8;
 
     private static $TYPES_ARR = array(
         self::TYPE_COUNTRY => 'Country',
@@ -17,6 +17,7 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
         self::TYPE_RECURRING_METHODS => 'Recurring Methods',
         self::TYPE_ARTICLE_TYPE => 'Article Type',
         self::TYPE_PREAPPROVAL_FREQUENCY => 'Preapproval Frequency',
+        self::TYPE_ARTICLE_TAX_TYPE => 'Article Tax Type',
     );
 
     /** @var int $_type */
@@ -163,6 +164,14 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
                     $return_arr[$key] = $text.' ('.$key.')';
                 }
             break;
+
+            case self::TYPE_ARTICLE_TAX_TYPE:
+                $return_arr = S2P_SDK_Values_Sources_Article_Tax_Type::get_types();
+                foreach( $return_arr as $key => $text )
+                {
+                    $return_arr[$key] = $key.' - '.$text;
+                }
+            break;
         }
 
         return $return_arr;
@@ -211,6 +220,10 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
 
             case self::TYPE_PREAPPROVAL_FREQUENCY:
                 $return_check = S2P_SDK_Values_Sources_Preapproval_Frequency::valid_frequency( $val );
+            break;
+
+            case self::TYPE_ARTICLE_TAX_TYPE:
+                $return_check = S2P_SDK_Values_Sources_Article_Tax_Type::valid_type( $val );
             break;
         }
 
