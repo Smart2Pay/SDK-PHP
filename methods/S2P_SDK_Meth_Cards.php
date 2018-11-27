@@ -79,11 +79,17 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
     public function get_notification_types()
     {
         $payment_notification_obj = new S2P_SDK_Structure_Payment_Response();
+        $dispute_notification_obj = new S2P_SDK_Structure_Dispute_Notification();
 
         return array(
             'Payment' => array(
 
                 'request_structure' => $payment_notification_obj,
+
+            ),
+            'Dispute' => array(
+
+                'request_structure' => $dispute_notification_obj,
 
             ),
         );

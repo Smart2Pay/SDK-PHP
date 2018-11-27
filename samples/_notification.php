@@ -239,6 +239,45 @@
                 break;
             }
         break;
+
+        case $notification_obj::TYPE_DISPUTE:
+            if( !($result_arr = $notification_obj->get_array())
+             or empty( $result_arr['dispute'] ) or !is_array( $result_arr['dispute'] ) )
+            {
+                S2P_SDK\S2P_SDK_Notification::logf( 'Couldn\'t extract dispute object.' );
+                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
+                exit;
+            }
+
+            $dispute_arr = $result_arr['dispute'];
+
+            if( empty( $dispute_arr['id'] ) or empty( $dispute_arr['paymentid'] )
+             or empty( $dispute_arr['status'] ) or empty( $dispute_arr['status']['id'] ) )
+            {
+                S2P_SDK\S2P_SDK_Notification::logf( 'ID, PaymentID or Status not provided.' );
+                S2P_SDK\S2P_SDK_Notification::logf( 'Input buffer: '.$notification_obj->get_input_buffer(), false );
+                exit;
+            }
+
+            if( !($status_title = S2P_SDK\S2P_SDK_Meth_Payments::valid_status( $dispute_arr['status']['id'] )) )
+                $status_title = '(unknown)';
+
+            S2P_SDK\S2P_SDK_Notification::logf( 'Received '.$status_title.' notification for dispute #'.$dispute_arr['id'].', payment #'.$dispute_arr['paymentid'].'.', false );
+
+            // Update database according to dispute status
+            switch( $dispute_arr['status']['id'] )
+            {
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_OPEN:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Dispute is open.', false );
+                break;
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_DISPUTE_WON:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Dispute won.', false );
+                break;
+                case S2P_SDK\S2P_SDK_Meth_Payments::STATUS_DISPUTE_LOST:
+                    S2P_SDK\S2P_SDK_Notification::logf( 'Dispute lost.', false );
+                break;
+            }
+        break;
     }
 
     if( $notification_obj->respond_ok() )

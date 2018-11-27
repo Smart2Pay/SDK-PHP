@@ -116,7 +116,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         $return_arr['notification_type'] = false;
         $return_arr['notification_array'] = array();
 
-        foreach( $notification_types as $notification_key => $notification_details  )
+        foreach( $notification_types as $notification_key => $notification_details )
         {
             /** @var S2P_SDK_Scope_Structure $request_structure */
             if( !($request_structure = $notification_details['request_structure'] )
@@ -841,6 +841,14 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             '{*TOKEN*}' => array(
                 'default' => 0,
                 'key' => 'token',
+            ),
+            '{*FROM_CURRENCY*}' => array(
+                'default' => '',
+                'key' => 'from_currency',
+            ),
+            '{*TO_CURRENCY*}' => array(
+                'default' => '',
+                'key' => 'to_currency',
             ),
         );
     }

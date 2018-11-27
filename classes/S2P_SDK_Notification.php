@@ -6,7 +6,7 @@ class S2P_SDK_Notification extends S2P_SDK_Module
 {
     const ERR_UNKNOWN_TYPE = 1, ERR_BODY = 2, ERR_JSON = 3, ERR_RESPONSE_OK = 4, ERR_AUTHENTICATION = 5;
 
-    const TYPE_PAYMENT = 1, TYPE_PREAPPROVAL = 2, TYPE_REFUND = 3;
+    const TYPE_PAYMENT = 1, TYPE_PREAPPROVAL = 2, TYPE_REFUND = 3, TYPE_DISPUTE = 4;
     private static $TYPES_ARR = array(
         self::TYPE_PAYMENT => array(
             'title' => 'Payment',
@@ -16,6 +16,9 @@ class S2P_SDK_Notification extends S2P_SDK_Module
         ),
         self::TYPE_REFUND => array(
             'title' => 'Refund',
+        ),
+        self::TYPE_DISPUTE => array(
+            'title' => 'Dispute',
         ),
     );
 
@@ -215,6 +218,9 @@ class S2P_SDK_Notification extends S2P_SDK_Module
                     break;
                     case 'Refund':
                         $this->_type = self::TYPE_REFUND;
+                    break;
+                    case 'Dispute':
+                        $this->_type = self::TYPE_DISPUTE;
                     break;
                 }
 

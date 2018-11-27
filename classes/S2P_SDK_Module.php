@@ -145,6 +145,9 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Card_Authentication_Request.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Card_Authentication_Response.php' );
 
+        include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Exchangerate_Response.php' );
+        include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Dispute_Notification.php' );
+
         include_once( S2P_SDK_DIR_CLASSES . 'S2P_SDK_API.php' );
 
         include_once( S2P_SDK_DIR_METHODS . 'S2P_SDK_Method.php' );
@@ -154,6 +157,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         include_once( S2P_SDK_DIR_METHODS . 'S2P_SDK_Meth_Methods.php' );
         include_once( S2P_SDK_DIR_METHODS . 'S2P_SDK_Meth_Users.php' );
         include_once( S2P_SDK_DIR_METHODS . 'S2P_SDK_Meth_Merchantsites.php' );
+        include_once( S2P_SDK_DIR_METHODS . 'S2P_SDK_Meth_Exchangerates.php' );
 
         include_once( S2P_SDK_DIR_CLASSES . 'S2P_SDK_Notification.php' );
         include_once( S2P_SDK_DIR_CLASSES . 'S2P_SDK_Return.php' );

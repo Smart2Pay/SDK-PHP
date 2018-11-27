@@ -129,10 +129,10 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
             array(
                 'name' => 'methodid',
                 'external_name' => 'MethodID',
-                'display_name' => self::s2p_t( 'Payment currency' ),
+                'display_name' => self::s2p_t( 'Payment method used' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
-                'regexp' => '^([0-9]{1,10})$',
+                'regexp' => '^\d{1,12}$',
             ),
             array(
                 'name' => 'methodoptionid',

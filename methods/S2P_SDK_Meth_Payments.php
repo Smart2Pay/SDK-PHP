@@ -15,7 +15,9 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
     const STATUS_OPEN = 1, STATUS_SUCCESS = 2, STATUS_CANCELLED = 3, STATUS_FAILED = 4, STATUS_EXPIRED = 5, STATUS_PENDING_CUSTOMER = 6,
           STATUS_PENDING_PROVIDER = 7, STATUS_SUBMITTED = 8, STATUS_AUTHORIZED = 9, STATUS_APPROVED = 10, STATUS_CAPTURED = 11, STATUS_REJECTED = 12,
           STATUS_PENDING_CAPTURE = 13, STATUS_EXCEPTION = 14, STATUS_PENDING_CANCEL = 15, STATUS_REVERSED = 16, STATUS_COMPLETED = 17, STATUS_PROCESSING = 18,
-          STATUS_DISPUTED = 19, STATUS_CHARGEBACK = 20;
+          STATUS_DISPUTED = 19, STATUS_CHARGEBACK = 20, STATUS_PARTIALLY_REFUNDED = 21, STATUS_REFUNDED = 22, STATUS_DISPUTE_WON = 23, STATUS_DISPUTE_LOST = 24,
+          STATUS_PAID = 25, STATUS_CHARGED_BACK = 26, STATUS_PENDING_CHALLENGE_CONFIRMATION = 30, STATUS_QUEUED_FOR_CAPTURING = 33, STATUS_QUEUED_FOR_CANCELLING = 34,
+          STATUS_PARTIALLY_CAPTURED = 35;
 
     private static $STATUSES_ARR = array(
         self::STATUS_OPEN => 'Open',
@@ -38,6 +40,16 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
         self::STATUS_PROCESSING => 'Processing',
         self::STATUS_DISPUTED => 'Disputed',
         self::STATUS_CHARGEBACK => 'Chargeback',
+        self::STATUS_PARTIALLY_REFUNDED => 'Partially Refunded',
+        self::STATUS_REFUNDED => 'Refunded',
+        self::STATUS_DISPUTE_WON => 'Dispute Won',
+        self::STATUS_DISPUTE_LOST => 'Dispute Lost',
+        self::STATUS_PAID => 'Paid',
+        self::STATUS_CHARGED_BACK => 'Charged Back',
+        self::STATUS_PENDING_CHALLENGE_CONFIRMATION => 'Pending Challenge Confirmation',
+        self::STATUS_QUEUED_FOR_CAPTURING => 'Queued for Capturing',
+        self::STATUS_QUEUED_FOR_CANCELLING => 'Queued for Cancelling',
+        self::STATUS_PARTIALLY_CAPTURED => 'Partially Captured',
     );
 
     public static function get_statuses()

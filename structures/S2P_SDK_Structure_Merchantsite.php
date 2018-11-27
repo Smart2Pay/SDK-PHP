@@ -35,6 +35,14 @@ class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
                 'regexp' => '^\d{1,12}$',
             ),
             array(
+                'name' => 'merchantid',
+                'external_name' => 'MerchantID',
+                'display_name' => self::s2p_t( 'ID of merchant that owns the site' ),
+                'default' => 0,
+                'type' => S2P_SDK_VTYPE_INT,
+                'regexp' => '^\d{1,12}$',
+            ),
+            array(
                 'name' => 'created',
                 'external_name' => 'Created',
                 'display_name' => self::s2p_t( 'Site date of creation' ),
