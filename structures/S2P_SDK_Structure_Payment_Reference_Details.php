@@ -117,6 +117,13 @@ class S2P_SDK_Structure_Payment_Reference_Details extends S2P_SDK_Scope_Structur
                 'default' => '',
             ),
             array(
+                'name' => 'boletourl',
+                'external_name' => 'BoletoURL',
+                'display_name' => self::s2p_t( 'Boleto URL' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+            ),
+            array(
                 'name' => 'instructions',
                 'external_name' => 'Instructions',
                 'display_name' => self::s2p_t( 'Payment Instructions' ),

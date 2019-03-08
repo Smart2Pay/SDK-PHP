@@ -87,13 +87,6 @@ class S2P_SDK_Structure_Customer extends S2P_SDK_Scope_Structure
                 'default' => null,
             ),
             array(
-                'name' => 'socialsecuritynumber2',
-                'external_name' => 'SocialSecurityNumber2',
-                'display_name' => self::s2p_t( 'Customer social security number 2' ),
-                'type' => S2P_SDK_VTYPE_STRING,
-                'default' => null,
-            ),
-            array(
                 'name' => 'phone',
                 'external_name' => 'Phone',
                 'display_name' => self::s2p_t( 'Customer phone' ),
