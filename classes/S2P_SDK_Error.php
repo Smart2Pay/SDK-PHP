@@ -358,6 +358,25 @@ class S2P_SDK_Error
     }
 
     /**
+     * @return string Returns error message
+     */
+    public function get_error_message()
+    {
+        if( $this->debugging_mode() )
+            return $this->error_debug_msg;
+
+        return $this->error_simple_msg;
+    }
+
+    /**
+     * @return int Returns error code
+     */
+    public function get_error_code()
+    {
+        return $this->error_no;
+    }
+
+    /**
      * Copies error set in $obj to current object
      *
      * @param S2P_SDK_Error $obj
@@ -419,6 +438,16 @@ class S2P_SDK_Error
     public static function st_get_error()
     {
         return self::get_error_static_instance()->get_error();
+    }
+
+    public static function st_get_error_code()
+    {
+        return self::get_error_static_instance()->get_error_code();
+    }
+
+    public static function st_get_error_message()
+    {
+        return self::get_error_static_instance()->get_error_message();
     }
 
     //! Return warnings for specified tag or all warnings

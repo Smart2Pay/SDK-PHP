@@ -210,7 +210,6 @@ class S2P_SDK_Countries extends S2P_SDK_Language
         'SO' => 'Somalia',
         'SR' => 'Suriname',
         'ST' => 'Sco Tomé and Prkncipe',
-        'SU' => 'Union of Soviet Socialist Republics',
         'SV' => 'El Salvador',
         'SY' => 'Syrian Arab Republic',
         'SZ' => 'Swaziland',
