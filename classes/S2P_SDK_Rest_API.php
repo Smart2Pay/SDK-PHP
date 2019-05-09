@@ -7,10 +7,12 @@ if( !defined( 'S2P_SDK_REST_TEST' ) )
     define( 'S2P_SDK_REST_TEST', 'test' );
 if( !defined( 'S2P_SDK_REST_LIVE' ) )
     define( 'S2P_SDK_REST_LIVE', 'live' );
+if( !defined( 'S2P_SDK_REST_CUSTOM' ) )
+    define( 'S2P_SDK_REST_CUSTOM', 'custom' );
 
 class S2P_SDK_Rest_API extends S2P_SDK_Module
 {
-    const ENV_TEST = S2P_SDK_REST_TEST, ENV_LIVE = S2P_SDK_REST_LIVE;
+    const ENV_TEST = S2P_SDK_REST_TEST, ENV_LIVE = S2P_SDK_REST_LIVE, ENV_CUSTOM = S2P_SDK_REST_CUSTOM;
 
     const ENTRY_POINT_REST = 1, ENTRY_POINT_CARDS = 2;
 
@@ -82,6 +84,8 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             $module_params['api_key'] = $api_config_arr['api_key'];
         if( empty( $module_params['environment'] ) and !empty( $api_config_arr['environment'] ) )
             $module_params['environment'] = $api_config_arr['environment'];
+        if( empty( $module_params['custom_base_url'] ) and !empty( $api_config_arr['custom_base_url'] ) )
+            $module_params['custom_base_url'] = $api_config_arr['custom_base_url'];
 
         if( !empty( $module_params['environment'] ) )
         {
@@ -98,6 +102,13 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         if( !empty( $module_params['api_key'] ) )
         {
             if( !$this->set_api_key( $module_params['api_key'] ) )
+                return false;
+        }
+
+        if( $this->environment() == self::ENV_CUSTOM
+        and !empty( $module_params['custom_base_url'] ) )
+        {
+            if( !$this->set_base_url( $module_params['custom_base_url'] ) )
                 return false;
         }
 
@@ -184,6 +195,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
                 return '';
 
             case self::ENV_TEST:
+            case self::ENV_CUSTOM:
                 return self::TEST_RESOURCE_URL;
 
             case self::ENV_LIVE:
@@ -213,7 +225,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         if( $env === null )
             return $this->_environment;
 
-        if( !in_array( $env, array( self::ENV_TEST, self::ENV_LIVE ) ) )
+        if( !in_array( $env, array( self::ENV_TEST, self::ENV_LIVE, self::ENV_CUSTOM ) ) )
         {
             $this->set_error( self::ERR_ENVIRONMENT,
                                   self::s2p_t( 'Unknown environment' ),
@@ -363,6 +375,19 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
                 return false;
 
+            case self::ENV_CUSTOM:
+                if( empty( $this->_base_url ) )
+                {
+                    $this->set_error( self::ERR_ENVIRONMENT,
+                        self::s2p_t( 'REST API base URL not provided.' ),
+                        'REST API base URL not provided.' );
+
+                    return false;
+                }
+
+                $this->_resource_url = self::TEST_RESOURCE_URL;
+            break;
+
             case self::ENV_TEST:
                 if( $entry_point == self::ENTRY_POINT_REST )
                 {
@@ -464,7 +489,9 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         if( !$this->validate_base_url()
          or empty( $this->_base_url ) )
         {
-            $this->set_error( self::ERR_URL, self::s2p_t( 'Couldn\'t obtain base URL.' ) );
+            if( !$this->has_error() )
+                $this->set_error( self::ERR_URL, self::s2p_t( 'Couldn\'t obtain base URL.' ) );
+
             return false;
         }
 

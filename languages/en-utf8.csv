@@ -75,6 +75,7 @@
 "Invalid call result or previous call failed.","Invalid call result or previous call failed."
 "Couldn't finalize request after call.","Couldn't finalize request after call."
 "Unknown environment","Unknown environment"
+"REST API base URL not provided.","REST API base URL not provided."
 "Error instantiating method.","Error instantiating method."
 "Invalid method functionality","Invalid method functionality"
 "Couldn't initialize cURL request. Please check cURL library.","Couldn't initialize cURL request. Please check cURL library."

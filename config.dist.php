@@ -15,6 +15,10 @@
     if( !defined( 'S2P_SDK_ENVIRONMENT' ) )
         define( 'S2P_SDK_ENVIRONMENT', '' ); // live or test
 
+    // When environment is set to custom, you can provide a custom REST API base URL
+    if( !defined( 'S2P_SDK_CUSTOM_BASE_URL' ) )
+        define( 'S2P_SDK_CUSTOM_BASE_URL', '' );
+
     // Tells SDK default return URL to be used when payments are initiated.
     // If return url parameter is not specified in payment method initialization parameters SDK will check this constant
     // regexp: ^(http(s)?(:\/\/|%3A%2F%2F).+){1,512}$

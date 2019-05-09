@@ -36,7 +36,13 @@ Please note that in order to test a full end-to-end transaction you will require
         if( !defined( 'S2P_SDK_ENVIRONMENT' ) )
             define( 'S2P_SDK_ENVIRONMENT', 'test' ); // live or test
     ```
-5. Setup return URL. This URL is the location where end-user will be redirected after a transaction finishes (successful or not):
+5. When environment is set to custom, you can provide a custom REST API base URL (used for debugging purposes). In production leave this empty:
+
+    ```php
+        if( !defined( 'S2P_SDK_CUSTOM_BASE_URL' ) )
+            define( 'S2P_SDK_CUSTOM_BASE_URL', '' );
+    ```
+6. Setup return URL. This URL is the location where end-user will be redirected after a transaction finishes (successful or not):
  
     ```php
         if( !defined( 'S2P_SDK_PAYMENT_RETURN_URL' ) )

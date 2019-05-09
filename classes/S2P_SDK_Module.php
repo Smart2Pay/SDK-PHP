@@ -4,7 +4,7 @@ namespace S2P_SDK;
 
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const SDK_VERSION = '2.1.15';
+    const SDK_VERSION = '2.1.16';
 
     const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001, ERR_API_QUICK_CALL = 1002, ERR_SDK_INIT = 1003;
 
@@ -21,6 +21,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         'site_id' => 0,
         'environment' => '',
         'return_url' => '',
+        'custom_base_url' => '',
     );
 
     /**
@@ -251,6 +252,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
             'site_id' => 0,
             'environment' => '',
             'return_url' => '',
+            'custom_base_url' => '',
         );
     }
 
@@ -278,6 +280,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         $return_arr['site_id'] = 0;
         $return_arr['environment'] = '';
         $return_arr['return_url'] = '';
+        $return_arr['custom_base_url'] = '';
 
         if( !empty( self::$one_call_settings['site_id'] ) )
             $return_arr['site_id'] = self::$one_call_settings['site_id'];
@@ -307,6 +310,13 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         elseif( defined( 'S2P_SDK_PAYMENT_RETURN_URL' ) and constant( 'S2P_SDK_PAYMENT_RETURN_URL' ) )
             $return_arr['return_url'] = constant( 'S2P_SDK_PAYMENT_RETURN_URL' );
 
+        if( !empty( self::$one_call_settings['custom_base_url'] ) )
+            $return_arr['custom_base_url'] = self::$one_call_settings['custom_base_url'];
+        elseif( defined( 'S2P_SDK_FORCE_CUSTOM_BASE_URL' ) and constant( 'S2P_SDK_FORCE_CUSTOM_BASE_URL' ) )
+            $return_arr['custom_base_url'] = constant( 'S2P_SDK_FORCE_CUSTOM_BASE_URL' );
+        elseif( defined( 'S2P_SDK_CUSTOM_BASE_URL' ) and constant( 'S2P_SDK_CUSTOM_BASE_URL' ) )
+            $return_arr['custom_base_url'] = constant( 'S2P_SDK_CUSTOM_BASE_URL' );
+
         return $return_arr;
     }
 
@@ -316,6 +326,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
      * @param array $api_parameters Parameters passed to API object which contains request details
      * @param array|bool $call_params Additional parameters sent to S2P_SDK\S2P_SDK_API::do_call()
      * @param array|bool $finalize_params Array with parameters sent to
+     * @param bool $singleton Should API object be instantiated as singleton
      *
      * @return array|bool Returns false on error (error available with S2P_SDK\S2P_SDK_Module::st_get_error())
      *
