@@ -170,6 +170,14 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'skip_if_default' => true,
             ),
             array(
+                'name' => 'moto',
+                'external_name' => 'Moto',
+                'display_name' => self::s2p_t( 'If set to true, the payment will be marked at the acquirer as Mail Order Telephone Order type of transaction. This is not available for all acquirers.' ),
+                'type' => S2P_SDK_VTYPE_BOOL,
+                'default' => null,
+                'skip_if_default' => true,
+            ),
+            array(
                 'name' => 'paymenttokenlifetime',
                 'external_name' => 'PaymentTokenLifetime',
                 'display_name' => self::s2p_t( 'Payment token lifetime' ),

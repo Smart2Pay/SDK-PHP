@@ -250,6 +250,14 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'default' => '',
             ),
             array(
+                'name' => 'authorizationcode',
+                'external_name' => 'AuthorizationCode',
+                'display_name' => self::s2p_t( 'Acquirer Authorization Code' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'default' => null,
+                'skip_if_default' => true,
+            ),
+            array(
                 'name' => 'capture',
                 'external_name' => 'Capture',
                 'display_name' => self::s2p_t( 'Tells if payment was captured' ),
@@ -365,6 +373,14 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'structure' => $fraud_details_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'moto',
+                'external_name' => 'Moto',
+                'display_name' => self::s2p_t( 'If set to true, the payment will be marked at the acquirer as Mail Order Telephone Order type of transaction. This is not available for all acquirers.' ),
+                'type' => S2P_SDK_VTYPE_BOOL,
+                'default' => null,
+                'skip_if_default' => true,
             ),
         );
     }
