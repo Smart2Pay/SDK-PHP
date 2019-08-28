@@ -32,7 +32,7 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
 
         $this->_type = 0;
 
-        $type = intval( $type );
+        $type = (int)$type;
         if( !empty( $type ) )
             $this->source_type( $type );
     }
@@ -75,9 +75,12 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
         return $this->_remote_calls;
     }
 
-    public function get_option_values( $params = false )
+    public function get_option_values( $params = false, $api_params = false )
     {
         $this->reset_error();
+
+        if( empty( $api_params ) or !is_array( $api_params ) )
+            $api_params = array();
 
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
@@ -113,7 +116,7 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
 
                 else
                 {
-                    $return_arr = S2P_SDK_Values_Source_Methods::get_available_methods();
+                    $return_arr = S2P_SDK_Values_Source_Methods::get_available_methods( $api_params );
                     foreach( $return_arr as $key => $method_arr )
                     {
                         if( empty( $params['full_details'] ) )
@@ -138,7 +141,7 @@ class S2P_SDK_Values_Source extends S2P_SDK_Language
 
                 else
                 {
-                    $return_arr = S2P_SDK_Values_Source_Methods::get_all_methods();
+                    $return_arr = S2P_SDK_Values_Source_Methods::get_all_methods( $api_params );
                     foreach( $return_arr as $key => $method_arr )
                     {
                         if( empty( $params['full_details'] ) )

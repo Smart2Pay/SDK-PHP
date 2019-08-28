@@ -4,7 +4,7 @@ namespace S2P_SDK;
 
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const SDK_VERSION = '2.1.17';
+    const SDK_VERSION = '2.1.18';
 
     const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001, ERR_API_QUICK_CALL = 1002, ERR_SDK_INIT = 1003;
 
@@ -645,7 +645,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         $module_instance->debugging_mode( self::st_debugging_mode() );
 
         /** @var \S2P_SDK\S2P_SDK_Module $module_instance */
-        if( ! is_null( $module_params ) )
+        if( $module_params !== null )
             $init_result = $module_instance->module_init( $module_params );
         else
             $init_result = $module_instance->module_init();

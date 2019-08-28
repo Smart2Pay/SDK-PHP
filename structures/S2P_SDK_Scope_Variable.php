@@ -511,22 +511,22 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             case self::TYPE_INT:
                 if( is_scalar( $value ) )
                     // workaround for float values converted in int (they might loose precision)
-                    $result = intval( number_format( (float)$value, 0, '.', '' ) );
+                    $result = (int)number_format( (float)$value, 0, '.', '' );
             break;
 
             case self::TYPE_FLOAT:
                 if( is_scalar( $value ) )
-                    $result = floatval( $value );
+                    $result = (float)$value;
             break;
 
             case self::TYPE_BOOL:
                 if( is_string( $value ) )
                 {
-                    if( $value == 'true' )
+                    if( $value === 'true' )
                         $result = true;
-                    elseif( $value == 'false' )
+                    elseif( $value === 'false' )
                         $result = false;
-                    elseif( $value == 'null' )
+                    elseif( $value === 'null' )
                         $result = null;
                 } else
                     $result = (empty( $value )?false:true);
@@ -613,7 +613,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
 
     public function structure_definition( $definition = null )
     {
-        if( is_null( $definition ) )
+        if( $definition === null )
             return $this->_definition;
 
         if( !($definition = self::validate_definition( $definition )) )
@@ -634,13 +634,13 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
 
     public static function scalar_type( $type )
     {
-        $type = intval( $type );
+        $type = (int)$type;
         return (in_array( $type, array( self::TYPE_STRING, self::TYPE_INT, self::TYPE_FLOAT, self::TYPE_BOOL, self::TYPE_DATETIME, self::TYPE_DATE, self::TYPE_ARRAY ) )?true:false);
     }
 
     public static function object_type( $type )
     {
-        $type = intval( $type );
+        $type = (int)$type;
         return (in_array( $type, array( self::TYPE_BLOB_ARRAY, self::TYPE_BLOB, self::TYPE_BLOB_GROUP ) )?true:false);
     }
 
@@ -651,7 +651,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
 
     public static function valid_type( $type )
     {
-        $type = intval( $type );
+        $type = (int)$type;
         if( empty( $type )
          or !($types_arr = self::get_types()) or empty( $types_arr[$type] ) )
             return false;
@@ -695,7 +695,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
     {
         static $default_definition = null;
 
-        if( is_null( $default_definition ) )
+        if( $default_definition === null )
         {
             // First level call
             $default_definition = self::default_definition_fields();
@@ -716,7 +716,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         {
             if( !array_key_exists( $key, $definition_arr ) )
             {
-                if( $key == 'default' )
+                if( $key === 'default' )
                     continue;
 
                 $new_definition_arr[$key] = $def_value;
