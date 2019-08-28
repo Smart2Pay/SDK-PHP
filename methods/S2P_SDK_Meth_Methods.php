@@ -62,11 +62,11 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
         foreach( $sources_arr as $source )
         {
             $source = trim( $source );
-            if( $source == ''
+            if( $source === ''
              // hardcoded to remove language from custom validators
-             or $source == 'Language'
+             or $source === 'Language'
              // hardcoded to remove currency from custom validators as currency is mandatory in payment request
-             or $source == 'Currency' )
+             or $source === 'Currency' )
                 continue;
 
             $parts_arr = explode( '.', $source );

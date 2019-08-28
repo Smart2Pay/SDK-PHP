@@ -28,6 +28,8 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
         $address_obj = new S2P_SDK_Structure_Address();
         $card_details_obj = new S2P_SDK_Structure_Card_Details();
         $token_details_obj = new S2P_SDK_Structure_Card_Token_Details();
+        $td_secure_obj = new S2P_SDK_Structure_3D_Secure_Data();
+        $device_info_obj = new S2P_SDK_Structure_Device_Info();
 
         return array(
             array(
@@ -159,6 +161,68 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Should try a 3D secure payment?' ),
                 'type' => S2P_SDK_VTYPE_BOOL,
                 'default' => null,
+                'skip_if_default' => true,
+            ),
+            array(
+                'name' => '3dsecuredata',
+                'external_name' => '3DSecureData',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'skip_if_default' => true,
+                'structure' => $td_secure_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'deviceinfo',
+                'external_name' => 'DeviceInfo',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'skip_if_default' => true,
+                'structure' => $device_info_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'scaexemption',
+                'external_name' => 'ScaExemption',
+                'display_name' => self::s2p_t( 'Sca exemption' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'skip_if_default' => true,
+            ),
+            array(
+                'name' => 'cardonfile',
+                'external_name' => 'CardOnFile',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'skip_if_default' => true,
+                'structure' => array(
+                    array(
+                        'name' => 'isinitial',
+                        'external_name' => 'IsInitial',
+                        'display_name' => self::s2p_t( 'Is initial' ),
+                        'type' => S2P_SDK_VTYPE_BOOL,
+                        'default' => true,
+                    ),
+                    array(
+                        'name' => 'type',
+                        'external_name' => 'Type',
+                        'display_name' => self::s2p_t( 'Type' ),
+                        'type' => S2P_SDK_VTYPE_STRING,
+                        'default' => '',
+                    ),
+                    array(
+                        'name' => 'initialpaymentid',
+                        'external_name' => 'InitialPaymentID',
+                        'display_name' => self::s2p_t( 'Initial payment id' ),
+                        'type' => S2P_SDK_VTYPE_INT,
+                        'default' => 0,
+                    ),
+                ),
+            ),
+            array(
+                'name' => 'language',
+                'external_name' => 'Language',
+                'display_name' => self::s2p_t( 'Language used' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
                 'skip_if_default' => true,
             ),
             array(

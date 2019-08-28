@@ -210,6 +210,14 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'structure' => $article_obj->get_structure_definition(),
             ),
             array(
+                'name' => 'language',
+                'external_name' => 'Language',
+                'display_name' => self::s2p_t( 'Language used' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'skip_if_default' => true,
+            ),
+            array(
                 'name' => 'tokenlifetime',
                 'external_name' => 'TokenLifetime',
                 'display_name' => self::s2p_t( 'Payment token lifetime' ),

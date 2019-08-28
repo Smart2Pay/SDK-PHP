@@ -34,6 +34,8 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
         $card_details_obj = new S2P_SDK_Structure_Card_Details();
         $preapproval_details_obj = new S2P_SDK_Structure_Preapproval_details();
         $fraud_details_obj = new S2P_SDK_Structure_Fraud_Details_Response();
+        $td_secure_obj = new S2P_SDK_Structure_3D_Secure_Data();
+        $device_info_obj = new S2P_SDK_Structure_Device_Info();
 
         return array(
             //
@@ -356,6 +358,30 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Should try a 3D secure payment?' ),
                 'type' => S2P_SDK_VTYPE_BOOL,
                 'default' => null,
+                'skip_if_default' => true,
+            ),
+            array(
+                'name' => '3dsecuredata',
+                'external_name' => '3DSecureData',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'skip_if_default' => true,
+                'structure' => $td_secure_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'deviceinfo',
+                'external_name' => 'DeviceInfo',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'skip_if_default' => true,
+                'structure' => $device_info_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'scaexemption',
+                'external_name' => 'ScaExemption',
+                'display_name' => self::s2p_t( 'Sca exemption' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
                 'skip_if_default' => true,
             ),
             array(
