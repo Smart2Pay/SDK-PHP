@@ -71,6 +71,14 @@ class S2P_SDK_Structure_Card_Details extends S2P_SDK_Scope_Structure
                 'regexp' => '^([0-9]){3,4}$',
             ),
             array(
+                'name' => 'requiresecuritycode',
+                'external_name' => 'RequireSecurityCode',
+                'display_name' => self::s2p_t( 'If set to false when the security code parameter is not used, it will not redirect to the form page to fill in the security code, but the payment will be directly sent to the payment provider.' ),
+                'type' => S2P_SDK_VTYPE_BOOL,
+                'default' => null,
+                'skip_if_default' => true,
+            ),
+            array(
                 'name' => 'token',
                 'external_name' => 'Token',
                 'display_name' => self::s2p_t( 'Card token' ),
