@@ -36,6 +36,7 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
         $fraud_details_obj = new S2P_SDK_Structure_Fraud_Details_Response();
         $td_secure_obj = new S2P_SDK_Structure_3D_Secure_Data();
         $device_info_obj = new S2P_SDK_Structure_Device_Info();
+        $card_on_file_obj = new S2P_SDK_Structure_Card_On_File();
 
         return array(
             //
@@ -383,6 +384,14 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'skip_if_default' => true,
+            ),
+            array(
+                'name' => 'cardonfile',
+                'external_name' => 'CardOnFile',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'skip_if_default' => true,
+                'structure' => $card_on_file_obj->get_structure_definition(),
             ),
             array(
                 'name' => 'card',

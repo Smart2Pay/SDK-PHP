@@ -30,6 +30,7 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
         $token_details_obj = new S2P_SDK_Structure_Card_Token_Details();
         $td_secure_obj = new S2P_SDK_Structure_3D_Secure_Data();
         $device_info_obj = new S2P_SDK_Structure_Device_Info();
+        $card_on_file_obj = new S2P_SDK_Structure_Card_On_File();
 
         return array(
             array(
@@ -193,29 +194,7 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'skip_if_default' => true,
-                'structure' => array(
-                    array(
-                        'name' => 'isinitial',
-                        'external_name' => 'IsInitial',
-                        'display_name' => self::s2p_t( 'Is initial' ),
-                        'type' => S2P_SDK_VTYPE_BOOL,
-                        'default' => true,
-                    ),
-                    array(
-                        'name' => 'type',
-                        'external_name' => 'TransactionType',
-                        'display_name' => self::s2p_t( 'Transaction type' ),
-                        'type' => S2P_SDK_VTYPE_STRING,
-                        'default' => '',
-                    ),
-                    array(
-                        'name' => 'initialpaymentid',
-                        'external_name' => 'InitialPaymentID',
-                        'display_name' => self::s2p_t( 'Initial payment id' ),
-                        'type' => S2P_SDK_VTYPE_INT,
-                        'default' => 0,
-                    ),
-                ),
+                'structure' => $card_on_file_obj->get_structure_definition(),
             ),
             array(
                 'name' => 'language',
