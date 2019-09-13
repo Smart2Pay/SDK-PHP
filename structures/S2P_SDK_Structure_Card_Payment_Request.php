@@ -203,8 +203,8 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                     ),
                     array(
                         'name' => 'type',
-                        'external_name' => 'Type',
-                        'display_name' => self::s2p_t( 'Type' ),
+                        'external_name' => 'TransactionType',
+                        'display_name' => self::s2p_t( 'Transaction type' ),
                         'type' => S2P_SDK_VTYPE_STRING,
                         'default' => '',
                     ),
