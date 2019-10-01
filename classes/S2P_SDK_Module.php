@@ -4,7 +4,9 @@ namespace S2P_SDK;
 
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const SDK_VERSION = '2.1.22';
+    const SDK_VERSION = '2.1.23';
+
+    const METH_SMARTCARDS_ID = 6;
 
     const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001, ERR_API_QUICK_CALL = 1002, ERR_SDK_INIT = 1003;
 
@@ -41,6 +43,11 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
      * @see destroy_instances()
      */
     abstract public function destroy();
+
+    final public static function is_smartcards_method( $method_id )
+    {
+        return ((int)$method_id === self::METH_SMARTCARDS_ID );
+    }
 
     final public static function sdk_inited( $mode = null )
     {
@@ -535,10 +542,10 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
     {
         $module_lower = strtolower( $module );
         if( empty( $module )
-         or strstr( $module_lower, '.' ) !== false
-         or strstr( $module_lower, '/' ) !== false
-         or substr( $module_lower, 0, 8 ) != 's2p_sdk_'
-         or $module_lower == 's2p_sdk_module' )
+         or strpos( $module_lower, '.' ) !== false
+         or strpos( $module_lower, '/' ) !== false
+         or strpos( $module_lower, 's2p_sdk_' ) !== 0
+         or $module_lower === 's2p_sdk_module' )
         {
             self::st_set_error( self::ERR_STATIC_INSTANCE,
                                     self::s2p_t( 'Autoloading unknown module.' ),
@@ -547,7 +554,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         }
 
         // Autoloading methods
-        if( substr( $module_lower, 0, 13 ) == 's2p_sdk_meth_' )
+        if( strpos( $module_lower, 's2p_sdk_meth_' ) === 0 )
         {
             if( !@file_exists( S2P_SDK_DIR_METHODS.$module.'.php' ) )
             {
@@ -603,12 +610,12 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
     {
         self::st_reset_error();
 
-        if( is_null( $module ) )
+        if( $module === null )
             $module = get_called_class();
 
         if( empty( $module )
-         or strtolower( substr( $module, 0, 8 ) ) != 's2p_sdk_'
-         or $module == 'S2P_SDK_Module' )
+         or stripos( $module, 's2p_sdk_' ) !== 0
+         or $module === 'S2P_SDK_Module' )
         {
             self::st_set_error( self::ERR_STATIC_INSTANCE,
                                     self::s2p_t( 'Unknown module' ),

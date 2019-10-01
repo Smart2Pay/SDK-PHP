@@ -32,13 +32,19 @@
     // $api_parameters['site_id'] = '{PROVIDED_SITE_ID}';
     // $api_parameters['environment'] = 'test'; // test or live
 
+    // !!! SmartCards note !!!
+    // If $api_parameters['method_params']['payment']['methodid'] is 6
+    // (SmartCards method - \S2P_SDK\S2P_SDK_Module::is_smartcards_method( $method_id )), you should normally send
+    // $api_parameters['method'] = 'cards';. However, since SDK v2.1.23 $api_parameters['method'] will be aytomatically
+    // changed to 'cards' in case 'payments' is provided
+
     $api_parameters['method'] = 'payments';
     $api_parameters['func'] = 'payment_init';
 
     $api_parameters['get_variables'] = array();
     $api_parameters['method_params'] = array(
         'payment' => array( // Mandatory
-            'merchanttransactionid' => 'SDKtst_'.str_replace( '.', '', microtime( true ) ).'_'.rand(1000,9999),  // Mandatory (regexp: ^[0-9a-zA-Z_-]{1,50}$)
+            'merchanttransactionid' => 'SDKtst_'.str_replace( '.', '', microtime( true ) ).'_'.mt_rand(1000,9999),  // Mandatory (regexp: ^[0-9a-zA-Z_-]{1,50}$)
             'amount' => 1000,  // Mandatory in centimes (eg. 10.56 -> 1056)
             'currency' => 'EUR',  // Mandatory ISO 3 chars currency code (eg. EUR, GBP, USD, etc...)
             'returnurl' => (defined( 'S2P_SDK_PAYMENT_RETURN_URL' )?S2P_SDK_PAYMENT_RETURN_URL:''),  // Mandatory

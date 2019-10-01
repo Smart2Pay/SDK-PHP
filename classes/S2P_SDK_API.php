@@ -42,6 +42,20 @@ class S2P_SDK_API extends S2P_SDK_Module
 
         $api_config_arr = self::get_api_configuration();
 
+        //
+        // Small hack which checks if we have a SmartCards method and method to be used by SDK is 'payments',
+        // switch SDK method to 'cards' so we are correctly redirected to SmartCards API entry point
+        //
+        if( !empty( $module_params['method'] )
+        and $module_params['method'] === 'payments'
+        and !empty( $module_params['method_params'] ) and is_array( $module_params['method_params'] )
+        and !empty( $module_params['method_params']['payment'] ) and is_array( $module_params['method_params']['payment'] )
+        and !empty( $module_params['method_params']['payment']['methodid'] )
+        and self::is_smartcards_method( $module_params['method_params']['payment']['methodid'] ) )
+        {
+            $module_params['method'] = 'cards';
+        }
+
         if( empty( $module_params['site_id'] ) and !empty( $api_config_arr['site_id'] ) )
             $module_params['site_id'] = $api_config_arr['site_id'];
         if( empty( $module_params['api_key'] ) and !empty( $api_config_arr['api_key'] ) )
