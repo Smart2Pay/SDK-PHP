@@ -4,7 +4,7 @@ namespace S2P_SDK;
 
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const SDK_VERSION = '2.1.23';
+    const SDK_VERSION = '2.1.24';
 
     const METH_SMARTCARDS_ID = 6;
 
@@ -199,7 +199,12 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
 
         if( @file_exists( S2P_SDK_DIR_PATH.'config.php' ) )
         {
-            include_once( S2P_SDK_DIR_PATH.'config.php' );
+            include_once(S2P_SDK_DIR_PATH.'config.php');
+        } elseif( defined( 'S2P_SDK_CONFIG_PATH' )
+              and (string)constant( 'S2P_SDK_CONFIG_PATH' ) !== ''
+              and @file_exists( rtrim( S2P_SDK_CONFIG_PATH, '/' ).'/config.php' ) )
+        {
+            include_once( S2P_SDK_CONFIG_PATH.'config.php' );
         } elseif( @file_exists( S2P_SDK_DIR_PATH.'config.inc.php' ) )
         {
             include_once( S2P_SDK_DIR_PATH.'config.inc.php' );

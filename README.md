@@ -59,3 +59,5 @@ For quick samples on how you should implement SDK methods and functionalities pl
 #### Composer installs note
 
 If you installed our SDK using composer and you don't want to create a custom config.php file, you will have to define _S2P_SDK_SITE_ID_, _S2P_SDK_API_KEY_ and _S2P_SDK_ENVIRONMENT_ constants in SDK wrapper script. Please check files in _samples_ directory.
+
+There were reports about composer deleting _config.php_ file in SDK root dir when updating the SDK. To overcome this, you can define _S2P_SDK_CONFIG_PATH_ constant in your wrapper script which contains directory where _config.php_ file resides in your project.
