@@ -898,12 +898,6 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
                 ),
 
                 'response_structure' => $capture_response_list_obj,
-
-                'mandatory_in_error' => array(
-                    'refund' => array(),
-                ),
-
-                'error_structure' => $capture_response_obj,
             ),
 
             self::FUNC_CAPTURE_DETAILS => array(
@@ -930,17 +924,7 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
                     ),
                 ),
 
-                'mandatory_in_response' => array(
-                    'capture' => array(),
-                ),
-
                 'response_structure' => $capture_response_obj,
-
-                'mandatory_in_error' => array(
-                    'capture' => array(),
-                ),
-
-                'error_structure' => $capture_response_obj,
             ),
 
         );

@@ -47,6 +47,20 @@ class S2P_SDK_Structure_Refund_Details extends S2P_SDK_Scope_Structure
                 'default' => '',
             ),
             array(
+                'name' => 'bankaccounttype',
+                'external_name' => 'BankAccountType',
+                'display_name' => self::s2p_t( 'Refund bank account type' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+            ),
+            array(
+                'name' => 'bankbranch',
+                'external_name' => 'BankBranch',
+                'display_name' => self::s2p_t( 'Refund bank branch' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+            ),
+            array(
                 'name' => 'bankcode',
                 'external_name' => 'BankCode',
                 'display_name' => self::s2p_t( 'Refund bank code' ),
