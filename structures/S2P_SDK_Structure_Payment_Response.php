@@ -37,6 +37,7 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
         $td_secure_obj = new S2P_SDK_Structure_3D_Secure_Data();
         $device_info_obj = new S2P_SDK_Structure_Device_Info();
         $card_on_file_obj = new S2P_SDK_Structure_Card_On_File();
+        $capture_details_obj = new S2P_SDK_Structure_Capture_Details();
 
         return array(
             //
@@ -215,6 +216,13 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'default' => null,
                 'structure' => $payment_details_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'capturedetails',
+                'external_name' => 'CaptureDetails',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'structure' => $capture_details_obj->get_structure_definition(),
             ),
             array(
                 'name' => 'referencedetails',

@@ -10,7 +10,8 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
           FUNC_PAYMENT_DETAILS = 'payment_details', FUNC_LIST_PAYMENTS = 'payments_list',
           FUNC_PAYMENT_CAPTURE = 'payment_capture', FUNC_PAYMENT_RECURRENT = 'payment_recurrent',
           FUNC_REFUND_TYPES = 'refund_types', FUNC_REFUND = 'refund',
-          FUNC_REFUNDS_LIST = 'refunds_list', FUNC_REFUND_DETAILS = 'refund_details';
+          FUNC_REFUNDS_LIST = 'refunds_list', FUNC_REFUND_DETAILS = 'refund_details',
+          FUNC_CAPUTES_LIST = 'captures_list', FUNC_CAPTURE_DETAILS = 'capture_details';
 
     const STATUS_OPEN = 1, STATUS_SUCCESS = 2, STATUS_CANCELLED = 3, STATUS_FAILED = 4, STATUS_EXPIRED = 5, STATUS_PENDING_CUSTOMER = 6,
           STATUS_PENDING_PROVIDER = 7, STATUS_SUBMITTED = 8, STATUS_AUTHORIZED = 9, STATUS_APPROVED = 10, STATUS_CAPTURED = 11, STATUS_REJECTED = 12,
@@ -254,6 +255,8 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
         $refund_request_obj = new S2P_SDK_Structure_Refund_Request();
         $refund_response_obj = new S2P_SDK_Structure_Refund_Response();
         $refund_response_list_obj = new S2P_SDK_Structure_Refund_Response_List();
+        $capture_response_obj = new S2P_SDK_Structure_Capture_Response();
+        $capture_response_list_obj = new S2P_SDK_Structure_Capture_Response_List();
 
         return array(
 
@@ -634,7 +637,7 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
             ),
 
             self::FUNC_REFUND_DETAILS => array(
-                'name' => self::s2p_t( 'List Payment Refunds' ),
+                'name' => self::s2p_t( 'Payment Refund Details' ),
                 'url_suffix' => '/v1/payments/{*PAYMENT_ID*}/refunds/{*ID*}',
                 'http_method' => 'GET',
 
@@ -668,6 +671,72 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
                 ),
 
                 'error_structure' => $refund_response_obj,
+            ),
+
+            self::FUNC_CAPUTES_LIST => array(
+                'name' => self::s2p_t( 'List Payment Captures' ),
+                'url_suffix' => '/v1/payments/{*ID*}/captures',
+                'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'captures' => array(),
+                ),
+
+                'response_structure' => $capture_response_list_obj,
+
+                'mandatory_in_error' => array(
+                    'refund' => array(),
+                ),
+
+                'error_structure' => $capture_response_obj,
+            ),
+
+            self::FUNC_CAPTURE_DETAILS => array(
+                'name' => self::s2p_t( 'Payment Capture Details' ),
+                'url_suffix' => '/v1/payments/{*PAYMENT_ID*}/captures/{*ID*}',
+                'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'payment_id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                    array(
+                        'name' => 'id',
+                        'display_name' => self::s2p_t( 'Capture ID' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'capture' => array(),
+                ),
+
+                'response_structure' => $capture_response_obj,
+
+                'mandatory_in_error' => array(
+                    'capture' => array(),
+                ),
+
+                'error_structure' => $capture_response_obj,
             ),
        );
     }

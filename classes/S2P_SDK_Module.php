@@ -4,7 +4,7 @@ namespace S2P_SDK;
 
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const SDK_VERSION = '2.1.24';
+    const SDK_VERSION = '2.1.25';
 
     const METH_SMARTCARDS_ID = 6;
 
@@ -116,6 +116,7 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Payment_Reference_Details.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Preapproval_details.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Refund_Details.php' );
+        include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Capture_Details.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Card_Details.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Card_Token_Details.php');
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Merchantsite_Details.php' );
@@ -132,6 +133,8 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Refund_Request.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Refund_Response.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Refund_Response_List.php' );
+        include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Capture_Response.php' );
+        include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Capture_Response_List.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Card_Payment_Request.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Card_Refund_Request.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Card_Refund_Response.php' );

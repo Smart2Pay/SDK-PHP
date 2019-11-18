@@ -63,6 +63,14 @@ class S2P_SDK_Structure_Card_Refund_Request extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
             ),
+            array(
+                'name' => 'capture_id',
+                'external_name' => 'CaptureID',
+                'display_name' => self::s2p_t( 'Mandatory only when refunding a payment that has multiple partial captures' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'default' => 0,
+                'regexp' => '^\d{1,12}$',
+            ),
         );
     }
 

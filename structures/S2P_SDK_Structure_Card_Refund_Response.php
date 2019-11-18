@@ -121,6 +121,14 @@ class S2P_SDK_Structure_Card_Refund_Response extends S2P_SDK_Scope_Structure
                 'regexp' => '^.{1,255}$',
             ),
             array(
+                'name' => 'capture_id',
+                'external_name' => 'CaptureID',
+                'display_name' => self::s2p_t( 'Refunded capture ID' ),
+                'type' => S2P_SDK_VTYPE_INT,
+                'default' => 0,
+                'regexp' => '^\d{1,12}$',
+            ),
+            array(
                 'name' => 'customer',
                 'external_name' => 'Customer',
                 'type' => S2P_SDK_VTYPE_BLOB,
