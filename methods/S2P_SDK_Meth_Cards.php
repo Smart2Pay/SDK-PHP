@@ -14,7 +14,9 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
 
           FUNC_PAYOUT_INIT = 'payout_init', FUNC_PAYOUT_LIST = 'payouts_list', FUNC_PAYOUT_DETAILS = 'payout_details', FUNC_PAYOUT_STATUS = 'payout_status',
 
-          FUNC_CARDAUTH_INIT = 'card_auth_init', FUNC_CARDAUTH_DETAILS = 'card_auth_details', FUNC_CARDAUTH_CANCEL = 'card_auth_cancel';
+          FUNC_CARDAUTH_INIT = 'card_auth_init', FUNC_CARDAUTH_DETAILS = 'card_auth_details', FUNC_CARDAUTH_CANCEL = 'card_auth_cancel',
+
+          FUNC_CAPUTES_LIST = 'captures_list', FUNC_CAPTURE_DETAILS = 'capture_details';
 
     const STATUS_OPEN = 1, STATUS_SUCCESS = 2, STATUS_CANCELLED = 3, STATUS_FAILED = 4, STATUS_EXPIRED = 5, STATUS_PENDING_CANCEL = 6,
           STATUS_PENDING_CAPTURE = 7, STATUS_AUTHORIZED = 8, STATUS_PARTIALLY_REFUNDED = 9, STATUS_REFUNDED = 10, STATUS_DISPUTED = 11, STATUS_DISPUTE_WON = 12,
@@ -330,6 +332,8 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
 
         $card_auth_request_obj = new S2P_SDK_Structure_Card_Authentication_Request();
         $card_auth_response_obj = new S2P_SDK_Structure_Card_Authentication_Response();
+        $capture_response_obj = new S2P_SDK_Structure_Capture_Response();
+        $capture_response_list_obj = new S2P_SDK_Structure_Capture_Response_List();
 
         return array(
 
@@ -871,6 +875,72 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
                 ),
 
                 'error_structure' => $card_auth_response_obj,
+            ),
+
+            self::FUNC_CAPUTES_LIST => array(
+                'name' => self::s2p_t( 'List Card Payment Captures' ),
+                'url_suffix' => '/v1/payments/{*ID*}/captures',
+                'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'captures' => array(),
+                ),
+
+                'response_structure' => $capture_response_list_obj,
+
+                'mandatory_in_error' => array(
+                    'refund' => array(),
+                ),
+
+                'error_structure' => $capture_response_obj,
+            ),
+
+            self::FUNC_CAPTURE_DETAILS => array(
+                'name' => self::s2p_t( 'Payment Card Capture Details' ),
+                'url_suffix' => '/v1/payments/{*PAYMENT_ID*}/captures/{*ID*}',
+                'http_method' => 'GET',
+
+                'get_variables' => array(
+                    array(
+                        'name' => 'payment_id',
+                        'display_name' => self::s2p_t( 'Payment ID' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                    array(
+                        'name' => 'id',
+                        'display_name' => self::s2p_t( 'Capture ID' ),
+                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
+                        'default' => 0,
+                        'mandatory' => true,
+                        'move_in_url' => true,
+                    ),
+                ),
+
+                'mandatory_in_response' => array(
+                    'capture' => array(),
+                ),
+
+                'response_structure' => $capture_response_obj,
+
+                'mandatory_in_error' => array(
+                    'capture' => array(),
+                ),
+
+                'error_structure' => $capture_response_obj,
             ),
 
         );
