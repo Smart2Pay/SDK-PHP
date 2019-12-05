@@ -515,8 +515,8 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
     public static function get_http_code_error( $http_code )
     {
-        $http_code = intval( $http_code );
-        if( in_array( $http_code, S2P_SDK_Rest_API_Codes::success_codes() ) )
+        $http_code = (int)$http_code;
+        if( in_array( $http_code, S2P_SDK_Rest_API_Codes::success_codes(), true ) )
             return false;
 
         if( !($error_str = S2P_SDK_Rest_API_Codes::valid_code( $http_code )) )
@@ -544,7 +544,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
         $return_arr['response_structure'] = self::RESPONSE_STRUCT_UNKNOWN;
 
         if( !($request_result = S2P_SDK_Rest_API_Request::validate_request_array( $request_result ))
-         or $request_result['response_buffer'] == '' )
+         or $request_result['response_buffer'] === '' )
             return $return_arr;
 
         $return_arr['request_http_code'] = $request_result['http_code'];
@@ -565,8 +565,9 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
                 $this->set_error( self::ERR_RESPONSE_DATA, $error_str );
                 return false;
+            }
 
-            } elseif( !empty( $this->_definition['error_structure'] ) )
+            if( !empty( $this->_definition['error_structure'] ) )
             {
                 $return_arr['response_structure'] = self::RESPONSE_STRUCT_ERROR;
 

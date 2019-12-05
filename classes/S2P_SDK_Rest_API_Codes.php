@@ -11,7 +11,7 @@ class S2P_SDK_Rest_API_Codes extends S2P_SDK_Language
 
     public static function valid_code( $code )
     {
-        $code = intval( $code );
+        $code = (int)$code;
         if( !($all_codes = self::rest_codes()) or empty( $all_codes[$code] ) )
             return false;
 

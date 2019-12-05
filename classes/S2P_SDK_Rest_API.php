@@ -505,7 +505,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             return false;
         }
 
-        if( ($hook_result = $this->trigger_hooks( 'rest_api_prepare_request_after', array( 'api_obj' => $this, 'request_data' => $request_data ) ))
+        if( ($hook_result = self::trigger_hooks( 'rest_api_prepare_request_after', array( 'api_obj' => $this, 'request_data' => $request_data ) ))
         and is_array( $hook_result ) )
         {
             if( array_key_exists( 'request_data', $hook_result ) )
@@ -554,12 +554,12 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             $call_params['user_agent'] = trim( $params['user_agent'] );
         $call_params['userpass'] = array( 'user' => $site_id, 'pass' => $api_key );
 
-        $this->trigger_hooks( 'rest_api_call_before', array( 'api_obj' => $this ) );
+        self::trigger_hooks( 'rest_api_call_before', array( 'api_obj' => $this ) );
 
         if( !($request_result = $this->_request->do_curl( $call_params )) )
             $request_result = null;
 
-        if( ($hook_result = $this->trigger_hooks( 'rest_api_request_result', array( 'api_obj' => $this, 'request_result' => $request_result ) ))
+        if( ($hook_result = self::trigger_hooks( 'rest_api_request_result', array( 'api_obj' => $this, 'request_result' => $request_result ) ))
         and is_array( $hook_result ) )
         {
             if( array_key_exists( 'request_result', $hook_result ) )
@@ -617,7 +617,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             return false;
         }
 
-        if( ($hook_result = $this->trigger_hooks( 'rest_rest_api_response_data', array( 'api_obj' => $this, 'response_data' => $response_data ) ))
+        if( ($hook_result = self::trigger_hooks( 'rest_rest_api_response_data', array( 'api_obj' => $this, 'response_data' => $response_data ) ))
         and is_array( $hook_result ) )
         {
             if( array_key_exists( 'response_data', $hook_result ) )
