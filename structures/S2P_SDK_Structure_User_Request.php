@@ -41,7 +41,7 @@ class S2P_SDK_Structure_User_Request extends S2P_SDK_Scope_Structure
                 'external_name' => 'Password',
                 'display_name' => self::s2p_t( 'Account password' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => self::USER_PASS_REGEXP,
+                // 'regexp' => self::USER_PASS_REGEXP,
             ),
             array(
                 'name' => 'email',
