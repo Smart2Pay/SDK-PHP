@@ -4,9 +4,7 @@ namespace S2P_SDK;
 
 class S2P_SDK_Structure_User_Request extends S2P_SDK_Scope_Structure
 {
-    //const USER_PASS_REGEXP = '(?=^.{12,100}$)(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_\-+}{":;\'?\/>.<,])(?!.*\s).*$',
-    // const USER_PASS_REGEXP = '(?=^.{8,100}$).*$',
-    const USER_PASS_REGEXP = '^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+\{\};:,[\]<.>\'|\\/?~`]))((?=.*\d))((?=.*[a-z]))((?=.*[A-Z])).*$',
+    const USER_PASS_REGEXP = '^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+\{\};:,[\]<.>\'|\\/?~` ]))((?=.*\d))((?=.*[a-z]))((?=.*[A-Z])).*$',
           USER_EMAIL_REGEXP = S2P_SDK_Module::EMAIL_REGEXP;
 
     /**
@@ -41,7 +39,7 @@ class S2P_SDK_Structure_User_Request extends S2P_SDK_Scope_Structure
                 'external_name' => 'Password',
                 'display_name' => self::s2p_t( 'Account password' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                // 'regexp' => self::USER_PASS_REGEXP,
+                'regexp' => self::USER_PASS_REGEXP,
             ),
             array(
                 'name' => 'email',
