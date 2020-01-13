@@ -4,7 +4,7 @@ namespace S2P_SDK;
 
 class S2P_SDK_Structure_User_Request extends S2P_SDK_Scope_Structure
 {
-    const USER_PASS_REGEXP = '^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+\{\};:,[\]<.>\'|\\/?~` ]))((?=.*\d))((?=.*[a-z]))((?=.*[A-Z])).*$',
+    const USER_PASS_REGEXP = '^.*(?=.{8,})((?=.*[!@#$%^&*()\-_=+{};:,\[\]<.>\'|\\\\\/?~` ]))((?=.*\d))((?=.*[a-z]))((?=.*[A-Z])).*$',
           USER_EMAIL_REGEXP = S2P_SDK_Module::EMAIL_REGEXP;
 
     /**
