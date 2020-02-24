@@ -4,7 +4,7 @@ namespace S2P_SDK;
 
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const SDK_VERSION = '2.1.30';
+    const SDK_VERSION = '2.1.31';
 
     const METH_SMARTCARDS_ID = 6;
 

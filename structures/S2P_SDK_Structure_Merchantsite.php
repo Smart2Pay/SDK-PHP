@@ -53,7 +53,7 @@ class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
                 'external_name' => 'URL',
                 'display_name' => self::s2p_t( 'Site URL' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^(http(s)?:\/\/).{1,512}$',
+                'regexp' => '^(http?s?:\/\/)?(www)?(([0-9a-zA-Z]+)([\-_])*)+(\.([\-_0-9a-zA-Z]+)(\/)*)+(([\/?#\?&=\-_0-9a-zA-Z])\.?)*$',
             ),
             array(
                 'name' => 'active',
@@ -66,7 +66,7 @@ class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
                 'external_name' => 'NotificationURL',
                 'display_name' => self::s2p_t( 'Notification URL' ),
                 'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^(http(s)?:\/\/).{1,512}$',
+                'regexp' => '^(http?s?:\/\/)?(www)?(([0-9a-zA-Z]+)([\-_])*)+(\.([\-_0-9a-zA-Z]+)(\/)*)+(([\/?#\?&=\-_0-9a-zA-Z])\.?)*$',
             ),
             array(
                 'name' => 'alias',
