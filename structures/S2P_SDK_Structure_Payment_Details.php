@@ -234,6 +234,14 @@ class S2P_SDK_Structure_Payment_Details extends S2P_SDK_Scope_Structure
                 'default' => '',
             ),
             array(
+                'name' => 'ismobileapp',
+                'external_name' => 'IsMobileApp',
+                'display_name' => self::s2p_t( 'Payment is initiated in a mobile app' ),
+                'type' => S2P_SDK_VTYPE_BOOL,
+                'default' => null,
+                'skip_if_default' => true,
+            ),
+            array(
                 'name' => 'isoffline',
                 'external_name' => 'IsOffline',
                 'display_name' => self::s2p_t( 'Offline payment method' ),
