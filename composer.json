@@ -1,7 +1,7 @@
 {
   "name": "smart2pay/sdk-php",
   "type": "library",
-  "version": "2.1.32",
+  "version": "3.0.0",
   "description": "Smart2Pay SDK - enable payments on your site easily 200+ methods, 80+ countries",
   "keywords": [
     "Smart2Pay",

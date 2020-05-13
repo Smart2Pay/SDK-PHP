@@ -18,10 +18,13 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
 
           FUNC_CAPUTES_LIST = 'captures_list', FUNC_CAPTURE_DETAILS = 'capture_details';
 
-    const STATUS_OPEN = 1, STATUS_SUCCESS = 2, STATUS_CANCELLED = 3, STATUS_FAILED = 4, STATUS_EXPIRED = 5, STATUS_PENDING_CANCEL = 6,
-          STATUS_PENDING_CAPTURE = 7, STATUS_AUTHORIZED = 8, STATUS_PARTIALLY_REFUNDED = 9, STATUS_REFUNDED = 10, STATUS_DISPUTED = 11, STATUS_DISPUTE_WON = 12,
-          STATUS_DISPUTE_LOST = 13, STATUS_EXCEPTION = 14, STATUS_PROCESSING = 15, STATUS_CAPTURED = 16, STATUS_SETTLED = 17, STATUS_CHARGE_BACKEND = 18,
-          STATUS_ACTIVE_SUBSCRIPTION = 19, STATUS_UNPAID_SUBSCRIPTION = 20, STATUS_TRIALING_SUBSCRIPTION = 21;
+    const STATUS_OPEN = 1, STATUS_SUCCESS = 2, STATUS_CANCELLED = 3, STATUS_FAILED = 4, STATUS_EXPIRED = 5,
+          STATUS_PENDING_PROVIDER = 7, STATUS_AUTHORIZED = 9, STATUS_PENDING_AUTORIZE = 10, STATUS_CAPTURED = 11,
+          STATUS_PENDING_CAPTURE = 13, STATUS_EXCEPTION = 14, STATUS_PENDING_CANCEL = 15, STATUS_REVERSED = 16,
+          STATUS_DISPUTED = 19, STATUS_PARTIALLY_REFUNDED = 21, STATUS_REFUNDED = 22, STATUS_CHARGEBACK_WON = 23,
+          STATUS_CHARGEBACK_LOST = 24, STATUS_PAID = 25, STATUS_CHARGED_BACK = 26, STATUS_SECOND_CHARGEBACK_WON = 27,
+          STATUS_SECOND_CHARGEBACK_LOST = 28, STATUS_PENDING_CHALLENGE_CONFIRMATION = 30, STATUS_QUEUED_CAPTURE = 33,
+          STATUS_QUEUED_CANCEL = 34, STATUS_PARTIALLY_CAPTURED = 35;
 
     private static $STATUSES_ARR = array(
         self::STATUS_OPEN => 'Open',
@@ -29,22 +32,27 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
         self::STATUS_CANCELLED => 'Cancelled',
         self::STATUS_FAILED => 'Failed',
         self::STATUS_EXPIRED => 'Expired',
-        self::STATUS_PENDING_CANCEL => 'Pending Cancellation',
-        self::STATUS_PENDING_CAPTURE => 'Pending Capture',
+        self::STATUS_PENDING_PROVIDER => 'Pending on Provider',
         self::STATUS_AUTHORIZED => 'Authorized',
+        self::STATUS_PENDING_AUTORIZE => 'Pending Authorization',
+        self::STATUS_CAPTURED => 'Captured',
+        self::STATUS_PENDING_CAPTURE => 'Pending Capture',
+        self::STATUS_EXCEPTION => 'Exception',
+        self::STATUS_PENDING_CANCEL => 'Pending Cancellation',
+        self::STATUS_REVERSED => 'Reversed',
+        self::STATUS_DISPUTED => 'Disputed',
         self::STATUS_PARTIALLY_REFUNDED => 'Partially Refunded',
         self::STATUS_REFUNDED => 'Refunded',
-        self::STATUS_DISPUTED => 'Disputed',
-        self::STATUS_DISPUTE_WON => 'Dispute Won',
-        self::STATUS_DISPUTE_LOST => 'Dispute Lost',
-        self::STATUS_EXCEPTION => 'Exception',
-        self::STATUS_PROCESSING => 'Processing',
-        self::STATUS_CAPTURED => 'Captured',
-        self::STATUS_SETTLED => 'Settled',
-        self::STATUS_CHARGE_BACKEND => 'Chargebacked',
-        self::STATUS_ACTIVE_SUBSCRIPTION => 'Active Subscription',
-        self::STATUS_UNPAID_SUBSCRIPTION => 'Unpaid Subscription',
-        self::STATUS_TRIALING_SUBSCRIPTION => 'Trialing Subscription',
+        self::STATUS_CHARGEBACK_WON => 'Chargeback Won',
+        self::STATUS_CHARGEBACK_LOST => 'Chargeback Lost',
+        self::STATUS_PAID => 'Paid',
+        self::STATUS_CHARGED_BACK => 'Charged Back',
+        self::STATUS_SECOND_CHARGEBACK_WON => 'Second Chargeback Won',
+        self::STATUS_SECOND_CHARGEBACK_LOST => 'Second Chargeback Lost',
+        self::STATUS_PENDING_CHALLENGE_CONFIRMATION => 'Pending Challenge Confirmation',
+        self::STATUS_QUEUED_CAPTURE => 'Queued For Capturing',
+        self::STATUS_QUEUED_CANCEL => 'Queued For Cancelling',
+        self::STATUS_PARTIALLY_CAPTURED => 'Partially Captured',
     );
 
     public static function get_statuses()
@@ -184,9 +192,9 @@ class S2P_SDK_Meth_Cards extends S2P_SDK_Method
                         return false;
                     }
 
-                    if( $response_data['func'] == self::FUNC_PAYMENT_CANCEL
+                    if( $response_data['func'] === self::FUNC_PAYMENT_CANCEL
                     and isset( $response_data['response_array']['payment']['status']['id'] )
-                    and $response_data['response_array']['payment']['status']['id'] != self::STATUS_CANCELLED )
+                    and (int)$response_data['response_array']['payment']['status']['id'] !== self::STATUS_CANCELLED )
                     {
                         $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'Payment not cancelled.' ) );
                         return false;

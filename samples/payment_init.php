@@ -35,7 +35,7 @@
     // !!! SmartCards note !!!
     // If $api_parameters['method_params']['payment']['methodid'] is 6
     // (SmartCards method - \S2P_SDK\S2P_SDK_Module::is_smartcards_method( $method_id )), you should normally send
-    // $api_parameters['method'] = 'cards';. However, since SDK v2.1.23 $api_parameters['method'] will be aytomatically
+    // $api_parameters['method'] = 'cards';. However, since SDK v2.1.23 $api_parameters['method'] will be automatically
     // changed to 'cards' in case 'payments' is provided
 
     $api_parameters['method'] = 'payments';

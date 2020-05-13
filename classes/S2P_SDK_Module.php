@@ -4,9 +4,10 @@ namespace S2P_SDK;
 
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const SDK_VERSION = '2.1.32';
+    const SDK_VERSION = '3.0.0';
 
-    const METH_SMARTCARDS_ID = 6;
+    // These are methods that needs "special attention" in some cases
+    const METH_SMARTCARDS_ID = 6, METH_BANK_TRANSFER = 1, METH_MULTIBANCO_SIBS = 20;
 
     const ERR_HOOK_REGISTRATION = 1000, ERR_STATIC_INSTANCE = 1001, ERR_API_QUICK_CALL = 1002, ERR_SDK_INIT = 1003;
 
