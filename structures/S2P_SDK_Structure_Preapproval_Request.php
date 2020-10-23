@@ -53,6 +53,14 @@ class S2P_SDK_Structure_Preapproval_Request extends S2P_SDK_Scope_Structure
                 'regexp' => '^([0-9]{1,10})$',
             ),
             array(
+                'name' => 'executiondate',
+                'external_name' => 'ExecutionDate',
+                'display_name' => self::s2p_t( 'Executed at a specific date' ),
+                'type' => S2P_SDK_VTYPE_DATE,
+                'default' => '',
+                'skip_if_default' => true,
+            ),
+            array(
                 'name' => 'recurringperiod',
                 'external_name' => 'RecurringPeriod',
                 'display_name' => self::s2p_t( 'Preapproval recurring period' ),
