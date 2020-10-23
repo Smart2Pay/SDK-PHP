@@ -62,6 +62,14 @@ class S2P_SDK_Structure_Payout_Request extends S2P_SDK_Scope_Structure
                 'regexp' => '^.{1,255}$',
             ),
             array(
+                'name' => 'methodid',
+                'external_name' => 'MethodID',
+                'type' => S2P_SDK_VTYPE_INT,
+                'display_name' => self::s2p_t( 'Payment method ID' ),
+                'regexp' => '^\d{1,12}$',
+                'default' => 0,
+            ),
+            array(
                 'name' => 'statementdescriptor',
                 'external_name' => 'StatementDescriptor',
                 'display_name' => self::s2p_t( 'Payout statement description' ),
@@ -89,7 +97,29 @@ class S2P_SDK_Structure_Payout_Request extends S2P_SDK_Scope_Structure
                 'default' => null,
                 'structure' => $card_details_obj->get_structure_definition(),
             ),
-        );
+             array(
+                'name' => 'details',
+                'external_name' => 'Details',
+                'type' => S2P_SDK_VTYPE_BLARRAY,
+                'default' => null,
+                'structure' => array(
+                    array(
+                        'name' => 'customeriban',
+                        'external_name' => 'CustomerIBAN',
+                        'display_name' => self::s2p_t( 'Customer IBAN' ),
+                        'type' => S2P_SDK_VTYPE_STRING,
+                        'default' => '',
+                    ),
+                    array(
+                        'name' => 'customerbankaccountid',
+                        'external_name' => 'CustomerBankAccountID',
+                        'display_name' => self::s2p_t( 'Customer bank account id' ),
+                        'type' => S2P_SDK_VTYPE_STRING,
+                        'default' => '',
+                    ),
+                )
+            ),
+       );
     }
 
 }
