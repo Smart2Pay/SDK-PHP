@@ -62,6 +62,16 @@ class S2P_SDK_Structure_Card_Details extends S2P_SDK_Scope_Structure
                 'regexp' => '^(20|)([0-9]{2})$',
             ),
             array(
+                'name' => 'issuingbankcountry',
+                'external_name' => 'IssuingBankCountry',
+                'display_name' => self::s2p_t( 'Card issuing bank country' ),
+                'type' => S2P_SDK_VTYPE_STRING,
+                'default' => '',
+                'skip_if_default' => true,
+                'regexp' => '^[a-zA-Z]{2}$',
+                'value_source' => S2P_SDK_Values_Source::TYPE_COUNTRY,
+            ),
+            array(
                 'name' => 'securitycode',
                 'external_name' => 'SecurityCode',
                 'display_name' => self::s2p_t( 'Card security code (CVV2)' ),
