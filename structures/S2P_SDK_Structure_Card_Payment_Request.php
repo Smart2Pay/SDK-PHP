@@ -31,6 +31,7 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
         $td_secure_obj = new S2P_SDK_Structure_3D_Secure_Data();
         $device_info_obj = new S2P_SDK_Structure_Device_Info();
         $card_on_file_obj = new S2P_SDK_Structure_Card_On_File();
+        $split_obj = new S2P_SDK_Structure_Split_Request();
 
         return array(
             array(
@@ -139,6 +140,13 @@ class S2P_SDK_Structure_Card_Payment_Request extends S2P_SDK_Scope_Structure
                 'display_name' => self::s2p_t( 'Payment split into installments' ),
                 'type' => S2P_SDK_VTYPE_INT,
                 'regexp' => '^\d{1,12}$',
+            ),
+            array(
+                'name' => 'splits',
+                'external_name' => 'Splits',
+                'type' => S2P_SDK_VTYPE_BLARRAY,
+                'default' => null,
+                'structure' => $split_obj->get_structure_definition(),
             ),
             array(
                 'name' => 'capture',

@@ -4,7 +4,7 @@ namespace S2P_SDK;
 
 abstract class S2P_SDK_Module extends S2P_SDK_Language
 {
-    const SDK_VERSION = '3.0.2';
+    const SDK_VERSION = '3.0.3';
 
     // These are methods that needs "special attention" in some cases
     const METH_SMARTCARDS_ID = 6, METH_BANK_TRANSFER = 1, METH_MULTIBANCO_SIBS = 20;
@@ -108,6 +108,8 @@ abstract class S2P_SDK_Module extends S2P_SDK_Language
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Customer.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Address.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Article.php' );
+        include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Split_Request.php' );
+        include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Split_Response.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_3D_Secure_Data.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Device_Info.php' );
         include_once( S2P_SDK_DIR_STRUCTURES . 'S2P_SDK_Structure_Card_On_File.php' );

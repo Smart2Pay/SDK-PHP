@@ -27,6 +27,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
         $customer_obj = new S2P_SDK_Structure_Customer();
         $address_obj = new S2P_SDK_Structure_Address();
         $article_obj = new S2P_SDK_Structure_Article();
+        $split_obj = new S2P_SDK_Structure_Split_Request();
         $payment_details_obj = new S2P_SDK_Structure_Payment_Details();
         $preapproval_details_obj = new S2P_SDK_Structure_Preapproval_details();
 
@@ -208,6 +209,13 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_BLARRAY,
                 'default' => null,
                 'structure' => $article_obj->get_structure_definition(),
+            ),
+            array(
+                'name' => 'splits',
+                'external_name' => 'Splits',
+                'type' => S2P_SDK_VTYPE_BLARRAY,
+                'default' => null,
+                'structure' => $split_obj->get_structure_definition(),
             ),
             array(
                 'name' => 'executiondate',
