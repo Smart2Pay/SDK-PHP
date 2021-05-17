@@ -162,6 +162,7 @@ class S2P_SDK_Structure_Payout_Response extends S2P_SDK_Scope_Structure
                         'display_name' => self::s2p_t( 'Address when paying with crypto' ),
                         'type' => S2P_SDK_VTYPE_STRING,
                         'default' => '',
+                        'regexp' => '^.{1,50}$',
                     ),
                     array(
                         'name' => 'cryptocurrency',
@@ -178,6 +179,7 @@ class S2P_SDK_Structure_Payout_Response extends S2P_SDK_Scope_Structure
                         'display_name' => self::s2p_t( 'Security question' ),
                         'type' => S2P_SDK_VTYPE_STRING,
                         'default' => '',
+                        'regexp' => '^.{6,40}$',
                     ),
                     array(
                         'name' => 'securityanswer',
@@ -185,6 +187,7 @@ class S2P_SDK_Structure_Payout_Response extends S2P_SDK_Scope_Structure
                         'display_name' => self::s2p_t( 'Security answer' ),
                         'type' => S2P_SDK_VTYPE_STRING,
                         'default' => '',
+                        'regexp' => '^.{6,25}$',
                     ),
                     array(
                         'name' => 'ipaddress',
@@ -192,7 +195,7 @@ class S2P_SDK_Structure_Payout_Response extends S2P_SDK_Scope_Structure
                         'display_name' => self::s2p_t( 'IP Address' ),
                         'type' => S2P_SDK_VTYPE_STRING,
                         'default' => '',
-                        'regexp' => '^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$',
+                        'regexp' => '^.{1,45}$',
                     ),
                 )
             ),
