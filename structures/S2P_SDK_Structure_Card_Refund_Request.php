@@ -37,6 +37,7 @@ class S2P_SDK_Structure_Card_Refund_Request extends S2P_SDK_Scope_Structure
                 'external_name' => 'OriginatorTransactionID',
                 'display_name' => self::s2p_t( 'A number that uniquely identifies the transaction in the original requester\'s system' ),
                 'type' => S2P_SDK_VTYPE_STRING,
+                'skip_if_default' => true,
                 'default' => '',
                 'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
             ),
@@ -52,6 +53,7 @@ class S2P_SDK_Structure_Card_Refund_Request extends S2P_SDK_Scope_Structure
                 'name' => 'description',
                 'external_name' => 'Description',
                 'display_name' => self::s2p_t( 'Refund description' ),
+                'skip_if_default' => true,
                 'type' => S2P_SDK_VTYPE_STRING,
                 'regexp' => '^.{1,255}$',
                 'default' => '',
@@ -60,6 +62,7 @@ class S2P_SDK_Structure_Card_Refund_Request extends S2P_SDK_Scope_Structure
                 'name' => 'statementdescriptor',
                 'external_name' => 'StatementDescriptor',
                 'display_name' => self::s2p_t( 'Refund statement description' ),
+                'skip_if_default' => true,
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
             ),
@@ -67,11 +70,11 @@ class S2P_SDK_Structure_Card_Refund_Request extends S2P_SDK_Scope_Structure
                 'name' => 'captureid',
                 'external_name' => 'CaptureID',
                 'display_name' => self::s2p_t( 'Mandatory only when refunding a payment that has multiple partial captures' ),
+                'skip_if_default' => true,
                 'type' => S2P_SDK_VTYPE_INT,
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
             ),
         );
     }
-
 }
