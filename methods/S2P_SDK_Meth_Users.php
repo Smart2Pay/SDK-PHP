@@ -9,8 +9,7 @@ class S2P_SDK_Meth_Users extends S2P_SDK_Method
     const FUNC_CREATE = 'create', FUNC_EDIT = 'edit';
 
     /**
-     * Tells which entry point does this method use
-     * @return string
+     * @inheritdoc
      */
     public function get_entry_point()
     {
@@ -25,6 +24,9 @@ class S2P_SDK_Meth_Users extends S2P_SDK_Method
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function default_functionality()
     {
         return self::FUNC_CREATE;
@@ -48,13 +50,14 @@ class S2P_SDK_Meth_Users extends S2P_SDK_Method
                 if( !empty( $response_data['response_array']['user'] ) )
                 {
                     if( !empty( $response_data['response_array']['user']['details'] )
-                    and !empty( $response_data['response_array']['user']['details']['reasons'] )
-                    and is_array( $response_data['response_array']['user']['details']['reasons'] ) )
+                     && !empty( $response_data['response_array']['user']['details']['reasons'] )
+                     && is_array( $response_data['response_array']['user']['details']['reasons'] ) )
                     {
                         $error_msg = '';
                         foreach( $response_data['response_array']['user']['details']['reasons'] as $reason_arr )
                         {
-                            if( ( $error_reason = ( ! empty( $reason_arr['code'] ) ? $reason_arr['code'] . ' - ' : '' ) . ( ! empty( $reason_arr['info'] ) ? $reason_arr['info'] : '' ) ) != '' )
+                            if( ($error_reason = (!empty( $reason_arr['code'] )?$reason_arr['code'].' - ':'').
+                                                 (!empty( $reason_arr['info'] )?$reason_arr['info']:'') ) !== '' )
                                 $error_msg .= $error_reason;
                         }
 

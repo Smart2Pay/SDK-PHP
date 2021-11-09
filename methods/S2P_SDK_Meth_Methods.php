@@ -10,8 +10,7 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
     const METHOD_KLARNA_INVOICE = 75, METHOD_KLARNA_PAYMENTS = 1078;
 
     /**
-     * Tells which entry point does this method use
-     * @return string
+     * @inheritdoc
      */
     public function get_entry_point()
     {
@@ -26,6 +25,9 @@ class S2P_SDK_Meth_Methods extends S2P_SDK_Method
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function default_functionality()
     {
         return self::FUNC_LIST_ALL;

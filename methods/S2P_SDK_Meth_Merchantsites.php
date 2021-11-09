@@ -11,8 +11,7 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
           FUNC_REGEN_APIKEY = 'regen_apikey';
 
     /**
-     * Tells which entry point does this method use
-     * @return string
+     * @inheritdoc
      */
     public function get_entry_point()
     {
@@ -27,6 +26,9 @@ class S2P_SDK_Meth_Merchantsites extends S2P_SDK_Method
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function default_functionality()
     {
         return self::FUNC_LIST_ALL;

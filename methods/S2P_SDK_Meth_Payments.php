@@ -68,14 +68,16 @@ class S2P_SDK_Meth_Payments extends S2P_SDK_Method
     }
 
     /**
-     * Tells which entry point does this method use
-     * @return string
+     * @inheritdoc
      */
     public function get_entry_point()
     {
         return S2P_SDK_Rest_API::ENTRY_POINT_REST;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function default_functionality()
     {
         return self::FUNC_LIST_PAYMENTS;

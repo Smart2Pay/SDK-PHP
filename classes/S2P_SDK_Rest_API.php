@@ -27,7 +27,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
           LIVE_BASE_URL = 'https://globalpay.smart2pay.com';
 
     const TEST_RESOURCE_URL = 'https://apitest.smart2pay.com',
-          LIVE_RESOURCE_URL = 'https://api.smart2pay.com';
+          LIVE_RESOURCE_URL = 'https://globalapi.smart2pay.com';
 
     /** @var int $_entry_point */
     private $_entry_point = self::ENTRY_POINT_REST;
@@ -61,13 +61,13 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
      *
      * @param bool|array $module_params
      *
-     * @return mixed If this function returns false it will consider module is not initialized correctly and will not return class instance
+     * @return bool If this function returns false it will consider module is not initialized correctly and will not return class instance
      */
     public function init( $module_params = false )
     {
         $this->reset_api();
 
-        if( empty( $module_params ) or ! is_array( $module_params ) )
+        if( empty( $module_params ) || ! is_array( $module_params ) )
             $module_params = array();
 
         if( !empty( $module_params['method'] ) )
@@ -78,13 +78,13 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
 
         $api_config_arr = self::get_api_configuration();
 
-        if( empty( $module_params['site_id'] ) and !empty( $api_config_arr['site_id'] ) )
+        if( empty( $module_params['site_id'] ) && !empty( $api_config_arr['site_id'] ) )
             $module_params['site_id'] = $api_config_arr['site_id'];
-        if( empty( $module_params['api_key'] ) and !empty( $api_config_arr['api_key'] ) )
+        if( empty( $module_params['api_key'] ) && !empty( $api_config_arr['api_key'] ) )
             $module_params['api_key'] = $api_config_arr['api_key'];
-        if( empty( $module_params['environment'] ) and !empty( $api_config_arr['environment'] ) )
+        if( empty( $module_params['environment'] ) && !empty( $api_config_arr['environment'] ) )
             $module_params['environment'] = $api_config_arr['environment'];
-        if( empty( $module_params['custom_base_url'] ) and !empty( $api_config_arr['custom_base_url'] ) )
+        if( empty( $module_params['custom_base_url'] ) && !empty( $api_config_arr['custom_base_url'] ) )
             $module_params['custom_base_url'] = $api_config_arr['custom_base_url'];
 
         if( !empty( $module_params['environment'] ) )
@@ -106,7 +106,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         }
 
         if( $this->environment() == self::ENV_CUSTOM
-        and !empty( $module_params['custom_base_url'] ) )
+         && !empty( $module_params['custom_base_url'] ) )
         {
             if( !$this->set_base_url( $module_params['custom_base_url'] ) )
                 return false;
@@ -161,7 +161,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     public static function validate_call_result( $result )
     {
         $default_result = self::default_call_result();
-        if( empty( $result ) or !is_array( $result ) )
+        if( empty( $result ) || !is_array( $result ) )
             return $default_result;
 
         $new_result = array();
@@ -179,14 +179,19 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         return $new_result;
     }
 
+    /**
+     * @param false|array $module_params
+     *
+     * @return string
+     */
     public static function get_resources_base_url( $module_params = false )
     {
-        if( empty( $module_params ) or ! is_array( $module_params ) )
+        if( empty( $module_params ) || ! is_array( $module_params ) )
             $module_params = array();
 
         $api_config_arr = self::get_api_configuration();
 
-        if( empty( $module_params['environment'] ) and !empty( $api_config_arr['environment'] ) )
+        if( empty( $module_params['environment'] ) && !empty( $api_config_arr['environment'] ) )
             $module_params['environment'] = $api_config_arr['environment'];
 
         switch( $module_params['environment'] )
@@ -203,12 +208,18 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         }
     }
 
+    /**
+     * @param null|int $ent
+     *
+     * @return bool|int
+     */
     public function entry_point( $ent = null )
     {
         if( $ent === null )
             return $this->_entry_point;
 
-        if( !in_array( $ent, array( self::ENTRY_POINT_REST, self::ENTRY_POINT_CARDS ) ) )
+        $ent = (int)$ent;
+        if( !in_array( $ent, array( self::ENTRY_POINT_REST, self::ENTRY_POINT_CARDS ), true ) )
         {
             $this->set_error( self::ERR_ENTRY_POINT,
                                   self::s2p_t( 'Invalid entry point.' ),
@@ -220,12 +231,18 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         return true;
     }
 
+    /**
+     * @param null|string $env
+     *
+     * @return bool|string
+     */
     public function environment( $env = null )
     {
         if( $env === null )
             return $this->_environment;
 
-        if( !in_array( $env, array( self::ENV_TEST, self::ENV_LIVE, self::ENV_CUSTOM ) ) )
+        if( !is_string( $env )
+         || !in_array( $env, array( self::ENV_TEST, self::ENV_LIVE, self::ENV_CUSTOM ), true ) )
         {
             $this->set_error( self::ERR_ENVIRONMENT,
                                   self::s2p_t( 'Unknown environment' ),
@@ -331,7 +348,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         if( !is_scalar( $site_id ) )
             return false;
 
-        $this->_site_id = intval( $site_id );
+        $this->_site_id = (int)$site_id;
         return true;
     }
 
@@ -361,7 +378,10 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         return true;
     }
 
-    private function validate_base_url()
+    /**
+     * @return bool
+     */
+    private function _validate_base_url()
     {
         $env = $this->environment();
         $entry_point = $this->entry_point();
@@ -389,10 +409,10 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             break;
 
             case self::ENV_TEST:
-                if( $entry_point == self::ENTRY_POINT_REST )
+                if( $entry_point === self::ENTRY_POINT_REST )
                 {
                     $this->_base_url = self::TEST_BASE_URL;
-                } elseif( $entry_point == self::ENTRY_POINT_CARDS )
+                } elseif( $entry_point === self::ENTRY_POINT_CARDS )
                 {
                     $this->_base_url = self::TEST_CARDS_URL;
                 }
@@ -401,10 +421,10 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             break;
 
             case self::ENV_LIVE:
-                if( $entry_point == self::ENTRY_POINT_REST )
+                if( $entry_point === self::ENTRY_POINT_REST )
                 {
                     $this->_base_url = self::LIVE_BASE_URL;
-                } elseif( $entry_point == self::ENTRY_POINT_CARDS )
+                } elseif( $entry_point === self::ENTRY_POINT_CARDS )
                 {
                     $this->_base_url = self::LIVE_CARDS_URL;
                 }
@@ -448,7 +468,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
         $this->reset_call_result();
         $this->reset_error();
 
-        if( empty( $params ) or !is_array( $params ) )
+        if( empty( $params ) || !is_array( $params ) )
             $params = array();
 
         if( empty( $params['user_agent'] ) or !is_string( $params['user_agent'] ) )
@@ -486,7 +506,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
             return false;
         }
 
-        if( !$this->validate_base_url()
+        if( !$this->_validate_base_url()
          or empty( $this->_base_url ) )
         {
             if( !$this->has_error() )

@@ -44,7 +44,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
     /**
      * Tells which entry point does this method use
-     * @return string
+     * @return int
      */
     abstract public function get_entry_point();
 

@@ -2,7 +2,7 @@
 
     // Detecting current directory path - in certain environment setups you might have to manually provide this path
     if( !($_current_directory_path = __DIR__)
-    and !($_current_directory_path = @getcwd()) )
+     && !($_current_directory_path = @getcwd()) )
         $_current_directory_path = '.';
 
     $_current_directory_path = rtrim( $_current_directory_path, '/\\' ).'/';

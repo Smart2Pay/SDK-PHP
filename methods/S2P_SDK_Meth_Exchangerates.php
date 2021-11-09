@@ -9,8 +9,7 @@ class S2P_SDK_Meth_Exchangerates extends S2P_SDK_Method
     const FUNC_ECHANGE_RATES = 'exchangerates';
 
     /**
-     * Tells which entry point does this method use
-     * @return string
+     * @inheritdoc
      */
     public function get_entry_point()
     {
@@ -25,6 +24,9 @@ class S2P_SDK_Meth_Exchangerates extends S2P_SDK_Method
         return false;
     }
 
+    /**
+     * @inheritdoc
+     */
     public function default_functionality()
     {
         return self::FUNC_ECHANGE_RATES;
