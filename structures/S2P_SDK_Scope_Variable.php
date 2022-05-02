@@ -220,10 +220,11 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
     protected function extract_values_from_scope( $scope_arr, $definition = null, $params = false )
     {
         if( empty( $scope_arr ) or !is_array( $scope_arr ) )
-        {
-            $this->set_error( self::ERR_SCOPE, self::s2p_t( 'Invalid scope.' ) );
-            return false;
-        }
+            $scope_arr = array();
+        // {
+        //     $this->set_error( self::ERR_SCOPE, self::s2p_t( 'Invalid scope.' ) );
+        //     return false;
+        // }
 
         if( empty( $params ) or !is_array( $params ) )
             $params = array();

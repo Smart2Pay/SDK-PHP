@@ -30,14 +30,14 @@ class S2P_SDK_Structure_Refund_Request extends S2P_SDK_Scope_Structure
         $article_obj = new S2P_SDK_Structure_Article();
 
         return array(
-            array(
-                'name' => 'id',
-                'external_name' => 'ID',
-                'display_name' => self::s2p_t( 'Refund ID' ),
-                'type' => S2P_SDK_VTYPE_INT,
-                'default' => 0,
-                'regexp' => '^\d{1,12}$',
-            ),
+            // array(
+            //     'name' => 'id',
+            //     'external_name' => 'ID',
+            //     'display_name' => self::s2p_t( 'Refund ID' ),
+            //     'type' => S2P_SDK_VTYPE_INT,
+            //     'default' => 0,
+            //     'regexp' => '^\d{1,12}$',
+            // ),
             array(
                 'name' => 'merchanttransactionid',
                 'external_name' => 'MerchantTransactionID',

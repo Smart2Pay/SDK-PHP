@@ -75,6 +75,15 @@ class S2P_SDK_Structure_Card_Refund_Request extends S2P_SDK_Scope_Structure
                 'default' => 0,
                 'regexp' => '^\d{1,12}$',
             ),
+            array(
+                'name' => 'splitid',
+                'external_name' => 'SplitID',
+                'display_name' => self::s2p_t( 'SplitID for which we want to initiate the refund (if we refund a split)' ),
+                'skip_if_default' => true,
+                'type' => S2P_SDK_VTYPE_INT,
+                'default' => 0,
+                'regexp' => '^\d{1,12}$',
+            ),
         );
     }
 }

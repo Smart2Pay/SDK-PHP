@@ -839,6 +839,10 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 'default' => 0,
                 'key' => 'payment_id',
             ),
+            '{*SPLIT_ID*}' => array(
+                'default' => 0,
+                'key' => 'split_id',
+            ),
             '{*TOKEN*}' => array(
                 'default' => 0,
                 'key' => 'token',
@@ -904,7 +908,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
             return true;
 
         if( empty( $scope_arr ) or !is_array( $scope_arr ) )
-            return false;
+            $scope_arr = array();
 
         if( empty( $params ) or !is_array( $params ) )
             $params = array();
@@ -918,7 +922,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
 
         foreach( $mandatory_fields_arr as $key => $fields )
         {
-            $current_path = $params['path'].(($params['path'] != '')?'.':'').$key;
+            $current_path = $params['path'].(($params['path'] !== '')?'.':'').$key;
 
             if( !array_key_exists( $key, $scope_arr )
              or (is_scalar( $fields ) and $scope_arr[$key] === $fields) )
@@ -928,7 +932,7 @@ abstract class S2P_SDK_Method extends S2P_SDK_Module
                 $structure_obj = $params['structure_obj'];
                 if( !empty( $structure_obj )
                 and $structure_obj instanceof S2P_SDK_Scope_Structure
-                and ($new_display_name = $structure_obj->path_to_display_name( $current_path, array( 'check_external_names' => ($params['scope_arr_type']=='request'?true:false) ) )) )
+                and ($new_display_name = $structure_obj->path_to_display_name( $current_path, array( 'check_external_names' => ($params['scope_arr_type']==='request') ) )) )
                 {
                     $display_name = $current_path.' ('.$new_display_name.')';
                 }
