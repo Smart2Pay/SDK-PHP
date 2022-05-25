@@ -54,6 +54,7 @@ class S2P_SDK_Structure_Split_Request extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => '',
                 'regexp' => '^[0-9a-zA-Z_-]{1,50}$',
+                'skip_if_default' => true,
             ),
         );
     }

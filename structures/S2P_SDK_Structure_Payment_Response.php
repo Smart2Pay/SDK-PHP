@@ -217,6 +217,15 @@ class S2P_SDK_Structure_Payment_Response extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_BLARRAY,
                 'default' => null,
                 'structure' => $split_obj->get_structure_definition(),
+                'skip_if_default' => true,
+            ),
+            array(
+                'name' => 'split',
+                'external_name' => 'Split',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'default' => null,
+                'structure' => $split_obj->get_structure_definition(),
+                'skip_if_default' => true,
             ),
             array(
                 'name' => 'details',

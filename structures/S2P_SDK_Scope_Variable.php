@@ -217,34 +217,40 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         return $current_value;
     }
 
+    /**
+     * @param array $scope_arr
+     * @param array|null $definition
+     * @param array|false $params
+     *
+     * @return array|false
+     */
     protected function extract_values_from_scope( $scope_arr, $definition = null, $params = false )
     {
-        if( empty( $scope_arr ) or !is_array( $scope_arr ) )
+        if( empty( $scope_arr ) || !is_array( $scope_arr ) )
             $scope_arr = array();
-        // {
-        //     $this->set_error( self::ERR_SCOPE, self::s2p_t( 'Invalid scope.' ) );
-        //     return false;
-        // }
 
-        if( empty( $params ) or !is_array( $params ) )
+        if( empty( $params ) || !is_array( $params ) )
             $params = array();
 
-        if( empty( $params['nullify_full_object'] ) )
-            $params['nullify_full_object'] = false;
+        if( empty( $params['parsing_path'] ) )
+            $params['parsing_path'] = '';
+
+        $params['nullify_full_object'] = (!empty( $params['nullify_full_object'] ));
 
         if( !empty( $params['nullify_full_object'] ) )
             $params['output_null_values'] = true;
 
         if( !isset( $params['check_external_names'] ) )
             $params['check_external_names'] = true;
-        if( empty( $params['parsing_path'] ) )
-            $params['parsing_path'] = '';
+        else
+            $params['check_external_names'] = (!empty( $params['check_external_names'] ));
+
         if( !isset( $params['output_null_values'] ) )
             $params['output_null_values'] = true;
-        if( empty( $params['skip_regexps'] ) )
-            $params['skip_regexps'] = false;
         else
-            $params['skip_regexps'] = (!empty( $params['skip_regexps'] )?true:false);
+            $params['output_null_values'] = (!empty( $params['output_null_values'] ));
+
+        $params['skip_regexps'] = (!empty( $params['skip_regexps'] ));
 
         if( !empty( $params['check_external_names'] ) )
         {
@@ -259,160 +265,175 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         if( is_null( $definition ) )
             $definition = $this->_definition;
 
-        if( empty( $definition ) or !self::valid_definition( $definition ) )
+        if( empty( $definition ) || !self::valid_definition( $definition ) )
         {
             $this->set_error( self::ERR_DEFINITION, self::s2p_t( 'Invalid definition for variable [%s]', (!empty( $definition['name'] )?$definition['name']:'???') ) );
             return false;
         }
+        $definition['type'] = (int)$definition['type'];
+
+        $key_exists_is_scope = array_key_exists( $definition[$scope_name_key], $scope_arr );
 
         $current_value = array();
-        if( $definition['type'] != self::TYPE_BLOB_GROUP
-        and (
-            (!empty( $params['nullify_full_object'] ) and self::scalar_type( $definition['type'] ))
-            or !array_key_exists( $definition[$scope_name_key], $scope_arr )
+        if( $definition['type'] !== self::TYPE_BLOB_GROUP
+         && (
+            (!empty( $params['nullify_full_object'] ) && self::scalar_type( $definition['type'] ))
+            || !$key_exists_is_scope
             ) )
         {
-            if( ($null_value = $this->nullify( $definition, $params )) !== null
-             or ($null_value === null and !empty( $params['output_null_values'] ))
-             or empty( $params['parsing_path'] ) )
+            if( empty( $definition['ignore_if_not_in_scope'] )
+             || $key_exists_is_scope )
             {
-                $assign_value = true;
-                if( !empty( $definition['skip_if_default'] )
-                and array_key_exists( 'default', $definition )
-                and $null_value === $definition['default'] )
-                    $assign_value = false;
-
-                if( $assign_value )
-                    $current_value[$definition[$output_name_key]] = $null_value;
-            }
-
-        } elseif( $definition['type'] == self::TYPE_BLOB_GROUP )
-        {
-            foreach( $definition['structure'] as $structure_element )
-            {
-                if( !self::valid_definition( $structure_element ) )
-                    continue;
-
-                if( ($property_result = $this->extract_values_from_scope( $scope_arr, $structure_element, $params )) === false
-                 or !is_array( $property_result ) )
+                if( ($null_value = $this->nullify( $definition, $params )) !== null
+                     || ($null_value === null && !empty( $params['output_null_values'] ))
+                     || empty( $params['parsing_path'] )
+                )
                 {
-                    if( $this->has_error() )
-                        return false;
+                    $assign_value = true;
+                    if( !empty( $definition['skip_if_default'] )
+                     && array_key_exists( 'default', $definition )
+                     && $null_value === $definition['default'] )
+                        $assign_value = false;
 
-                    $this->set_error( self::ERR_PARSE, self::s2p_t( 'Error parsing variable [%s]', $params['parsing_path'] ) );
-                    return false;
+                    if( $assign_value )
+                        $current_value[$definition[$output_name_key]] = $null_value;
                 }
+            }
+        } elseif( $definition['type'] === self::TYPE_BLOB_GROUP )
+        {
+            if( $key_exists_is_scope
+             || empty( $definition['ignore_if_not_in_scope'] ) )
+            {
+                foreach( $definition['structure'] as $structure_element )
+                {
+                    if( !self::valid_definition( $structure_element ) )
+                        continue;
 
-                $current_value = array_merge( $current_value, $property_result );
+                    if( ($property_result = $this->extract_values_from_scope( $scope_arr, $structure_element, $params )) === false
+                     || !is_array( $property_result ) )
+                    {
+                        if( $this->has_error() )
+                            return false;
+
+                        $this->set_error( self::ERR_PARSE, self::s2p_t( 'Error parsing variable [%s]', $params['parsing_path'] ) );
+                        return false;
+                    }
+
+                    $current_value = array_merge( $current_value, $property_result );
+                }
             }
         } else
         {
-            $params['parsing_path'] .= ($params['parsing_path']!=''?'.':'').$definition[$scope_name_key];
+            $params['parsing_path'] .= ($params['parsing_path']!==''?'.':'').$definition[$scope_name_key];
 
-            // Variable exists in scope
-            if( self::scalar_type( $definition['type'] ) )
+            if( $key_exists_is_scope
+             || empty( $definition['ignore_if_not_in_scope'] ) )
             {
-                if( $scope_arr[$definition[$scope_name_key]] === null )
-                    $var_val = null;
-                else
-                    $var_val = self::scalar_value( $definition['type'], $scope_arr[$definition[$scope_name_key]], $definition['array_type'], $definition['array_numeric_keys'] );
-
-                if( is_scalar( $var_val )
-                and (string)$var_val !== ''
-                and empty( $params['skip_regexps'] )
-                and !empty( $definition['regexp'] )
-                and !preg_match( '/'.$definition['regexp'].'/', $var_val ) )
+                // Variable exists in scope
+                if( self::scalar_type( $definition['type'] ) )
                 {
-                    $this->set_error( self::ERR_REGEXP,
-                                        self::s2p_t( 'Variable [%s] is invalid.', (!empty( $params['parsing_path'] )?$params['parsing_path']:'???') ),
-                                        sprintf( 'Variable [%s] failed regular expression [%s].',
-                                            (!empty( $definition['display_name'] )?$definition['display_name']:'').
-                                            (!empty( $params['parsing_path'] )?' - '.$params['parsing_path']:'???'),
-                                            $definition['regexp'] ) );
+                    if( $scope_arr[$definition[$scope_name_key]] === null )
+                        $var_val = null;
+                    else
+                        $var_val = self::scalar_value( $definition['type'], $scope_arr[$definition[$scope_name_key]], $definition['array_type'], $definition['array_numeric_keys'] );
 
-                    return false;
+                    if( is_scalar( $var_val )
+                     && (string)$var_val !== ''
+                     && empty( $params['skip_regexps'] )
+                     && !empty( $definition['regexp'] )
+                     && !preg_match( '/'.$definition['regexp'].'/', $var_val ) )
+                    {
+                        $this->set_error( self::ERR_REGEXP,
+                                            self::s2p_t( 'Variable [%s] is invalid.', (!empty( $params['parsing_path'] )?$params['parsing_path']:'???') ),
+                                            sprintf( 'Variable [%s] failed regular expression [%s].',
+                                                (!empty( $definition['display_name'] )?$definition['display_name']:'').
+                                                (!empty( $params['parsing_path'] )?' - '.$params['parsing_path']:'???'),
+                                                $definition['regexp'] ) );
+
+                        return false;
+                    }
+
+                    $assign_value = true;
+                    if( !empty( $definition['skip_if_default'] )
+                    and array_key_exists( 'default', $definition )
+                    and $var_val === $definition['default'] )
+                        $assign_value = false;
+
+                    if( $assign_value )
+                        $current_value[$definition[$output_name_key]] = $var_val;
                 }
 
-                $assign_value = true;
-                if( !empty( $definition['skip_if_default'] )
-                and array_key_exists( 'default', $definition )
-                and $var_val === $definition['default'] )
-                    $assign_value = false;
-
-                if( $assign_value )
-                    $current_value[$definition[$output_name_key]] = $var_val;
-            }
-
-            else
-            {
-                if( empty( $scope_arr[$definition[$scope_name_key]] )
-                 or !is_array( $scope_arr[$definition[$scope_name_key]] )
-                 or !self::object_type( $definition['type'] ) )
-                    $current_value[$definition[$output_name_key]] = null;
-
                 else
                 {
-                    $current_value[$definition[$output_name_key]] = array();
-                    if( $definition['type'] == self::TYPE_BLOB )
-                    {
-                        foreach( $definition['structure'] as $structure_element )
-                        {
-                            if( !self::valid_definition( $structure_element ) )
-                                continue;
+                    if( empty( $scope_arr[$definition[$scope_name_key]] )
+                     || !is_array( $scope_arr[$definition[$scope_name_key]] )
+                     || !self::object_type( $definition['type'] ) )
+                        $current_value[$definition[$output_name_key]] = null;
 
-                            if( ($property_result = $this->extract_values_from_scope( $scope_arr[$definition[$scope_name_key]], $structure_element, $params )) === false
-                             or !is_array( $property_result ) )
-                            {
-                                if( $this->has_error() )
-                                    return false;
-
-                                $this->set_error( self::ERR_PARSE, self::s2p_t( 'Error parsing variable [%s]', $params['parsing_path'] ) );
-                                return false;
-                            }
-
-                            $current_value[$definition[$output_name_key]] = array_merge( $current_value[$definition[$output_name_key]], $property_result );
-                        }
-                    } elseif( $definition['type'] == self::TYPE_BLOB_ARRAY )
+                    else
                     {
                         $current_value[$definition[$output_name_key]] = array();
-                        $knti = -1;
-                        $initial_parsing_path = $params['parsing_path'];
-                        foreach( $scope_arr[$definition[$scope_name_key]] as $element_scope )
+                        if( $definition['type'] == self::TYPE_BLOB )
                         {
-                            $knti++;
-
-                            if( !is_array( $element_scope ) )
-                                continue;
-
-                            $params['parsing_path'] = $initial_parsing_path.'['.$knti.']';
-
-                            $node_arr = array();
                             foreach( $definition['structure'] as $structure_element )
                             {
                                 if( !self::valid_definition( $structure_element ) )
                                     continue;
 
-                                if( ($node_result = $this->extract_values_from_scope( $element_scope, $structure_element, $params )) === false
-                                 or !is_array( $node_result ) )
+                                if( ($property_result = $this->extract_values_from_scope( $scope_arr[$definition[$scope_name_key]], $structure_element, $params )) === false
+                                 or !is_array( $property_result ) )
                                 {
-                                    // If we have an object in array which contains errors just pass on next one and set error...
-                                    // If errors are not thrown you still can get a partial array with elements which pass validation
-                                    $node_arr = null;
-                                    break;
+                                    if( $this->has_error() )
+                                        return false;
+
+                                    $this->set_error( self::ERR_PARSE, self::s2p_t( 'Error parsing variable [%s]', $params['parsing_path'] ) );
+                                    return false;
                                 }
 
-                                $node_arr = array_merge( $node_arr, $node_result );
+                                $current_value[$definition[$output_name_key]] = array_merge( $current_value[$definition[$output_name_key]], $property_result );
+                            }
+                        } elseif( $definition['type'] == self::TYPE_BLOB_ARRAY )
+                        {
+                            $current_value[$definition[$output_name_key]] = array();
+                            $knti = -1;
+                            $initial_parsing_path = $params['parsing_path'];
+                            foreach( $scope_arr[$definition[$scope_name_key]] as $element_scope )
+                            {
+                                $knti++;
+
+                                if( !is_array( $element_scope ) )
+                                    continue;
+
+                                $params['parsing_path'] = $initial_parsing_path.'['.$knti.']';
+
+                                $node_arr = array();
+                                foreach( $definition['structure'] as $structure_element )
+                                {
+                                    if( !self::valid_definition( $structure_element ) )
+                                        continue;
+
+                                    if( ($node_result = $this->extract_values_from_scope( $element_scope, $structure_element, $params )) === false
+                                     or !is_array( $node_result ) )
+                                    {
+                                        // If we have an object in array which contains errors just pass on next one and set error...
+                                        // If errors are not thrown you still can get a partial array with elements which pass validation
+                                        $node_arr = null;
+                                        break;
+                                    }
+
+                                    $node_arr = array_merge( $node_arr, $node_result );
+                                }
+
+                                if( !empty( $node_arr ) )
+                                    $current_value[$definition[$output_name_key]][] = $node_arr;
                             }
 
-                            if( !empty( $node_arr ) )
-                                $current_value[$definition[$output_name_key]][] = $node_arr;
+                            $params['parsing_path'] = $initial_parsing_path;
                         }
 
-                        $params['parsing_path'] = $initial_parsing_path;
+                        if( empty( $current_value[$definition[$output_name_key]] ) )
+                            $current_value[$definition[$output_name_key]] = null;
                     }
-
-                    if( empty( $current_value[$definition[$output_name_key]] ) )
-                        $current_value[$definition[$output_name_key]] = null;
                 }
             }
         }
@@ -636,13 +657,13 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
     public static function scalar_type( $type )
     {
         $type = (int)$type;
-        return (in_array( $type, array( self::TYPE_STRING, self::TYPE_INT, self::TYPE_FLOAT, self::TYPE_BOOL, self::TYPE_DATETIME, self::TYPE_DATE, self::TYPE_ARRAY ) )?true:false);
+        return in_array( $type, array( self::TYPE_STRING, self::TYPE_INT, self::TYPE_FLOAT, self::TYPE_BOOL, self::TYPE_DATETIME, self::TYPE_DATE, self::TYPE_ARRAY ), true );
     }
 
     public static function object_type( $type )
     {
         $type = (int)$type;
-        return (in_array( $type, array( self::TYPE_BLOB_ARRAY, self::TYPE_BLOB, self::TYPE_BLOB_GROUP ) )?true:false);
+        return in_array( $type, array( self::TYPE_BLOB_ARRAY, self::TYPE_BLOB, self::TYPE_BLOB_GROUP ), true );
     }
 
     public static function get_types()
@@ -676,17 +697,18 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
             'value_source' => 0,
             'check_constant' => '',
             'hint_path' => '',
+            'ignore_if_not_in_scope' => false,
         );
     }
 
     public static function valid_definition( $definition_arr )
     {
-        if( empty( $definition_arr ) or !is_array( $definition_arr )
-         or empty( $definition_arr['type'] ) or !self::valid_type( $definition_arr['type'] )
-         or ($definition_arr['type'] != self::TYPE_BLOB_GROUP
-                and (empty( $definition_arr['name'] ) or empty( $definition_arr['external_name'] ))
+        if( empty( $definition_arr ) || !is_array( $definition_arr )
+         || empty( $definition_arr['type'] ) || !self::valid_type( $definition_arr['type'] )
+         || ((empty( $definition_arr['name'] ) || empty( $definition_arr['external_name'] ))
+             && (int)$definition_arr['type'] !== self::TYPE_BLOB_GROUP
             )
-         or !array_key_exists( 'structure', $definition_arr ) )
+         || !array_key_exists( 'structure', $definition_arr ) )
             return false;
 
         return true;

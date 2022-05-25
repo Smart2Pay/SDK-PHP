@@ -25,6 +25,7 @@ class S2P_SDK_Structure_Split_Response extends S2P_SDK_Scope_Structure
     public function get_structure_definition()
     {
         $status_obj = new S2P_SDK_Structure_Status();
+        $capture_response_obj = new S2P_SDK_Structure_Capture_Response();
 
         return array(
             array(
@@ -102,6 +103,24 @@ class S2P_SDK_Structure_Split_Response extends S2P_SDK_Scope_Structure
                 'external_name' => 'Status',
                 'type' => S2P_SDK_VTYPE_BLOB,
                 'structure' => $status_obj->get_structure_definition(),
+                'skip_if_default' => true,
+                'ignore_if_not_in_scope' => true,
+            ),
+            array(
+                'name' => 'statedetails',
+                'external_name' => 'StateDetails',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'structure' => $status_obj->get_structure_definition(),
+                'skip_if_default' => true,
+                'ignore_if_not_in_scope' => true,
+            ),
+            array(
+                'name' => 'capturedetails',
+                'external_name' => 'CaptureDetails',
+                'type' => S2P_SDK_VTYPE_BLOB,
+                'structure' => $capture_response_obj->get_structure_definition(),
+                'skip_if_default' => true,
+                'ignore_if_not_in_scope' => true,
             ),
         );
     }
