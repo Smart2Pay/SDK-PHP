@@ -26,7 +26,7 @@ class S2P_SDK_Rest_API extends S2P_SDK_Module
     const TEST_BASE_URL = 'https://paytest.smart2pay.com',
           LIVE_BASE_URL = 'https://globalpay.smart2pay.com';
 
-    const TEST_RESOURCE_URL = 'https://apitest.smart2pay.com',
+    const TEST_RESOURCE_URL = 'https://paytest.smart2pay.com',
           LIVE_RESOURCE_URL = 'https://globalapi.smart2pay.com';
 
     /** @var int $_entry_point */
