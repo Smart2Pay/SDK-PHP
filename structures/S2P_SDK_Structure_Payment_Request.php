@@ -46,7 +46,7 @@ class S2P_SDK_Structure_Payment_Request extends S2P_SDK_Scope_Structure
                 'type' => S2P_SDK_VTYPE_STRING,
                 'default' => null,
                 'skip_if_default' => true,
-                'regexp' => S2P_SDK_Module::IP_REGEXP,
+                // 'regexp' => S2P_SDK_Module::IP_REGEXP,
             ),
             array(
                 'name' => 'merchanttransactionid',
