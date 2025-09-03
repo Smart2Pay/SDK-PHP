@@ -15,12 +15,12 @@
     {
       "name": "Smart2Pay",
       "email": "support@smart2pay.com",
-      "homepage": "https://www.smart2pay.com"
+      "homepage": "https://docs-apm.nuvei.com"
     }
   ],
   "support": {
     "email": "support@smart2pay.com",
-    "docs": "https://docs.smart2pay.com"
+    "docs": "https://docs-apm.nuvei.com"
   },
   "require": {
     "php": ">=5.3.3",
