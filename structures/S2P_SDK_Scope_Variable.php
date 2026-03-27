@@ -231,7 +231,7 @@ class S2P_SDK_Scope_Variable extends S2P_SDK_Language
         return $current_value;
     }
 
-    public function nullify(?array $definition = null, array $params = []) : ?array
+    public function nullify(?array $definition = null, array $params = [])
     {
         if (!isset($params['check_external_names'])) {
             $params['check_external_names'] = true;
