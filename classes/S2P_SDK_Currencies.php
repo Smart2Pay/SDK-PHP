@@ -1,10 +1,9 @@
 <?php
-
 namespace S2P_SDK;
 
 class S2P_SDK_Currencies extends S2P_SDK_Language
 {
-    private static $CURRENCIES_ARR = array(
+    private static $CURRENCIES_ARR = [
         'AED' => 'UAE Dirham',
         'AFN' => 'Afghanistan Afghanis',
         'ALL' => 'Lek',
@@ -208,59 +207,60 @@ class S2P_SDK_Currencies extends S2P_SDK_Language
         'ZMK' => 'Zambian Kwacha',
         'ZMW' => 'Zambia Kwacha',
         'ZWD' => 'Zimbabwe Dollar',
-    );
+    ];
 
     public static function get_currencies()
     {
         static $sorted = false;
 
-        if( $sorted === false )
-        {
-            asort( self::$CURRENCIES_ARR );
+        if ($sorted === false) {
+            asort(self::$CURRENCIES_ARR);
             $sorted = true;
         }
 
         return self::$CURRENCIES_ARR;
     }
 
-    public static function valid_currency_arr( $cur_arr )
+    public static function valid_currency_arr($cur_arr)
     {
-        if( empty( $cur_arr ) or !is_array( $cur_arr ) )
+        if (empty($cur_arr) || !is_array($cur_arr)) {
             return false;
+        }
 
         $all_currencies = self::get_currencies();
-        $return_arr = array();
-        foreach( $cur_arr as $currency_iso )
-        {
-            $currency_iso = strtoupper( trim( $currency_iso ) );
-            if( empty( $all_currencies[$currency_iso] ) )
+        $return_arr = [];
+        foreach ($cur_arr as $currency_iso) {
+            $currency_iso = strtoupper(trim($currency_iso));
+            if (empty($all_currencies[$currency_iso])) {
                 continue;
+            }
 
             $return_arr[$currency_iso] = $all_currencies[$currency_iso];
         }
 
-        return (empty( $return_arr )?false:$return_arr);
+        return empty($return_arr) ? false : $return_arr;
     }
 
-    public static function valid_currency( $cur )
+    public static function valid_currency($cur)
     {
-        if( empty( $cur )
-         or !($currencies_arr = self::get_currencies()) or empty( $currencies_arr[$cur] ) )
+        if (empty($cur)
+         || !($currencies_arr = self::get_currencies()) || empty($currencies_arr[$cur])) {
             return false;
+        }
 
         return $currencies_arr[$cur];
     }
 
-    public static function guess_from_term( $term )
+    public static function guess_from_term($term)
     {
         $all_terms_arr = self::get_currencies();
 
-        $found_terms = array();
-        foreach( $all_terms_arr as $key => $val )
-        {
-            if( stristr( $key, $term ) === false
-             or stristr( $val, $term ) === false )
+        $found_terms = [];
+        foreach ($all_terms_arr as $key => $val) {
+            if (stristr($key, $term) === false
+             || stristr($val, $term) === false) {
                 continue;
+            }
 
             $found_terms[$key] = $val;
         }

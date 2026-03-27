@@ -1,65 +1,62 @@
 <?php
-
 namespace S2P_SDK;
 
 class S2P_SDK_Structure_3D_Secure_Data extends S2P_SDK_Scope_Structure
 {
     /**
-     * Function should return array with full variable definition
-     * @return array
+     * @inheritdoc
      */
-    public function get_definition()
+    public function get_definition() : array
     {
-        return array(
-            'name' => '3dsecuredata',
+        return [
+            'name'          => '3dsecuredata',
             'external_name' => '3DSecureData',
-            'type' => S2P_SDK_VTYPE_BLOB,
-            'structure' => $this->get_structure_definition(),
-        );
+            'type'          => S2P_SDK_VTYPE_BLOB,
+            'structure'     => $this->get_structure_definition(),
+        ];
     }
 
     /**
-     * @inheritDoc
+     * @inheritdoc
      */
-    public function get_structure_definition()
+    public function get_structure_definition() : array
     {
-        return array(
-            array(
-                'name' => 'authenticationstatus',
+        return [
+            [
+                'name'          => 'authenticationstatus',
                 'external_name' => 'AuthenticationStatus',
-                'display_name' => self::s2p_t( 'Authentication status' ),
-                'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
-            ),
-            array(
-                'name' => 'eci',
+                'display_name'  => self::s2p_t('Authentication status'),
+                'type'          => S2P_SDK_VTYPE_STRING,
+                'default'       => '',
+            ],
+            [
+                'name'          => 'eci',
                 'external_name' => 'ECI',
-                'display_name' => self::s2p_t( 'ECI' ),
-                'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
-            ),
-            array(
-                'name' => 'cavv',
+                'display_name'  => self::s2p_t('ECI'),
+                'type'          => S2P_SDK_VTYPE_STRING,
+                'default'       => '',
+            ],
+            [
+                'name'          => 'cavv',
                 'external_name' => 'CAVV',
-                'display_name' => self::s2p_t( 'CAVV' ),
-                'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
-            ),
-            array(
-                'name' => 'dsid',
+                'display_name'  => self::s2p_t('CAVV'),
+                'type'          => S2P_SDK_VTYPE_STRING,
+                'default'       => '',
+            ],
+            [
+                'name'          => 'dsid',
                 'external_name' => 'DSID',
-                'display_name' => self::s2p_t( 'DSID' ),
-                'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
-            ),
-            array(
-                'name' => '3dsecureversion',
+                'display_name'  => self::s2p_t('DSID'),
+                'type'          => S2P_SDK_VTYPE_STRING,
+                'default'       => '',
+            ],
+            [
+                'name'          => '3dsecureversion',
                 'external_name' => '3DSecureVersion',
-                'display_name' => self::s2p_t( '3D secure version' ),
-                'type' => S2P_SDK_VTYPE_STRING,
-                'default' => '',
-            ),
-        );
+                'display_name'  => self::s2p_t('3D secure version'),
+                'type'          => S2P_SDK_VTYPE_STRING,
+                'default'       => '',
+            ],
+        ];
     }
-
 }

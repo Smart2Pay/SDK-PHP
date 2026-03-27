@@ -1,18 +1,18 @@
 <?php
+
 /**
  * Created by PhpStorm.
  * User: andy
  * Date: 16.03.2015
  * Time: 14:30
  */
-
 namespace S2P_SDK;
 
 class S2P_SDK_Language extends S2P_SDK_Error
 {
-    const LANG_EN = 'en', LANG_RO = 'ro';
+    public const LANG_EN = 'en', LANG_RO = 'ro';
 
-    /** @var S2P_SDK_Language_Container $lang_callable_obj */
+    /** @var S2P_SDK_Language_Container */
     private static $lang_callable_obj = false;
 
     /**
@@ -20,10 +20,11 @@ class S2P_SDK_Language extends S2P_SDK_Error
      *
      * @return S2P_SDK_Language_Container
      */
-    static function language_container()
+    public static function language_container()
     {
-        if( empty( self::$lang_callable_obj ) )
+        if (empty(self::$lang_callable_obj)) {
             self::$lang_callable_obj = new S2P_SDK_Language_Container();
+        }
 
         return self::$lang_callable_obj;
     }
@@ -40,9 +41,9 @@ class S2P_SDK_Language extends S2P_SDK_Error
      * @param bool $enabled Whether multi language should be enabled or not
      * @return bool Returns multi language enabled value currently set
      */
-    public static function set_multi_language( $enabled )
+    public static function set_multi_language($enabled)
     {
-        return self::language_container()->set_multi_language( $enabled );
+        return self::language_container()->set_multi_language($enabled);
     }
 
     /**
@@ -59,9 +60,9 @@ class S2P_SDK_Language extends S2P_SDK_Error
      *
      * @return bool Returns true on success or false on falure
      */
-    public static function add_language_files( $lang, $files_arr )
+    public static function add_language_files($lang, $files_arr)
     {
-        return self::language_container()->add_language_files( $lang, $files_arr );
+        return self::language_container()->add_language_files($lang, $files_arr);
     }
 
     /**
@@ -72,9 +73,9 @@ class S2P_SDK_Language extends S2P_SDK_Error
      *
      * @return bool True if adding language was successful, false otherwise
      */
-    public static function define_language( $lang, array $lang_params )
+    public static function define_language($lang, array $lang_params)
     {
-        return self::language_container()->define_language( $lang, $lang_params );
+        return self::language_container()->define_language($lang, $lang_params);
     }
 
     /**
@@ -83,17 +84,18 @@ class S2P_SDK_Language extends S2P_SDK_Error
      *
      * @return string Translated string
      */
-    public static function s2p_t( $index )
+    public static function s2p_t($index)
     {
         $numargs = func_num_args();
         $arg_list = func_get_args();
 
-        if( $numargs > 1 )
-            @array_shift( $arg_list );
-        else
-            $arg_list = array();
+        if ($numargs > 1) {
+            @array_shift($arg_list);
+        } else {
+            $arg_list = [];
+        }
 
-        return self::language_container()->s2p_t( $index, $arg_list );
+        return self::language_container()->s2p_t($index, $arg_list);
     }
 
     /**
@@ -104,18 +106,18 @@ class S2P_SDK_Language extends S2P_SDK_Error
      *
      * @return string Translated text
      */
-    public static function s2p_tl( $index, $lang )
+    public static function s2p_tl($index, $lang)
     {
         $numargs = func_num_args();
         $arg_list = func_get_args();
 
-        if( $numargs > 2 )
-        {
-            @array_shift( $arg_list );
-            @array_shift( $arg_list );
-        } else
-            $arg_list = array();
+        if ($numargs > 2) {
+            @array_shift($arg_list);
+            @array_shift($arg_list);
+        } else {
+            $arg_list = [];
+        }
 
-        return self::language_container()->s2p_tl( $index, $lang, $arg_list );
+        return self::language_container()->s2p_tl($index, $lang, $arg_list);
     }
 }
