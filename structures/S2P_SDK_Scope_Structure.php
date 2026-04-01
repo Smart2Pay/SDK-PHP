@@ -5,8 +5,8 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
 {
     public const ERR_JSON = 1, ERR_VARIABLE = 2, ERR_DEFINITION = 3, ERR_MERGE = 4;
 
-    /** @var S2P_SDK_Scope_Variable */
-    protected $_var;
+    /** @var null|S2P_SDK_Scope_Variable */
+    protected $_var = null;
 
     /**
      * Structures can be merged to parse responses containing more defined structures or to create requests containing
@@ -162,7 +162,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
         $new_definition = [];
         if (!empty($definition_arr['structure']) && is_array($definition_arr['structure'])) {
             foreach ($definition_arr['structure'] as $element_definition) {
-                if ($definition_arr['type'] == S2P_SDK_Scope_Variable::TYPE_BLOB_GROUP) {
+                if ($definition_arr['type'] === S2P_SDK_Scope_Variable::TYPE_BLOB_GROUP) {
                     $new_definition = array_merge($new_definition, $this->get_structure_with_external_keys($element_definition, false));
                 } else {
                     if (empty($new_definition[$definition_arr['external_name']])) {
@@ -441,7 +441,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
         return @json_encode($parsed_arr);
     }
 
-    public function scope_to_path_objects(?array $scope_arr = null, $params = false)
+    public function scope_to_path_objects($scope_arr = false, $params = false)
     {
         if (empty($params) || !is_array($params)) {
             $params = [];
@@ -457,7 +457,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
             $params['include_nodes_to_paths'] = false;
         }
 
-        if ($scope_arr === null) {
+        if ($scope_arr === false) {
             if (empty($params['scope_external_names'])) {
                 $extraction_arr = [];
                 $extraction_arr['nullify_full_object'] = true;
@@ -570,8 +570,8 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
 
         foreach ($definition_arr as $node_arr) {
             $current_path = $params['current_path'];
-            if ($node_arr['type'] != S2P_SDK_Scope_Variable::TYPE_BLOB_GROUP) {
-                $current_path .= ($params['current_path'] != '' ? '.' : '').$node_arr[$check_key];
+            if ($node_arr['type'] !== S2P_SDK_Scope_Variable::TYPE_BLOB_GROUP) {
+                $current_path .= ($params['current_path'] !== '' ? '.' : '').$node_arr[$check_key];
             }
 
             if ($node_arr['type'] !== S2P_SDK_Scope_Variable::TYPE_BLOB_GROUP
