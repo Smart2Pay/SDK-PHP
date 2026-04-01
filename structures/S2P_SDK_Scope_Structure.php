@@ -6,7 +6,7 @@ abstract class S2P_SDK_Scope_Structure extends S2P_SDK_Language
     public const ERR_JSON = 1, ERR_VARIABLE = 2, ERR_DEFINITION = 3, ERR_MERGE = 4;
 
     /** @var null|S2P_SDK_Scope_Variable */
-    protected $_var = null;
+    protected $_var;
 
     /**
      * Structures can be merged to parse responses containing more defined structures or to create requests containing
