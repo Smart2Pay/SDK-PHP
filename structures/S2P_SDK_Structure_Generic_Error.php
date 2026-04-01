@@ -1,29 +1,26 @@
 <?php
-
 namespace S2P_SDK;
 
 class S2P_SDK_Structure_Generic_Error extends S2P_SDK_Scope_Structure
 {
     /**
-     * Function should return array with full variable definition
-     * @return array
+     * @inheritdoc
      */
-    public function get_definition()
+    public function get_definition() : array
     {
-        return array(
-            'name' => 'message',
+        return [
+            'name'          => 'message',
             'external_name' => 'Message',
-            'type' => S2P_SDK_VTYPE_STRING,
-            'default' => '',
-        );
+            'type'          => S2P_SDK_VTYPE_STRING,
+            'default'       => '',
+        ];
     }
 
     /**
-     * Function should return structure definition for blobs or array variables
-     * @return array
+     * @inheritdoc
      */
-    public function get_structure_definition()
+    public function get_structure_definition() : array
     {
-        return null;
+        return [];
     }
 }

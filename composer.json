@@ -4,6 +4,7 @@
   "version": "3.0.12",
   "description": "Smart2Pay SDK - enable payments on your site easily 200+ methods, 80+ countries",
   "keywords": [
+    "Nuvei",
     "Smart2Pay",
     "payments",
     "alternative payments",
@@ -23,7 +24,7 @@
     "docs": "https://docs-apm.nuvei.com"
   },
   "require": {
-    "php": ">=5.3.3",
+    "php": ">=7.3.0",
     "ext-curl": "*",
     "ext-json": "*",
     "ext-mbstring": "*"

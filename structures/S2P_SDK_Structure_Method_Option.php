@@ -1,57 +1,53 @@
 <?php
-
 namespace S2P_SDK;
 
 class S2P_SDK_Structure_Method_Option extends S2P_SDK_Scope_Structure
 {
     /**
-     * Function should return array with full variable definition
-     * @return array
+     * @inheritdoc
      */
-    public function get_definition()
+    public function get_definition() : array
     {
-        return array(
-            'name' => 'methodoption',
+        return [
+            'name'          => 'methodoption',
             'external_name' => 'MethodOption',
-            'type' => S2P_SDK_VTYPE_BLOB,
-            'structure' => $this->get_structure_definition(),
-        );
+            'type'          => S2P_SDK_VTYPE_BLOB,
+            'structure'     => $this->get_structure_definition(),
+        ];
     }
 
     /**
-     * Function should return structure definition for blobs or array variables
-     * @return array
+     * @inheritdoc
      */
-    public function get_structure_definition()
+    public function get_structure_definition() : array
     {
-        return array(
-            array(
-                'name' => 'id',
+        return [
+            [
+                'name'          => 'id',
                 'external_name' => 'ID',
-                'type' => S2P_SDK_VTYPE_INT,
-                'regexp' => '^\d{1,12}$',
-            ),
-            array(
-                'name' => 'displayname',
+                'type'          => S2P_SDK_VTYPE_INT,
+                'regexp'        => '^\d{1,12}$',
+            ],
+            [
+                'name'          => 'displayname',
                 'external_name' => 'DisplayName',
-                'type' => S2P_SDK_VTYPE_STRING,
-            ),
-            array(
-                'name' => 'description',
+                'type'          => S2P_SDK_VTYPE_STRING,
+            ],
+            [
+                'name'          => 'description',
                 'external_name' => 'Description',
-                'type' => S2P_SDK_VTYPE_STRING,
-            ),
-            array(
-                'name' => 'logourl',
+                'type'          => S2P_SDK_VTYPE_STRING,
+            ],
+            [
+                'name'          => 'logourl',
                 'external_name' => 'LogoURL',
-                'type' => S2P_SDK_VTYPE_STRING,
-            ),
-            array(
-                'name' => 'guaranteed',
+                'type'          => S2P_SDK_VTYPE_STRING,
+            ],
+            [
+                'name'          => 'guaranteed',
                 'external_name' => 'Guaranteed',
-                'type' => S2P_SDK_VTYPE_BOOL,
-            ),
-       );
+                'type'          => S2P_SDK_VTYPE_BOOL,
+            ],
+        ];
     }
-
 }

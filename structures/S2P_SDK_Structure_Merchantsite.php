@@ -1,102 +1,98 @@
 <?php
-
 namespace S2P_SDK;
 
 class S2P_SDK_Structure_Merchantsite extends S2P_SDK_Scope_Structure
 {
     /**
-     * Function should return array with full variable definition
-     * @return array
+     * @inheritdoc
      */
-    public function get_definition()
+    public function get_definition() : array
     {
-        return array(
-            'name' => 'merchantsite',
+        return [
+            'name'          => 'merchantsite',
             'external_name' => 'MerchantSite',
-            'type' => S2P_SDK_VTYPE_BLOB,
-            'structure' => $this->get_structure_definition(),
-        );
+            'type'          => S2P_SDK_VTYPE_BLOB,
+            'structure'     => $this->get_structure_definition(),
+        ];
     }
 
     /**
-     * Function should return structure definition for blobs or array variables
-     * @return array
+     * @inheritdoc
      */
-    public function get_structure_definition()
+    public function get_structure_definition() : array
     {
         $site_details_obj = new S2P_SDK_Structure_Merchantsite_Details();
 
-        return array(
-            array(
-                'name' => 'id',
+        return [
+            [
+                'name'          => 'id',
                 'external_name' => 'ID',
-                'display_name' => self::s2p_t( 'Site ID' ),
-                'type' => S2P_SDK_VTYPE_INT,
-                'regexp' => '^\d{1,12}$',
-            ),
-            array(
-                'name' => 'merchantid',
+                'display_name'  => self::s2p_t('Site ID'),
+                'type'          => S2P_SDK_VTYPE_INT,
+                'regexp'        => '^\d{1,12}$',
+            ],
+            [
+                'name'          => 'merchantid',
                 'external_name' => 'MerchantID',
-                'display_name' => self::s2p_t( 'ID of merchant that owns the site' ),
-                'default' => 0,
-                'type' => S2P_SDK_VTYPE_INT,
-                'regexp' => '^\d{1,12}$',
-            ),
-            array(
-                'name' => 'created',
+                'display_name'  => self::s2p_t('ID of merchant that owns the site'),
+                'default'       => 0,
+                'type'          => S2P_SDK_VTYPE_INT,
+                'regexp'        => '^\d{1,12}$',
+            ],
+            [
+                'name'          => 'created',
                 'external_name' => 'Created',
-                'display_name' => self::s2p_t( 'Site date of creation' ),
-                'type' => S2P_SDK_VTYPE_DATETIME,
-            ),
-            array(
-                'name' => 'url',
+                'display_name'  => self::s2p_t('Site date of creation'),
+                'type'          => S2P_SDK_VTYPE_DATETIME,
+            ],
+            [
+                'name'          => 'url',
                 'external_name' => 'URL',
-                'display_name' => self::s2p_t( 'Site URL' ),
-                'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^(http?s?:\/\/)?(www)?(([0-9a-zA-Z]+)([\-_])*)+(\.([\-_0-9a-zA-Z]+)(\/)*)+(([\/?#\?&=\-_0-9a-zA-Z])\.?)*$',
-            ),
-            array(
-                'name' => 'active',
+                'display_name'  => self::s2p_t('Site URL'),
+                'type'          => S2P_SDK_VTYPE_STRING,
+                'regexp'        => '^(http?s?:\/\/)?(www)?(([0-9a-zA-Z]+)([\-_])*)+(\.([\-_0-9a-zA-Z]+)(\/)*)+(([\/?#\?&=\-_0-9a-zA-Z])\.?)*$',
+            ],
+            [
+                'name'          => 'active',
                 'external_name' => 'Active',
-                'display_name' => self::s2p_t( 'Site status' ),
-                'type' => S2P_SDK_VTYPE_BOOL,
-            ),
-            array(
-                'name' => 'notificationurl',
+                'display_name'  => self::s2p_t('Site status'),
+                'type'          => S2P_SDK_VTYPE_BOOL,
+            ],
+            [
+                'name'          => 'notificationurl',
                 'external_name' => 'NotificationURL',
-                'display_name' => self::s2p_t( 'Notification URL' ),
-                'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^(http?s?:\/\/)?(www)?(([0-9a-zA-Z]+)([\-_])*)+(\.([\-_0-9a-zA-Z]+)(\/)*)+(([\/?#\?&=\-_0-9a-zA-Z])\.?)*$',
-            ),
-            array(
-                'name' => 'alias',
+                'display_name'  => self::s2p_t('Notification URL'),
+                'type'          => S2P_SDK_VTYPE_STRING,
+                'regexp'        => '^(http?s?:\/\/)?(www)?(([0-9a-zA-Z]+)([\-_])*)+(\.([\-_0-9a-zA-Z]+)(\/)*)+(([\/?#\?&=\-_0-9a-zA-Z])\.?)*$',
+            ],
+            [
+                'name'          => 'alias',
                 'external_name' => 'Alias',
-                'display_name' => self::s2p_t( 'Site alias' ),
-                'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^.{1,255}$',
-            ),
-            array(
-                'name' => 'apikey',
+                'display_name'  => self::s2p_t('Site alias'),
+                'type'          => S2P_SDK_VTYPE_STRING,
+                'regexp'        => '^.{1,255}$',
+            ],
+            [
+                'name'          => 'apikey',
                 'external_name' => 'ApiKey',
-                'display_name' => self::s2p_t( 'Site REST API key' ),
-                'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^.+$',
-            ),
-            array(
-                'name' => 'iplist',
+                'display_name'  => self::s2p_t('Site REST API key'),
+                'type'          => S2P_SDK_VTYPE_STRING,
+                'regexp'        => '^.+$',
+            ],
+            [
+                'name'          => 'iplist',
                 'external_name' => 'IPList',
-                'display_name' => self::s2p_t( 'IPs Whitelist' ),
-                'type' => S2P_SDK_VTYPE_STRING,
-                'regexp' => '^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3},?)?|^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2},?)?|^((\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})-(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}),?)?$',
-            ),
-            array(
-                'name' => 'details',
+                'display_name'  => self::s2p_t('IPs Whitelist'),
+                'type'          => S2P_SDK_VTYPE_STRING,
+                'regexp'        => '^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3},?)?|^(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\/\d{1,2},?)?|^((\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})-(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}),?)?$',
+            ],
+            [
+                'name'          => 'details',
                 'external_name' => 'Details',
-                'type' => S2P_SDK_VTYPE_BLOB,
-                'default' => null,
-                'structure' => $site_details_obj->get_structure_definition()
-            ),
-       );
+                'type'          => S2P_SDK_VTYPE_BLOB,
+                'default'       => null,
+                'structure'     => $site_details_obj->get_structure_definition(),
+            ],
+        ];
     }
-
 }
