@@ -1,10 +1,9 @@
 <?php
-
 namespace S2P_SDK;
 
 class S2P_SDK_Countries extends S2P_SDK_Language
 {
-    private static $COUNTRIES_ARR = array(
+    private static $COUNTRIES_ARR = [
         'AD' => 'Andorra',
         'AE' => 'United Arab Emirates',
         'AF' => 'Afghanistan',
@@ -251,59 +250,60 @@ class S2P_SDK_Countries extends S2P_SDK_Language
         'ZM' => 'Zambia',
         'ZW' => 'Zimbabwe',
         'AA' => 'International',
-    );
+    ];
 
     public static function get_countries()
     {
         static $sorted = false;
 
-        if( $sorted === false )
-        {
-            asort( self::$COUNTRIES_ARR );
+        if ($sorted === false) {
+            asort(self::$COUNTRIES_ARR);
             $sorted = true;
         }
 
         return self::$COUNTRIES_ARR;
     }
 
-    public static function valid_country_arr( $countries_arr )
+    public static function valid_country_arr($countries_arr)
     {
-        if( empty( $countries_arr ) or !is_array( $countries_arr ) )
+        if (empty($countries_arr) || !is_array($countries_arr)) {
             return false;
+        }
 
         $all_countries = self::get_countries();
-        $return_arr = array();
-        foreach( $countries_arr as $country_iso )
-        {
-            $country_iso = strtoupper( trim( $country_iso ) );
-            if( empty( $all_countries[$country_iso] ) )
+        $return_arr = [];
+        foreach ($countries_arr as $country_iso) {
+            $country_iso = strtoupper(trim($country_iso));
+            if (empty($all_countries[$country_iso])) {
                 continue;
+            }
 
             $return_arr[$country_iso] = $all_countries[$country_iso];
         }
 
-        return (empty( $return_arr )?false:$return_arr);
+        return empty($return_arr) ? false : $return_arr;
     }
 
-    public static function valid_country( $country )
+    public static function valid_country($country)
     {
-        if( empty( $country )
-         or !($countries_arr = self::get_countries()) or empty( $countries_arr[$country] ) )
+        if (empty($country)
+         || !($countries_arr = self::get_countries()) || empty($countries_arr[$country])) {
             return false;
+        }
 
         return $countries_arr[$country];
     }
 
-    public static function guess_from_term( $term )
+    public static function guess_from_term($term)
     {
         $all_terms_arr = self::get_countries();
 
-        $found_terms = array();
-        foreach( $all_terms_arr as $key => $val )
-        {
-            if( stristr( $key, $term ) === false
-             or stristr( $val, $term ) === false )
+        $found_terms = [];
+        foreach ($all_terms_arr as $key => $val) {
+            if (stristr($key, $term) === false
+             || stristr($val, $term) === false) {
                 continue;
+            }
 
             $found_terms[$key] = $val;
         }

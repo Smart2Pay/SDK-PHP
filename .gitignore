@@ -14,3 +14,4 @@ config.inc.php
 log_demo.log
 log_return.log
 test.php
+/.php-cs-fixer.cache

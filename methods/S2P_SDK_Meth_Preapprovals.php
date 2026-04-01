@@ -1,35 +1,20 @@
 <?php
-
 namespace S2P_SDK;
 
 class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
 {
-    const ERR_REASON_CODE = 300, ERR_EMPTY_ID = 301;
+    public const ERR_REASON_CODE = 300, ERR_EMPTY_ID = 301;
 
-    const FUNC_INIT_PREAPPROVAL = 'preapproval_init', FUNC_LIST_ALL = 'list_all', FUNC_DETAILS = 'preapproval_details',
-          FUNC_PAYMENTS = 'preapproval_payments', FUNC_CLOSE = 'preapproval_close';
+    public const FUNC_INIT_PREAPPROVAL = 'preapproval_init', FUNC_LIST_ALL = 'list_all', FUNC_DETAILS = 'preapproval_details',
+        FUNC_PAYMENTS = 'preapproval_payments', FUNC_CLOSE = 'preapproval_close';
 
-    const STATUS_PENDING = 1, STATUS_OPEN = 2, STATUS_CLOSEDBYCUSTOMER = 4;
+    public const STATUS_PENDING = 1, STATUS_OPEN = 2, STATUS_CLOSEDBYCUSTOMER = 4;
 
-    private static $STATUSES_ARR = array(
-        self::STATUS_PENDING => 'Pending',
-        self::STATUS_OPEN => 'Open',
+    private static $STATUSES_ARR = [
+        self::STATUS_PENDING          => 'Pending',
+        self::STATUS_OPEN             => 'Open',
         self::STATUS_CLOSEDBYCUSTOMER => 'Closed By Customer',
-    );
-
-    public static function get_statuses()
-    {
-        return self::$STATUSES_ARR;
-    }
-
-    public static function valid_status( $status )
-    {
-        if( empty( $status )
-         or !($statuses_arr = self::get_statuses()) or empty( $statuses_arr[$status] ) )
-            return false;
-
-        return $statuses_arr[$status];
-    }
+    ];
 
     /**
      * @inheritdoc
@@ -42,153 +27,133 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
     /**
      * @inheritdoc
      */
-    public function default_functionality()
+    public function default_functionality() : string
     {
         return self::FUNC_LIST_ALL;
     }
 
-    public function get_notification_types()
+    /**
+     * @inheritdoc
+     */
+    public function get_notification_types() : ?array
     {
         $preapproval_notification_obj = new S2P_SDK_Structure_Preapproval_Response();
 
-        return array(
-            'Preapproval' => array(
-
+        return [
+            'Preapproval' => [
                 'request_structure' => $preapproval_notification_obj,
-
-            )
-        );
+            ],
+        ];
     }
 
     /**
-     * This method should be overridden by methods which have actions to be taken after we receive response from server
-     *
-     * @param array $call_result
-     * @param array $params
-     *
-     * @return array Returns array with finalize action details
+     * @inheritdoc
      */
-    public function finalize( $call_result, $params )
+    public function finalize(array $call_result, array $params = []) : array
     {
         $return_arr = self::default_finalize_result();
 
-        if( !($call_result = S2P_SDK_Rest_API::validate_call_result( $call_result ))
-         or empty( $call_result['response']['func'] ) )
+        if (!($call_result = S2P_SDK_Rest_API::validate_call_result($call_result))
+         || empty($call_result['response']['func'])) {
             return $return_arr;
+        }
 
-        switch( $call_result['response']['func'] )
-        {
+        switch ($call_result['response']['func']) {
             case self::FUNC_INIT_PREAPPROVAL:
-                if( !empty( $call_result['response']['response_array']['preapproval'] )
-                and !empty( $call_result['response']['response_array']['preapproval']['redirecturl'] ) )
-                {
+                if (!empty($call_result['response']['response_array']['preapproval']['redirecturl'])) {
                     $return_arr['should_redirect'] = true;
                     $return_arr['redirect_to'] = $call_result['response']['response_array']['preapproval']['redirecturl'];
                 }
-            break;
+                break;
         }
 
         return $return_arr;
     }
 
     /**
-     * This method should be overridden by methods which have to check any errors in response data
-     *
-     * @param array $response_data
-     *
-     * @return bool Returns true if response doesn't have errors
+     * @inheritdoc
      */
-    public function validate_response( $response_data )
+    public function validate_response(array $response_data) : bool
     {
-        $response_data = self::validate_response_data( $response_data );
+        $response_data = self::validate_response_data($response_data);
 
-        switch( $response_data['func'] )
-        {
+        switch ($response_data['func']) {
             case self::FUNC_INIT_PREAPPROVAL:
             case self::FUNC_CLOSE:
-                if( !empty( $response_data['response_array']['preapproval'] ) )
-                {
-                    if( !empty( $response_data['response_array']['preapproval']['status'] )
-                    and is_array( $response_data['response_array']['preapproval']['status'] ) )
-                    {
-                        if( !empty( $response_data['response_array']['preapproval']['status']['reasons'] )
-                        and is_array( $response_data['response_array']['preapproval']['status']['reasons'] ) )
-                        {
-                            $error_msg = '';
-                            foreach( $response_data['response_array']['preapproval']['status']['reasons'] as $reason_arr )
-                            {
-                                if( ( $error_reason = ( ! empty( $reason_arr['code'] ) ? $reason_arr['code'] . ' - ' : '' ) . ( ! empty( $reason_arr['info'] ) ? $reason_arr['info'] : '' ) ) != '' )
-                                    $error_msg .= $error_reason;
-                            }
+                if (!empty($response_data['response_array']['preapproval'])) {
+                    if (!empty($response_data['response_array']['preapproval']['status']['reasons'])
+                    && is_array($response_data['response_array']['preapproval']['status']['reasons'])) {
+                        $error_msg = '';
+                        foreach ($response_data['response_array']['preapproval']['status']['reasons'] as $reason_arr) {
+                            $error_msg .= (!empty($reason_arr['code']) ? $reason_arr['code'].' - ' : '')
+                                          .(!empty($reason_arr['info']) ? $reason_arr['info'] : '');
+                        }
 
-                            if( !empty( $error_msg ) )
-                            {
-                                $error_msg = self::s2p_t( 'Returned by server: %s', $error_msg );
-                                $this->set_error( self::ERR_REASON_CODE, $error_msg );
+                        if ($error_msg !== '') {
+                            $error_msg = self::s2p_t('Returned by server: %s', $error_msg);
+                            $this->set_error(self::ERR_REASON_CODE, $error_msg);
 
-                                return false;
-                            }
+                            return false;
                         }
                     }
 
-                    if( empty( $response_data['response_array']['preapproval']['id'] ) )
-                    {
-                        $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'Preapproval ID is empty.' ) );
+                    if (empty($response_data['response_array']['preapproval']['id'])) {
+                        $this->set_error(self::ERR_EMPTY_ID, self::s2p_t('Preapproval ID is empty.'));
+
                         return false;
                     }
 
-                    if( $response_data['func'] == self::FUNC_CLOSE
-                    and isset( $response_data['response_array']['preapproval']['status']['id'] )
-                    and $response_data['response_array']['preapproval']['status']['id'] != self::STATUS_CLOSEDBYCUSTOMER )
-                    {
-                       $this->set_error( self::ERR_EMPTY_ID, self::s2p_t( 'Preapproval not closed.' ) );
-                       return false;
+                    if ($response_data['func'] == self::FUNC_CLOSE
+                    && isset($response_data['response_array']['preapproval']['status']['id'])
+                    && $response_data['response_array']['preapproval']['status']['id'] != self::STATUS_CLOSEDBYCUSTOMER) {
+                        $this->set_error(self::ERR_EMPTY_ID, self::s2p_t('Preapproval not closed.'));
+
+                        return false;
                     }
                 }
-            break;
+                break;
 
             case self::FUNC_PAYMENTS:
-                if( !empty( $response_data['response_array']['payment'] ) )
-                {
-                    if( !empty( $response_data['response_array']['payment']['status'] )
-                    and is_array( $response_data['response_array']['payment']['status'] ) )
-                    {
-                        if( !empty( $response_data['response_array']['payment']['status']['reasons'] )
-                        and is_array( $response_data['response_array']['payment']['status']['reasons'] ) )
-                        {
+                if (!empty($response_data['response_array']['payment'])) {
+                    if (!empty($response_data['response_array']['payment']['status'])
+                    && is_array($response_data['response_array']['payment']['status'])) {
+                        if (!empty($response_data['response_array']['payment']['status']['reasons'])
+                        && is_array($response_data['response_array']['payment']['status']['reasons'])) {
                             $error_msg = '';
-                            foreach( $response_data['response_array']['payment']['status']['reasons'] as $reason_arr )
-                            {
-                                if( ( $error_reason = ( ! empty( $reason_arr['code'] ) ? $reason_arr['code'] . ' - ' : '' ) . ( ! empty( $reason_arr['info'] ) ? $reason_arr['info'] : '' ) ) != '' )
+                            foreach ($response_data['response_array']['payment']['status']['reasons'] as $reason_arr) {
+                                if (($error_reason = (!empty($reason_arr['code']) ? $reason_arr['code'].' - ' : '').(!empty($reason_arr['info']) ? $reason_arr['info'] : '')) != '') {
                                     $error_msg .= $error_reason;
+                                }
                             }
 
-                            if( !empty( $error_msg ) )
-                            {
-                                $error_msg = self::s2p_t( 'Returned by server: %s', $error_msg );
-                                $this->set_error( self::ERR_REASON_CODE, $error_msg );
+                            if (!empty($error_msg)) {
+                                $error_msg = self::s2p_t('Returned by server: %s', $error_msg);
+                                $this->set_error(self::ERR_REASON_CODE, $error_msg);
 
                                 return false;
                             }
                         }
                     }
                 }
-            break;
+                break;
         }
 
         return true;
     }
 
-    public function get_method_details()
+    public function get_method_details() : array
     {
-        return array(
-            'method' => 'preapprovals',
-            'name' => self::s2p_t( 'Manage Preapprovals' ),
-            'short_description' => self::s2p_t( 'This method manages preapprovals used in recurring payments' ),
-        );
+        return [
+            'method'            => 'preapprovals',
+            'name'              => self::s2p_t('Manage Preapprovals'),
+            'short_description' => self::s2p_t('This method manages preapprovals used in recurring payments'),
+        ];
     }
 
-    public function get_functionalities()
+    /**
+     * @inheritdoc
+     */
+    public function get_functionalities() : array
     {
         $preapproval_request_obj = new S2P_SDK_Structure_Preapproval_Request();
         $preapproval_response_obj = new S2P_SDK_Structure_Preapproval_Response();
@@ -196,141 +161,155 @@ class S2P_SDK_Meth_Preapprovals extends S2P_SDK_Method
         $payment_response_obj = new S2P_SDK_Structure_Payment_Response();
         $payment_response_list_obj = new S2P_SDK_Structure_Payment_Response_List();
 
-        return array(
-
-            self::FUNC_LIST_ALL => array(
-                'name' => self::s2p_t( 'List Preapprovals' ),
-                'url_suffix' => '/v1/preapprovals/',
+        return [
+            self::FUNC_LIST_ALL => [
+                'name'        => self::s2p_t('List Preapprovals'),
+                'url_suffix'  => '/v1/preapprovals/',
                 'http_method' => 'GET',
 
-                'mandatory_in_response' => array(
-                    'preapprovals' => array(),
-                ),
+                'mandatory_in_response' => [
+                    'preapprovals' => [],
+                ],
 
                 'response_structure' => $preapproval_response_list_obj,
-            ),
+            ],
 
-            self::FUNC_CLOSE => array(
-                'name' => self::s2p_t( 'Close a Preapproval' ),
-                'url_suffix' => '/v1/preapprovals/{*ID*}',
+            self::FUNC_CLOSE => [
+                'name'        => self::s2p_t('Close a Preapproval'),
+                'url_suffix'  => '/v1/preapprovals/{*ID*}',
                 'http_method' => 'DELETE',
 
-                'get_variables' => array(
-                    array(
-                        'name' => 'id',
-                        'display_name' => self::s2p_t( 'Preapproval ID' ),
-                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
-                        'default' => 0,
-                        'mandatory' => true,
-                        'move_in_url' => true,
-                    ),
-                ),
+                'get_variables' => [
+                    [
+                        'name'         => 'id',
+                        'display_name' => self::s2p_t('Preapproval ID'),
+                        'type'         => S2P_SDK_Scope_Variable::TYPE_LONG,
+                        'default'      => 0,
+                        'mandatory'    => true,
+                        'move_in_url'  => true,
+                    ],
+                ],
 
-                'mandatory_in_response' => array(
-                    'preapproval' => array(),
-                ),
-
-                'response_structure' => $preapproval_response_obj,
-            ),
-
-            self::FUNC_DETAILS => array(
-                'name' => self::s2p_t( 'Preapproval Details' ),
-                'url_suffix' => '/v1/preapprovals/{*ID*}',
-                'http_method' => 'GET',
-
-                'get_variables' => array(
-                    array(
-                        'name' => 'id',
-                        'display_name' => self::s2p_t( 'Preapproval ID' ),
-                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
-                        'default' => 0,
-                        'mandatory' => true,
-                        'move_in_url' => true,
-                    ),
-                ),
-
-                'mandatory_in_response' => array(
-                    'preapproval' => array(),
-                ),
+                'mandatory_in_response' => [
+                    'preapproval' => [],
+                ],
 
                 'response_structure' => $preapproval_response_obj,
-            ),
+            ],
 
-            self::FUNC_PAYMENTS => array(
-                'name' => self::s2p_t( 'Preapproval Payments List' ),
-                'url_suffix' => '/v1/preapprovals/{*ID*}/payments',
+            self::FUNC_DETAILS => [
+                'name'        => self::s2p_t('Preapproval Details'),
+                'url_suffix'  => '/v1/preapprovals/{*ID*}',
                 'http_method' => 'GET',
 
-                'get_variables' => array(
-                    array(
-                        'name' => 'id',
-                        'display_name' => self::s2p_t( 'Preapproval ID' ),
-                        'type' => S2P_SDK_Scope_Variable::TYPE_INT,
-                        'default' => 0,
-                        'mandatory' => true,
-                        'move_in_url' => true,
-                    ),
-                ),
+                'get_variables' => [
+                    [
+                        'name'         => 'id',
+                        'display_name' => self::s2p_t('Preapproval ID'),
+                        'type'         => S2P_SDK_Scope_Variable::TYPE_LONG,
+                        'default'      => 0,
+                        'mandatory'    => true,
+                        'move_in_url'  => true,
+                    ],
+                ],
 
-                'mandatory_in_response' => array(
-                    'payments' => array(),
-                ),
+                'mandatory_in_response' => [
+                    'preapproval' => [],
+                ],
+
+                'response_structure' => $preapproval_response_obj,
+            ],
+
+            self::FUNC_PAYMENTS => [
+                'name'        => self::s2p_t('Preapproval Payments List'),
+                'url_suffix'  => '/v1/preapprovals/{*ID*}/payments',
+                'http_method' => 'GET',
+
+                'get_variables' => [
+                    [
+                        'name'         => 'id',
+                        'display_name' => self::s2p_t('Preapproval ID'),
+                        'type'         => S2P_SDK_Scope_Variable::TYPE_LONG,
+                        'default'      => 0,
+                        'mandatory'    => true,
+                        'move_in_url'  => true,
+                    ],
+                ],
+
+                'mandatory_in_response' => [
+                    'payments' => [],
+                ],
 
                 'response_structure' => $payment_response_list_obj,
 
-                'mandatory_in_error' => array(
-                    'payment' => array(),
-                ),
+                'mandatory_in_error' => [
+                    'payment' => [],
+                ],
 
                 'error_structure' => $payment_response_obj,
-            ),
+            ],
 
-            self::FUNC_INIT_PREAPPROVAL => array(
-                'name' => self::s2p_t( 'Initiate a Preapproval' ),
-                'url_suffix' => '/v1/preapprovals/',
+            self::FUNC_INIT_PREAPPROVAL => [
+                'name'        => self::s2p_t('Initiate a Preapproval'),
+                'url_suffix'  => '/v1/preapprovals/',
                 'http_method' => 'POST',
 
-                'mandatory_in_request' => array(
-                    'Preapproval' => array(
+                'mandatory_in_request' => [
+                    'Preapproval' => [
                         'MerchantPreapprovalID' => '',
-                        'Description' => '',
-                        'ReturnURL' => '',
-                        'MethodID' => 0,
-                        'Customer' => array(
+                        'Description'           => '',
+                        'ReturnURL'             => '',
+                        'MethodID'              => 0,
+                        'Customer'              => [
                             'Email' => '',
-                        ),
-                        'BillingAddress' => array(
+                        ],
+                        'BillingAddress' => [
                             'Country' => '',
-                        ),
-                    ),
-                ),
+                        ],
+                    ],
+                ],
 
-                'hide_in_request' => array(
-                    'Preapproval' => array(
-                        'Customer' => array(
+                'hide_in_request' => [
+                    'Preapproval' => [
+                        'Customer' => [
                             'InputDateTime' => '',
-                        ),
-                        'Created' => '',
+                        ],
+                        'Created'   => '',
                         'Signature' => '',
-                        'ApiKey' => '',
-                        'Details' => '',
-                    ),
-                ),
+                        'ApiKey'    => '',
+                        'Details'   => '',
+                    ],
+                ],
 
                 'request_structure' => $preapproval_request_obj,
 
-                'mandatory_in_response' => array(
-                    'preapproval' => array(),
-                ),
+                'mandatory_in_response' => [
+                    'preapproval' => [],
+                ],
 
                 'response_structure' => $preapproval_response_obj,
 
-                'mandatory_in_error' => array(
-                    'preapproval' => array(),
-                ),
+                'mandatory_in_error' => [
+                    'preapproval' => [],
+                ],
 
                 'error_structure' => $preapproval_response_obj,
-            ),
-       );
+            ],
+        ];
+    }
+
+    public static function get_statuses()
+    {
+        return self::$STATUSES_ARR;
+    }
+
+    public static function valid_status($status)
+    {
+        if (empty($status)
+         || !($statuses_arr = self::get_statuses()) || empty($statuses_arr[$status])) {
+            return false;
+        }
+
+        return $statuses_arr[$status];
     }
 }
